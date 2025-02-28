@@ -33,6 +33,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.example.mydevotional.ReadVerseWithTTS
 import com.example.mydevotional.ui.theme.HomeScreenViewModel
 import java.text.SimpleDateFormat
 import java.util.Calendar
@@ -47,11 +48,6 @@ fun HomeScreen() {
     val selectedDate by viewModel.selectedDate.collectAsState()
 
     Column(Modifier.padding(start = 4.dp, end = 4.dp, top = 32.dp)) {
-       /* EditableFieldDate(
-            value = selectedDate.toString(),
-            onValueChange = { selectedDate?.let { it1 -> viewModel.updateDate(it1) } },
-            label = "Data de Nascimento"
-        )*/
         versiculo?.let { versiculo ->
             Card(
                 modifier = Modifier
@@ -72,17 +68,7 @@ fun HomeScreen() {
                             text = "- ${versiculo.random_verse.book} ${versiculo.random_verse.chapter}:${versiculo.random_verse.verse}",
                             fontStyle = FontStyle.Italic
                         )
-                        IconButton(
-                            onClick = { /* TODO: Implementar a chamada à API do Gemini */ },
-                            modifier = Modifier.padding(8.dp),
-                        ) {
-                            Icon(
-                                imageVector = Icons.Filled.Mic,
-                                contentDescription = "Ler versículo",
-                                modifier = Modifier.size(24.dp),
-                                tint = Color.Red
-                            )
-                        }
+                        ReadVerseWithTTS(versiculo)
                     }
                 }
             }
