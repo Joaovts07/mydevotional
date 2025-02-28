@@ -22,6 +22,10 @@ class HomeScreenViewModel : ViewModel() {
             _versiculo.value = BibleApiClient.buscarVersiculo("João", 3, 16)
         }
     }
+    init {
+        loadVersiculo()
+    }
+
     fun loadVersiculo() {
         viewModelScope.launch {
             try {
