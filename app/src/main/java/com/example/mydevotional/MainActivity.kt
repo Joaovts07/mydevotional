@@ -6,13 +6,28 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.annotation.RequiresApi
-import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.CenterAlignedTopAppBar
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.tooling.preview.Preview
+import androidx.navigation.NavController
+import androidx.navigation.NavHostController
+import androidx.navigation.compose.NavHost
+import androidx.navigation.compose.composable
+import androidx.navigation.compose.currentBackStackEntryAsState
+import androidx.navigation.compose.rememberNavController
+import com.example.mydevotional.components.BottomAppBarItem
+import com.example.mydevotional.components.MyDevotionalBottomAppBar
+import com.example.mydevotional.navigation.AppDestination
+import com.example.mydevotional.navigation.bottomAppBarItems
 import com.example.mydevotional.ui.theme.MyDevotionalTheme
 import com.example.mydevotional.ui.theme.screens.HomeScreen
 
@@ -22,32 +37,65 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContent {
-            /*MyDevotionalTheme {
-                Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
-                    Greeting(
-                        name = "Android",
-                        modifier = Modifier.padding(innerPadding)
-                    )
+            val navController = rememberNavController()
+            MyDevotionalTheme {
+                AppNavigation(navController)
+            }
 
-                }
-            }*/
-            HomeScreen()
         }
     }
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun Greeting(name: String, modifier: Modifier = Modifier) {
-    Text(
-        text = "Hello $name!",
-        modifier = modifier
-    )
+fun MyDevocionalScaffold(
+    navController: NavController,
+    selectedItem: BottomAppBarItem,
+    showBottomBar: Boolean = true,
+    content: @Composable (PaddingValues) -> Unit
+) {
+    Scaffold(
+        topBar = {
+            CenterAlignedTopAppBar(
+                title = { Text("Minha Leitura Diaria da Biblia") }
+            )
+        },
+        bottomBar = {
+            if (showBottomBar) {
+                MyDevotionalBottomAppBar(
+                    item = selectedItem,
+                    items = bottomAppBarItems,
+                    onItemChange = { navController.navigate(it.destination.route) }
+                )
+            }
+
+        }
+    ) { paddingValues ->
+        content(paddingValues)
+    }
 }
 
-@Preview(showBackground = true)
 @Composable
-fun GreetingPreview() {
-    MyDevotionalTheme {
-        Greeting("Android")
+fun AppNavigation(navController: NavHostController) {
+    val backStackEntryState by navController.currentBackStackEntryAsState()
+    val currentDestination = backStackEntryState?.destination
+    val selectedItem by remember(currentDestination) {
+        mutableStateOf(
+            bottomAppBarItems.find { it.destination.route == currentDestination?.route }
+                ?: bottomAppBarItems.first()
+        )
+    }
+    NavHost(
+        navController = navController,
+        startDestination = AppDestination.Home.route
+    ) {
+        composable(AppDestination.Home.route) {
+            MyDevocionalScaffold(navController, selectedItem) { paddingValues ->
+                Box(modifier = Modifier.padding(paddingValues)) {
+                    HomeScreen()
+                }
+            }
+        }
+
     }
 }
