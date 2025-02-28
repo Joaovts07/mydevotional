@@ -1,0 +1,39 @@
+package com.example.mydevotional
+
+import android.speech.tts.TextToSpeech
+import android.util.Log
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Mic
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
+import androidx.compose.ui.platform.LocalContext
+import com.example.mydevotional.ui.theme.Versiculo
+
+import java.util.Locale
+
+@Composable
+fun ReadVerseWithTTS(versiculo: Versiculo) {
+    val context = LocalContext.current
+    var textToSpeech: TextToSpeech? = null
+
+    IconButton(onClick = {
+        textToSpeech = TextToSpeech(context) { status ->
+            if (status == TextToSpeech.SUCCESS) {
+                textToSpeech?.language = Locale("pt", "BR")
+                textToSpeech?.speak(versiculo.random_verse.text, TextToSpeech.QUEUE_FLUSH, null, null)
+            } else {
+                Log.e("TTS", "Erro ao inicializar o TextToSpeech")
+            }
+        }
+    }) {
+        Icon(imageVector = Icons.Filled.Mic, contentDescription = "Ler versículo")
+    }
+
+    DisposableEffect(Unit) {
+        onDispose {
+            textToSpeech?.shutdown()
+        }
+    }
+}
