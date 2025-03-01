@@ -2,7 +2,9 @@ package com.example.mydevotional.ui.theme
 
 data class Versiculo(
     val translation: Translation,
-    val random_verse: RandomVerse
+    val random_verse: RandomVerse,
+    val verses: List<Verses>,
+    val text: String = ""
 )
 
 data class Translation(
@@ -16,6 +18,14 @@ data class Translation(
 data class RandomVerse(
     val book_id: String,
     val book: String,
+    val chapter: Int,
+    val verse: Int,
+    val text: String
+)
+
+data class Verses(
+    val book_id: String,
+    val book_name: String,
     val chapter: Int,
     val verse: Int,
     val text: String

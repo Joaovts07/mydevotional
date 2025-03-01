@@ -9,12 +9,11 @@ import androidx.compose.material3.IconButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.ui.platform.LocalContext
-import com.example.mydevotional.ui.theme.Versiculo
 
 import java.util.Locale
 
 @Composable
-fun ReadVerseWithTTS(versiculo: Versiculo) {
+fun ReadVerseWithTTS(versiculo: String) {
     val context = LocalContext.current
     var textToSpeech: TextToSpeech? = null
 
@@ -22,7 +21,7 @@ fun ReadVerseWithTTS(versiculo: Versiculo) {
         textToSpeech = TextToSpeech(context) { status ->
             if (status == TextToSpeech.SUCCESS) {
                 textToSpeech?.language = Locale("pt", "BR")
-                textToSpeech?.speak(versiculo.random_verse.text, TextToSpeech.QUEUE_FLUSH, null, null)
+                textToSpeech?.speak(versiculo, TextToSpeech.QUEUE_FLUSH, null, null)
             } else {
                 Log.e("TTS", "Erro ao inicializar o TextToSpeech")
             }
