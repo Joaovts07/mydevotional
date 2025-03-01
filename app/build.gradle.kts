@@ -72,6 +72,9 @@ dependencies {
     implementation(libs.firebase.analytics)
     implementation(libs.firebase.firestore.ktx)
 
+    //calendar
+    implementation(libs.accompanist.pager)
+
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
