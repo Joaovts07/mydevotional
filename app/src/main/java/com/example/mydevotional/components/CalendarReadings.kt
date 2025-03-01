@@ -40,7 +40,7 @@ import java.util.Locale
 
 @Composable
 fun CalendarReadings(
-    leiturasRealizadas: List<String>,
+    completedReadings: List<String>,
     onDateSelected: (Date) -> Unit
 ) {
     val today = Calendar.getInstance().time // Data atual
@@ -99,7 +99,7 @@ fun CalendarReadings(
 
                         val date = calendar.time
                         val formattedDate = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(date)
-                        val isRead = leiturasRealizadas.contains(formattedDate)
+                        val isRead = completedReadings.contains(formattedDate)
                         val isSelected = date == selectedDate
 
                         Box(
