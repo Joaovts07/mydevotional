@@ -46,8 +46,10 @@ class HomeScreenViewModel : ViewModel() {
 
     private fun buscarVersiculosPorData(data: Date) {
         viewModelScope.launch {
+            _isLoading.value = true
             //val leituras = repository.buscarLeiturasPorData(data)
             _verses.value = BibleApiClient.buscarVersiculoDay(data)
+            _isLoading.value = false
         }
     }
 
