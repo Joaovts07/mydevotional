@@ -59,6 +59,13 @@ dependencies {
     implementation(libs.ktor.serialization.gson)
     implementation(libs.kotlinx.coroutines.android)
 
+    //icons
+    implementation(libs.androidx.material.icons.core)
+    implementation(libs.androidx.material.icons.extended)
+
+    //navigation
+    implementation(libs.androidx.navigation.compose)
+
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)

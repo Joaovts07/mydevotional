@@ -10,11 +10,12 @@ import kotlinx.coroutines.launch
 import java.time.LocalDate
 
 class HomeScreenViewModel : ViewModel() {
+
     private val _versiculo = MutableStateFlow<Versiculo?>(null)
     val versiculo: StateFlow<Versiculo?> = _versiculo
 
-    private val _selectedDate = MutableStateFlow<LocalDate?>(null) // Adicionado
-    val selectedDate: StateFlow<LocalDate?> = _selectedDate // Adicionado
+    private val _selectedDate = MutableStateFlow<LocalDate?>(null)
+    val selectedDate: StateFlow<LocalDate?> = _selectedDate
 
     fun onDateSelected(date: LocalDate) {
         _selectedDate.value = date
@@ -22,6 +23,10 @@ class HomeScreenViewModel : ViewModel() {
             _versiculo.value = BibleApiClient.buscarVersiculo("João", 3, 16)
         }
     }
+    init {
+        loadVersiculo()
+    }
+
     fun loadVersiculo() {
         viewModelScope.launch {
             try {
@@ -32,4 +37,7 @@ class HomeScreenViewModel : ViewModel() {
             }
         }
     }
+
+    fun updateDate(date: LocalDate) {
+        _selectedDate.value =  date  }
 }
