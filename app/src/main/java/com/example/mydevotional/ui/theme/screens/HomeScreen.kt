@@ -1,20 +1,29 @@
 package com.example.mydevotional.ui.theme.screens
 
-import android.widget.DatePicker
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.Card
-import androidx.compose.material3.LocalContentColor
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Book
+import androidx.compose.material.icons.filled.MenuBook
+import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Text
-import androidx.compose.material3.TextField
-import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -22,90 +31,102 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
-import com.example.mydevotional.ReadVerseWithTTS
+import com.example.mydevotional.components.CalendarReadings
+import com.example.mydevotional.components.ChapterCard
+import com.example.mydevotional.components.VerseCard
 import com.example.mydevotional.ui.theme.HomeScreenViewModel
-import java.text.SimpleDateFormat
-import java.util.Calendar
-import java.util.Date
-import java.util.Locale
 
 @Composable
 fun HomeScreen() {
     val viewModel = remember { HomeScreenViewModel() }
-    val versiculo by viewModel.versiculo.collectAsState()
-    val selectedDate by viewModel.selectedDate.collectAsState()
+    val verses by viewModel.verses.collectAsState()
+    val isLoading by viewModel.isLoading.collectAsState()
+    val completedReadings by viewModel.completedReadings.collectAsState()
 
-    Column(Modifier.padding(start = 4.dp, end = 4.dp, top = 32.dp)) {
-        versiculo?.let { versiculo ->
-            Card(
+    var calendarHeight by remember { mutableStateOf(250.dp) }
+    var isSingleCardMode by remember { mutableStateOf(true) } // Toggle between modes
+    val listState = rememberLazyListState()
+
+    LaunchedEffect(remember { derivedStateOf { listState.firstVisibleItemScrollOffset } }) {
+        val minHeight = 80.dp
+        val maxHeight = 250.dp
+        calendarHeight = (maxHeight - (listState.firstVisibleItemScrollOffset / 5).dp).coerceIn(minHeight, maxHeight)
+    }
+
+    LazyColumn(
+        state = listState,
+        modifier = Modifier.fillMaxSize()
+    ) {
+        item {
+            Box(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(12.dp),
+                    .height(calendarHeight)
+                    .padding(vertical = 8.dp), // Removido o fundo azul
+                contentAlignment = Alignment.Center
             ) {
+                CalendarReadings(
+                    completedReadings = completedReadings,
+                    onDateSelected = { selectedDate -> viewModel.selectDate(selectedDate) }
+                )
+            }
+        }
 
-                Column(Modifier.padding(8.dp)) {
-                    Text(text = versiculo.random_verse.text, fontSize = 18.sp)
-                    Row(
-                        modifier = Modifier
-                            .padding(8.dp)
-                            .fillMaxWidth(),
-                        horizontalArrangement = Arrangement.SpaceBetween,
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        Text(
-                            text = "- ${versiculo.random_verse.book} ${versiculo.random_verse.chapter}:${versiculo.random_verse.verse}",
-                            fontStyle = FontStyle.Italic
-                        )
-                        ReadVerseWithTTS(versiculo)
-                    }
+        item {
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(8.dp),
+                horizontalArrangement = Arrangement.Center
+            ) {
+                IconButton(
+                    onClick = { isSingleCardMode = true },
+                    modifier = Modifier.size(40.dp)
+                ) {
+                    Icon(
+                        imageVector = Icons.Filled.Book,
+                        contentDescription = "Show full chapter",
+                        tint = if (isSingleCardMode) MaterialTheme.colorScheme.primary else Color.Gray
+                    )
+                }
+                Spacer(modifier = Modifier.width(16.dp))
+                IconButton(
+                    onClick = { isSingleCardMode = false },
+                    modifier = Modifier.size(40.dp)
+                ) {
+                    Icon(
+                        imageVector = Icons.Filled.MenuBook,
+                        contentDescription = "Show verse by verse",
+                        tint = if (!isSingleCardMode) MaterialTheme.colorScheme.primary else Color.Gray
+                    )
+                }
+            }
+        }
+        if (isLoading) {
+            item {
+                Box(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(16.dp),
+                    contentAlignment = Alignment.Center
+                ) {
+                    CircularProgressIndicator()
+                }
+            }
+        } else {
+            if (isSingleCardMode) {
+                items(verses) { versiculo ->
+                    ChapterCard(versiculo)
+                }
+            } else {
+                items(verses.flatMap { it.verses }) { verse ->
+                    VerseCard(verse)
                 }
             }
         }
     }
 }
 
-@Composable
-fun EditableFieldDate(
-    value: String,
-    onValueChange: (Date?) -> Unit,
-    label: String
-) {
-    var dataNascimento by remember { mutableStateOf(value) }
-    val context = LocalContext.current
 
-    val datePickerDialog = android.app.DatePickerDialog(
-        context,
-        { _: DatePicker, year: Int, month: Int, dayOfMonth: Int ->
-            val calendar = Calendar.getInstance()
-            calendar.set(year, month, dayOfMonth)
-            val data = calendar.time
-            val formato = SimpleDateFormat("dd/MM/yyyy", Locale("pt", "BR"))
-            dataNascimento = formato.format(data)
-            onValueChange(data)
-        },
-        Calendar.getInstance().get(Calendar.YEAR),
-        Calendar.getInstance().get(Calendar.MONTH),
-        Calendar.getInstance().get(Calendar.DAY_OF_MONTH)
-    )
 
-    TextField(
-        value = dataNascimento,
-        onValueChange = { },
-        label = { Text(label) },
-        modifier = Modifier
-            .fillMaxWidth()
-            .clickable { datePickerDialog.show() },
-        readOnly = true,
-        enabled = false,
-        colors = TextFieldDefaults.colors(
-            disabledTextColor = LocalContentColor.current,
-            disabledContainerColor = Color.Transparent,
-            disabledIndicatorColor = Color.Transparent,
-            disabledLabelColor = MaterialTheme.colorScheme.onSurfaceVariant
-        )
-    )
-}
