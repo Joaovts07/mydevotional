@@ -9,7 +9,8 @@ import com.example.mydevotional.components.BottomAppBarItem
 sealed class AppDestination(val route: String) {
     data object Home : AppDestination("initialScreen")
     data object Account : AppDestination("account")
-    data object FavoriteCourses: AppDestination("favoriteCourses")
+    data object FavoriteVerses: AppDestination("favoriteverses")
+
 
 }
 
@@ -27,6 +28,6 @@ val bottomAppBarItems = listOf(
     BottomAppBarItem(
         label = "Favoritos",
         icon = Icons.Outlined.Star,
-        destination = AppDestination.FavoriteCourses
+        destination = AppDestination.FavoriteVerses
     ),
 )
