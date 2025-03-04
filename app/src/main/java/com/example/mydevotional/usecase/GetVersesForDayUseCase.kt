@@ -1,4 +1,4 @@
-package com.example.mydevotional
+package com.example.mydevotional.usecase
 
 import com.example.mydevotional.repositorie.BibleRepository
 import com.example.mydevotional.ui.theme.Verse

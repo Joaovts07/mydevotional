@@ -3,8 +3,11 @@ package com.example.mydevotional.viewmodel
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.mydevotional.BibleBook
-import com.example.mydevotional.GetBibleContentUseCase
 import com.example.mydevotional.ui.theme.Verse
+import com.example.mydevotional.usecase.GetBiblleBooksUseCase
+import com.example.mydevotional.usecase.GetBiblleChaptersUseCase
+import com.example.mydevotional.usecase.GetVerseBiblleUseCase
+import com.example.mydevotional.usecase.GetVersesForDayUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -13,7 +16,9 @@ import javax.inject.Inject
 
 @HiltViewModel
 class VersesViewModel @Inject constructor(
-    private val getBibleContentUseCase: GetBibleContentUseCase
+    private val getVerseBiblleUseCase: GetVerseBiblleUseCase,
+    private val getBiblleBooksUseCase: GetBiblleBooksUseCase,
+    private val getBiblleChaptersUseCase: GetBiblleChaptersUseCase
 ) : ViewModel() {
 
     private val _books = MutableStateFlow<List<BibleBook>>(emptyList())
@@ -41,7 +46,7 @@ class VersesViewModel @Inject constructor(
     private fun fetchBooks() {
         viewModelScope.launch {
             _isLoading.value = true
-            _books.value = getBibleContentUseCase.getBooks()
+            _books.value = getBiblleBooksUseCase()
             _isLoading.value = false
         }
     }
@@ -54,7 +59,7 @@ class VersesViewModel @Inject constructor(
     private fun fetchChapters(book: BibleBook) {
         viewModelScope.launch {
             _isLoading.value = true
-            _chapters.value = getBibleContentUseCase.getChapters(book)
+            _chapters.value = getBiblleChaptersUseCase(book)
             _isLoading.value = false
         }
     }
@@ -67,7 +72,7 @@ class VersesViewModel @Inject constructor(
     private fun fetchVerses(chapter: Int) {
         viewModelScope.launch {
             _isLoading.value = true
-            _verses.value = getBibleContentUseCase.getVerses(_selectedBook.value!!, chapter)
+            _verses.value = getVerseBiblleUseCase(_selectedBook.value!!, chapter)
             _isLoading.value = false
         }
     }
