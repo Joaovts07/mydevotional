@@ -1,17 +1,23 @@
-package com.example.mydevotional.ui.theme
+package com.example.mydevotional.viewmodel
 
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.mydevotional.BibleApiClient
+import com.example.mydevotional.GetBibleContentUseCase
+import com.example.mydevotional.ui.theme.Verse
+import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import java.util.Date
+import javax.inject.Inject
 
-
-class HomeScreenViewModel : ViewModel() {
+@HiltViewModel
+class HomeScreenViewModel @Inject constructor(
+    private val getBibleContentUseCase: GetBibleContentUseCase
+) : ViewModel() {
 
     private val _verses = MutableStateFlow<List<Verse>>(emptyList())
     val verses: StateFlow<List<Verse>> = _verses
@@ -31,11 +37,12 @@ class HomeScreenViewModel : ViewModel() {
         _selectedDate.value?.let { buscarVersiculosPorData(it) }
     }
 
-    fun loadVersiculo() {
+    private fun loadVersiculo() {
         viewModelScope.launch {
             try {
                 _isLoading.value = true
-                _verses.value = BibleApiClient.buscarVersiculoDay()
+                //_verses.value = BibleApiClient.buscarVersiculoDay()
+                _verses.value = getBibleContentUseCase.getVerseForDate(date = Date())
                 _isLoading.value = false
 
             } catch (ex: Exception) {
