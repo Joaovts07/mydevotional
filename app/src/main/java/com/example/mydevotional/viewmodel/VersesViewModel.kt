@@ -1,4 +1,4 @@
-package com.example.mydevotional.ui
+package com.example.mydevotional.viewmodel
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -17,8 +17,8 @@ class VersesViewModel @Inject constructor(
     private val _books = MutableStateFlow<List<BibleBook>>(emptyList())
     val books: StateFlow<List<BibleBook>> = _books
 
-    private val _chapters = MutableStateFlow<List<Int>>(emptyList())
-    val chapters: StateFlow<List<Int>> = _chapters
+    private val _chapters = MutableStateFlow(0)
+    val chapters: StateFlow<Int> = _chapters
 
     private val _verses = MutableStateFlow<List<Verse>>(emptyList())
     val verses: StateFlow<List<Verse>> = _verses

@@ -1,16 +1,18 @@
-package com.example.mydevotional.ui.theme
+package com.example.mydevotional.viewmodel
 
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.mydevotional.BibleApiClient
+import com.example.mydevotional.ui.theme.Verse
+import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import java.util.Date
 
-
+@HiltViewModel
 class HomeScreenViewModel : ViewModel() {
 
     private val _verses = MutableStateFlow<List<Verse>>(emptyList())
