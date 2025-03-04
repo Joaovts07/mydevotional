@@ -15,17 +15,16 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.hilt.navigation.compose.hiltViewModel
 import com.example.mydevotional.BibleBook
-import com.example.mydevotional.ui.VersesViewModel
+import com.example.mydevotional.viewmodel.VersesViewModel
 
 @Composable
-fun VersesScreen() {
-    val viewModel = remember { VersesViewModel() }
+fun VersesScreen(viewModel: VersesViewModel = hiltViewModel()) {
     val books by viewModel.books.collectAsState()
     val chapters by viewModel.chapters.collectAsState()
     val verses by viewModel.verses.collectAsState()
@@ -47,7 +46,7 @@ fun VersesScreen() {
                     ChapterListView(chapters) { chapter -> viewModel.selectChapter(chapter) }
                 }
                 else -> {
-                    VerseListView(verses)
+                    //VerseListView(verses)
                 }
             }
         }
@@ -76,7 +75,7 @@ fun BookListView(books: List<BibleBook>, onBookSelected: (BibleBook) -> Unit) {
 }
 
 @Composable
-fun ChapterListView(chapters: List<Int>, onChapterSelected: (Int) -> Unit) {
+fun ChapterListView(chapters: Int, onChapterSelected: (Int) -> Unit) {
     LazyColumn {
         items(chapters) { chapter ->
             Card(

@@ -32,20 +32,20 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
+import androidx.hilt.navigation.compose.hiltViewModel
 import com.example.mydevotional.components.CalendarReadings
 import com.example.mydevotional.components.ChapterCard
 import com.example.mydevotional.components.VerseCard
-import com.example.mydevotional.ui.theme.HomeScreenViewModel
+import com.example.mydevotional.viewmodel.HomeScreenViewModel
 
 @Composable
-fun HomeScreen() {
-    val viewModel = remember { HomeScreenViewModel() }
+fun HomeScreen(viewModel: HomeScreenViewModel = hiltViewModel()) {
     val verses by viewModel.verses.collectAsState()
     val isLoading by viewModel.isLoading.collectAsState()
     val completedReadings by viewModel.completedReadings.collectAsState()
 
     var calendarHeight by remember { mutableStateOf(250.dp) }
-    var isSingleCardMode by remember { mutableStateOf(true) } // Toggle between modes
+    var isSingleCardMode by remember { mutableStateOf(true) } 
     val listState = rememberLazyListState()
 
     LaunchedEffect(remember { derivedStateOf { listState.firstVisibleItemScrollOffset } }) {
