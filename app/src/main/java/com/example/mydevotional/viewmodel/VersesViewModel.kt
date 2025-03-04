@@ -5,11 +5,13 @@ import androidx.lifecycle.viewModelScope
 import com.example.mydevotional.BibleBook
 import com.example.mydevotional.GetBibleContentUseCase
 import com.example.mydevotional.ui.theme.Verse
+import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
+@HiltViewModel
 class VersesViewModel @Inject constructor(
     private val getBibleContentUseCase: GetBibleContentUseCase
 ) : ViewModel() {
