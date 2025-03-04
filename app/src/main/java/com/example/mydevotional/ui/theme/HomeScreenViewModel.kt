@@ -13,8 +13,8 @@ import java.util.Date
 
 class HomeScreenViewModel : ViewModel() {
 
-    private val _verses = MutableStateFlow<List<Versiculo>>(emptyList())
-    val verses: StateFlow<List<Versiculo>> = _verses
+    private val _verses = MutableStateFlow<List<Verse>>(emptyList())
+    val verses: StateFlow<List<Verse>> = _verses
 
     private val _selectedDate = MutableStateFlow<Date?>(null)
     val selectedDate: StateFlow<Date?> = _selectedDate

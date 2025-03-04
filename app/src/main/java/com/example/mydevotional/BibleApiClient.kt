@@ -1,7 +1,7 @@
 package com.example.mydevotional
 
 import android.util.Log
-import com.example.mydevotional.ui.theme.Versiculo
+import com.example.mydevotional.ui.theme.Verse
 import com.google.firebase.firestore.FirebaseFirestore
 import io.ktor.client.*
 import io.ktor.client.engine.android.*
@@ -23,7 +23,7 @@ object BibleApiClient {
         }
     }
 
-    suspend fun buscarVersiculo(livro: String, capitulo: Int, versiculo: Int): Versiculo? {
+    suspend fun buscarVersiculo(livro: String, capitulo: Int, versiculo: Int): Verse? {
         return withContext(Dispatchers.IO) {
             try {
                 Log.e("URL", "https://bible-api.com/$livro+$capitulo:$versiculo")
@@ -33,7 +33,7 @@ object BibleApiClient {
 
                 }.bodyAsText()
 
-                gsonDeserializer<Versiculo>(response)
+                gsonDeserializer<Verse>(response)
             } catch (e: Exception) {
                 e.printStackTrace()
                 null
@@ -57,9 +57,9 @@ object BibleApiClient {
         }
     }*/
 
-    suspend fun buscarVersiculoDay(date: Date = Date() ): List<Versiculo> {
+    suspend fun buscarVersiculoDay(date: Date = Date() ): List<Verse> {
         val passagens = searchReadingDaily(date) ?: return emptyList()
-        val versiculos = mutableListOf<Versiculo>()
+        val versiculos = mutableListOf<Verse>()
 
         (passagens as List<*>).forEach { passagem ->
             try {
@@ -67,7 +67,7 @@ object BibleApiClient {
                     url("https://bible-api.com/$passagem?translation=almeida")
                 }.bodyAsText()
 
-                gsonDeserializer<Versiculo>(response)?.let { versiculos.add(it) }
+                gsonDeserializer<Verse>(response)?.let { versiculos.add(it) }
             } catch (e: Exception) {
                 e.printStackTrace()
             }
@@ -97,7 +97,7 @@ object BibleApiClient {
         return formato.format(date)
     }
 
-    suspend fun buscarVersiculo(): Versiculo? {
+    suspend fun buscarVersiculo(): Verse? {
         return withContext(Dispatchers.IO) {
             try {
 
@@ -105,7 +105,7 @@ object BibleApiClient {
                     url("https://bible-api.com/data/almeida/random")
                 }.bodyAsText()
 
-                gsonDeserializer<Versiculo>(response)
+                gsonDeserializer<Verse>(response)
             } catch (e: Exception) {
                 e.printStackTrace()
                 null

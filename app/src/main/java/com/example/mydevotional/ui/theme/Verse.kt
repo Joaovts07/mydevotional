@@ -1,6 +1,6 @@
 package com.example.mydevotional.ui.theme
 
-data class Versiculo(
+data class Verse(
     val translation: Translation,
     val random_verse: RandomVerse,
     val verses: List<Verses>,

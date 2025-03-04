@@ -10,8 +10,7 @@ sealed class AppDestination(val route: String) {
     data object Home : AppDestination("initialScreen")
     data object Account : AppDestination("account")
     data object FavoriteVerses: AppDestination("favoriteverses")
-
-
+    data object BibleVerses: AppDestination("bibleverses")
 }
 
 val bottomAppBarItems = listOf(
@@ -19,6 +18,11 @@ val bottomAppBarItems = listOf(
         label = "Versiculos",
         icon = Icons.Filled.DateRange,
         destination = AppDestination.Home
+    ),
+    BottomAppBarItem(
+        label = "Biblia Sagrada",
+        icon = Icons.Filled.DateRange,
+        destination = AppDestination.BibleVerses
     ),
     BottomAppBarItem(
         label = "Minha Conta",

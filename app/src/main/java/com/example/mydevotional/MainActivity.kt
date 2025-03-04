@@ -30,6 +30,7 @@ import com.example.mydevotional.navigation.AppDestination
 import com.example.mydevotional.navigation.bottomAppBarItems
 import com.example.mydevotional.ui.theme.MyDevotionalTheme
 import com.example.mydevotional.ui.theme.screens.HomeScreen
+import com.example.mydevotional.ui.theme.screens.VersesScreen
 
 class MainActivity : ComponentActivity() {
     @RequiresApi(Build.VERSION_CODES.O)
@@ -93,6 +94,13 @@ fun AppNavigation(navController: NavHostController) {
             MyDevocionalScaffold(navController, selectedItem) { paddingValues ->
                 Box(modifier = Modifier.padding(paddingValues)) {
                     HomeScreen()
+                }
+            }
+        }
+        composable(AppDestination.BibleVerses.route) {
+            MyDevocionalScaffold(navController, selectedItem) { paddingValues ->
+                Box(modifier = Modifier.padding(paddingValues)) {
+                    VersesScreen()
                 }
             }
         }
