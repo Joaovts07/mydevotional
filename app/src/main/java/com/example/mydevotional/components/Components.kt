@@ -15,11 +15,11 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.mydevotional.ReadVerseWithTTS
 import com.example.mydevotional.ui.theme.Verses
-import com.example.mydevotional.ui.theme.Versiculo
+import com.example.mydevotional.ui.theme.Verse
 
 
 @Composable
-fun ChapterCard(versiculo: Versiculo) {
+fun ChapterCard(versiculo: Verse) {
     Card(
         modifier = Modifier
             .fillMaxWidth()
