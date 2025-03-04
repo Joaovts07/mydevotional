@@ -31,7 +31,9 @@ import com.example.mydevotional.navigation.bottomAppBarItems
 import com.example.mydevotional.ui.theme.MyDevotionalTheme
 import com.example.mydevotional.ui.theme.screens.HomeScreen
 import com.example.mydevotional.ui.theme.screens.VersesScreen
+import dagger.hilt.android.AndroidEntryPoint
 
+@AndroidEntryPoint
 class MainActivity : ComponentActivity() {
     @RequiresApi(Build.VERSION_CODES.O)
     override fun onCreate(savedInstanceState: Bundle?) {
