@@ -43,7 +43,7 @@ fun VersesScreen(viewModel: VersesViewModel = hiltViewModel()) {
                     BookListView(books) { book -> viewModel.selectBook(book) }
                 }
                 selectedChapter == null -> {
-                    ChapterListView(chapters) { chapter -> viewModel.selectChapter(chapter) }
+                    ChapterListView(chapters) { chapter -> viewModel.selectChapter(selectedBook!!.name, chapter) }
                 }
                 else -> {
                     //VerseListView(verses)

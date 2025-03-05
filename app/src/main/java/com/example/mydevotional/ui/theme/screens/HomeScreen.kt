@@ -45,10 +45,10 @@ fun HomeScreen(viewModel: HomeScreenViewModel = hiltViewModel()) {
     val completedReadings by viewModel.completedReadings.collectAsState()
 
     var calendarHeight by remember { mutableStateOf(250.dp) }
-    var isSingleCardMode by remember { mutableStateOf(true) } 
+    var isSingleCardMode by remember { mutableStateOf(true) }
     val listState = rememberLazyListState()
 
-    LaunchedEffect(remember { derivedStateOf { listState.firstVisibleItemScrollOffset } }) {
+    LaunchedEffect(listState.firstVisibleItemScrollOffset) {
         val minHeight = 80.dp
         val maxHeight = 250.dp
         calendarHeight = (maxHeight - (listState.firstVisibleItemScrollOffset / 5).dp).coerceIn(minHeight, maxHeight)
@@ -63,7 +63,7 @@ fun HomeScreen(viewModel: HomeScreenViewModel = hiltViewModel()) {
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(calendarHeight)
-                    .padding(vertical = 8.dp), // Removido o fundo azul
+                    .padding(vertical = 8.dp),
                 contentAlignment = Alignment.Center
             ) {
                 CalendarReadings(
@@ -90,7 +90,9 @@ fun HomeScreen(viewModel: HomeScreenViewModel = hiltViewModel()) {
                         tint = if (isSingleCardMode) MaterialTheme.colorScheme.primary else Color.Gray
                     )
                 }
+
                 Spacer(modifier = Modifier.width(16.dp))
+
                 IconButton(
                     onClick = { isSingleCardMode = false },
                     modifier = Modifier.size(40.dp)
@@ -103,6 +105,7 @@ fun HomeScreen(viewModel: HomeScreenViewModel = hiltViewModel()) {
                 }
             }
         }
+
         if (isLoading) {
             item {
                 Box(
@@ -116,8 +119,8 @@ fun HomeScreen(viewModel: HomeScreenViewModel = hiltViewModel()) {
             }
         } else {
             if (isSingleCardMode) {
-                items(verses) { versiculo ->
-                    ChapterCard(versiculo)
+                items(verses) { verse ->
+                    ChapterCard(verse)
                 }
             } else {
                 items(verses.flatMap { it.verses }) { verse ->
@@ -127,6 +130,7 @@ fun HomeScreen(viewModel: HomeScreenViewModel = hiltViewModel()) {
         }
     }
 }
+
 
 
 
