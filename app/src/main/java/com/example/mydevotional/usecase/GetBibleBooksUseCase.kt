@@ -4,10 +4,10 @@ import com.example.mydevotional.BibleBook
 import com.example.mydevotional.repositorie.BibleRepository
 import javax.inject.Inject
 
-class GetBiblleChaptersUseCase @Inject constructor(
+class GetBibleBooksUseCase @Inject constructor(
     private val repository: BibleRepository
 ) {
-    suspend operator fun invoke(bibleBook: BibleBook): Int {
-        return repository.getChapters(bibleBook)
+    suspend operator fun invoke(): List<BibleBook> {
+        return repository.getBibleBooks()
     }
 }
