@@ -3,8 +3,10 @@ package com.example.mydevotional.viewmodel
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.mydevotional.BibleBook
-import com.example.mydevotional.GetBibleContentUseCase
 import com.example.mydevotional.ui.theme.Verse
+import com.example.mydevotional.usecase.GetBibleBooksUseCase
+import com.example.mydevotional.usecase.GetBibleChaptersUseCase
+import com.example.mydevotional.usecase.GetVerseBibleUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -13,7 +15,9 @@ import javax.inject.Inject
 
 @HiltViewModel
 class VersesViewModel @Inject constructor(
-    private val getBibleContentUseCase: GetBibleContentUseCase
+    private val getVerseBibleUseCase: GetVerseBibleUseCase,
+    private val getBibleBooksUseCase: GetBibleBooksUseCase,
+    private val getBibleChaptersUseCase: GetBibleChaptersUseCase
 ) : ViewModel() {
 
     private val _books = MutableStateFlow<List<BibleBook>>(emptyList())
@@ -41,7 +45,7 @@ class VersesViewModel @Inject constructor(
     private fun fetchBooks() {
         viewModelScope.launch {
             _isLoading.value = true
-            _books.value = getBibleContentUseCase.getBooks()
+            _books.value = getBibleBooksUseCase()
             _isLoading.value = false
         }
     }
@@ -54,20 +58,20 @@ class VersesViewModel @Inject constructor(
     private fun fetchChapters(book: BibleBook) {
         viewModelScope.launch {
             _isLoading.value = true
-            _chapters.value = getBibleContentUseCase.getChapters(book)
+            _chapters.value = getBibleChaptersUseCase(book)
             _isLoading.value = false
         }
     }
 
-    fun selectChapter(chapter: Int) {
+    fun selectChapter(book: String,chapter: Int) {
         _selectedChapter.value = chapter
-        fetchVerses(chapter)
+        fetchVerses(book, chapter)
     }
 
-    private fun fetchVerses(chapter: Int) {
+    private fun fetchVerses(book: String,chapter: Int) {
         viewModelScope.launch {
             _isLoading.value = true
-            _verses.value = getBibleContentUseCase.getVerses(_selectedBook.value!!, chapter)
+            _verses.value = getVerseBibleUseCase(book, chapter)
             _isLoading.value = false
         }
     }

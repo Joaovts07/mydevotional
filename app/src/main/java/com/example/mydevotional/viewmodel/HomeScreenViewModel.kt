@@ -1,10 +1,8 @@
 package com.example.mydevotional.viewmodel
 
-import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.mydevotional.BibleApiClient
-import com.example.mydevotional.GetBibleContentUseCase
+import com.example.mydevotional.usecase.GetVersesForDayUseCase
 import com.example.mydevotional.ui.theme.Verse
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -16,60 +14,47 @@ import javax.inject.Inject
 
 @HiltViewModel
 class HomeScreenViewModel @Inject constructor(
-    private val getBibleContentUseCase: GetBibleContentUseCase
+    private val getVersesForDayUseCase: GetVersesForDayUseCase
 ) : ViewModel() {
 
     private val _verses = MutableStateFlow<List<Verse>>(emptyList())
-    val verses: StateFlow<List<Verse>> = _verses
+    val verses: StateFlow<List<Verse>> = _verses.asStateFlow()
 
     private val _selectedDate = MutableStateFlow<Date?>(null)
-    val selectedDate: StateFlow<Date?> = _selectedDate
+    val selectedDate: StateFlow<Date?> = _selectedDate.asStateFlow()
 
-    private val _completedReadings = MutableStateFlow<List<String>>(emptyList()) // Dias já lidos
+    private val _completedReadings = MutableStateFlow<List<String>>(emptyList())
     val completedReadings: StateFlow<List<String>> = _completedReadings.asStateFlow()
 
     private val _isLoading = MutableStateFlow(false)
-    val isLoading: StateFlow<Boolean> = _isLoading
+    val isLoading: StateFlow<Boolean> = _isLoading.asStateFlow()
 
     init {
-        loadVersiculo()
-        carregarLeiturasRealizadas()
-        _selectedDate.value?.let { buscarVersiculosPorData(it) }
+        loadVersesForToday()
+        loadCompletedReadings()
     }
 
-    private fun loadVersiculo() {
-        viewModelScope.launch {
-            try {
-                _isLoading.value = true
-                //_verses.value = BibleApiClient.buscarVersiculoDay()
-                _verses.value = getBibleContentUseCase.getVerseForDate(date = Date())
-                _isLoading.value = false
-
-            } catch (ex: Exception) {
-                Log.e("Erro", ex.message.toString())
-            }
-        }
-    }
-
-    private fun buscarVersiculosPorData(data: Date) {
+    private fun loadVersesForToday() {
         viewModelScope.launch {
             _isLoading.value = true
-            //val leituras = repository.buscarLeiturasPorData(data)
-            _verses.value = BibleApiClient.buscarVersiculoDay(data)
+            _verses.value = getVersesForDayUseCase(Date())
             _isLoading.value = false
         }
     }
 
-    private fun carregarLeiturasRealizadas() {
+    fun selectDate(newDate: Date) {
+        _selectedDate.value = newDate
         viewModelScope.launch {
-            //val datasLidas = repository.buscarDatasLidas()
-            val datasLidas = null
-            _completedReadings.value = datasLidas ?: emptyList()
+            _isLoading.value = true
+            _verses.value = getVersesForDayUseCase(newDate)
+            _isLoading.value = false
         }
     }
 
-    fun selectDate(novaData: Date) {
-        _selectedDate.value = novaData
-        buscarVersiculosPorData(novaData)
+    private fun loadCompletedReadings() {
+        viewModelScope.launch {
+            // TODO: Buscar leituras salvas no Firestore ou localmente
+            _completedReadings.value = emptyList()
+        }
     }
 }
