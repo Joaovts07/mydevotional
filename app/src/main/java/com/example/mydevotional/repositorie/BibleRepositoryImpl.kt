@@ -1,66 +1,88 @@
 package com.example.mydevotional.repositorie
 
-import com.example.mydevotional.BibleApiClient.client
-import com.example.mydevotional.BibleApiClient.getDate
 import com.example.mydevotional.BibleBook
 import com.example.mydevotional.BibleBooks
 import com.example.mydevotional.ui.theme.Verse
 import com.google.firebase.firestore.FirebaseFirestore
+import io.ktor.client.HttpClient
 import io.ktor.client.request.get
 import io.ktor.client.request.url
 import io.ktor.client.statement.bodyAsText
 import kotlinx.coroutines.tasks.await
+import java.text.SimpleDateFormat
 import java.util.Date
+import java.util.Locale
 import javax.inject.Inject
 
 class BibleRepositoryImpl @Inject constructor(
-): BibleRepository {
+    private val firestore: FirebaseFirestore,
+    private val httpClient: HttpClient
+) : BibleRepository {
+
     override fun getBibleBooks(): List<BibleBook> {
         return BibleBooks.books
     }
 
     override fun getChapters(bibleBook: BibleBook): Int {
-        TODO("Not yet implemented")
+        return bibleBook.chapters
     }
 
-    override fun getVerses(book: BibleBook, chapter: Int): List<Verse> {
-        TODO("Not yet implemented")
+    override suspend fun getVerses(book: String, chapter: Int): List<Verse> {
+        val verses = mutableListOf<Verse>()
+        try {
+            val response: String = httpClient.get {
+                url("https://bible-api.com/$book-$chapter?translation=almeida")
+            }.bodyAsText()
+
+            gsonDeserializer<Verse>(response)?.let { verses.add(it) }
+        } catch (e: Exception) {
+            e.printStackTrace()
+        }
+
+        return verses
     }
 
     override suspend fun getVersesForDay(date: Date): List<Verse> {
-        val passagens = searchReadingDaily(date) ?: return emptyList()
-        val versiculos = mutableListOf<Verse>()
-
-        (passagens as List<*>).forEach { passagem ->
-            try {
-                val response: String = client.get {
-                    url("https://bible-api.com/$passagem?translation=almeida")
-                }.bodyAsText()
-
-                gsonDeserializer<Verse>(response)?.let { versiculos.add(it) }
-            } catch (e: Exception) {
-                e.printStackTrace()
-            }
-        }
-
-        return versiculos
+        val passages = searchReadingDaily(date) ?: return emptyList()
+        return fetchVersesFromApi(passages)
     }
 
-    override suspend fun searchReadingDaily(date: Date): Any? {
-        val db = FirebaseFirestore.getInstance()
-        val dateFormated = getDate(date)
+    override suspend fun searchReadingDaily(date: Date): List<String>? {
         return try {
-            val document = db.collection("readings").document(dateFormated).get().await()
+            val document = firestore.collection("readings")
+                .document(formatDate(date))
+                .get().await()
+
             if (document.exists()) {
-                document.get("passages")
-            } else {
-                null
-            }
+                document.get("passages") as? List<String>
+            } else null
         } catch (e: Exception) {
             e.printStackTrace()
             null
         }
     }
+
+    private suspend fun fetchVersesFromApi(passages: List<String>): List<Verse> {
+        val verses = mutableListOf<Verse>()
+        passages.forEach { passage ->
+            try {
+                val response: String = httpClient.get {
+                    url("https://bible-api.com/$passage?translation=almeida")
+                }.bodyAsText()
+
+                gsonDeserializer<Verse>(response)?.let { verses.add(it) }
+            } catch (e: Exception) {
+                e.printStackTrace()
+            }
+        }
+        return verses
+    }
+
+    private fun formatDate(date: Date): String {
+        val formatter = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
+        return formatter.format(date)
+    }
+
     private inline fun <reified T> gsonDeserializer(json: String): T? {
         return try {
             com.google.gson.Gson().fromJson(json, T::class.java)
