@@ -24,7 +24,6 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.example.mydevotional.BibleBook
-import com.example.mydevotional.ui.theme.Verse
 import com.example.mydevotional.viewmodel.VersesViewModel
 
 @Composable
