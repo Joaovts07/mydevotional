@@ -20,7 +20,7 @@ val bottomAppBarItems = listOf(
         destination = AppDestination.Home
     ),
     BottomAppBarItem(
-        label = "Biblia Sagrada",
+        label = "Biblia",
         icon = Icons.Filled.DateRange,
         destination = AppDestination.BibleVerses
     ),

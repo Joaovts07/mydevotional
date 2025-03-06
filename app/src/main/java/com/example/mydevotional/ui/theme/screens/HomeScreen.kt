@@ -2,6 +2,7 @@ package com.example.mydevotional.ui.theme.screens
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -11,11 +12,10 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.MenuBook
 import androidx.compose.material.icons.filled.Book
-import androidx.compose.material.icons.filled.MenuBook
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -23,7 +23,6 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -36,6 +35,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import com.example.mydevotional.components.CalendarReadings
 import com.example.mydevotional.components.ChapterCard
 import com.example.mydevotional.components.VerseCard
+import com.example.mydevotional.ui.theme.Verse
 import com.example.mydevotional.viewmodel.HomeScreenViewModel
 
 @Composable
@@ -72,40 +72,6 @@ fun HomeScreen(viewModel: HomeScreenViewModel = hiltViewModel()) {
                 )
             }
         }
-
-        item {
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(8.dp),
-                horizontalArrangement = Arrangement.Center
-            ) {
-                IconButton(
-                    onClick = { isSingleCardMode = true },
-                    modifier = Modifier.size(40.dp)
-                ) {
-                    Icon(
-                        imageVector = Icons.Filled.Book,
-                        contentDescription = "Show full chapter",
-                        tint = if (isSingleCardMode) MaterialTheme.colorScheme.primary else Color.Gray
-                    )
-                }
-
-                Spacer(modifier = Modifier.width(16.dp))
-
-                IconButton(
-                    onClick = { isSingleCardMode = false },
-                    modifier = Modifier.size(40.dp)
-                ) {
-                    Icon(
-                        imageVector = Icons.Filled.MenuBook,
-                        contentDescription = "Show verse by verse",
-                        tint = if (!isSingleCardMode) MaterialTheme.colorScheme.primary else Color.Gray
-                    )
-                }
-            }
-        }
-
         if (isLoading) {
             item {
                 Box(
@@ -118,18 +84,77 @@ fun HomeScreen(viewModel: HomeScreenViewModel = hiltViewModel()) {
                 }
             }
         } else {
-            if (isSingleCardMode) {
-                items(verses) { verse ->
-                    ChapterCard(verse)
-                }
-            } else {
-                items(verses.flatMap { it.verses }) { verse ->
-                    VerseCard(verse)
-                }
+            item {
+                DisplayModeContent(
+                    isSingleCardMode = isSingleCardMode,
+                    onModeChange = { isSingleCardMode = it },
+                    verses = verses
+                )
             }
         }
     }
 }
+@Composable
+fun DisplayModeSelector(
+    isSingleCardMode: Boolean,
+    onModeChange: (Boolean) -> Unit
+) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(8.dp),
+        horizontalArrangement = Arrangement.Center
+    ) {
+        IconButton(
+            onClick = { onModeChange(true) },
+            modifier = Modifier.size(40.dp)
+        ) {
+            Icon(
+                imageVector = Icons.Filled.Book,
+                contentDescription = "Show full chapter",
+                tint = if (isSingleCardMode) MaterialTheme.colorScheme.primary else Color.Gray
+            )
+        }
+
+        Spacer(modifier = Modifier.width(16.dp))
+
+        IconButton(
+            onClick = { onModeChange(false) },
+            modifier = Modifier.size(40.dp)
+        ) {
+            Icon(
+                imageVector = Icons.AutoMirrored.Filled.MenuBook,
+                contentDescription = "Show verse by verse",
+                tint = if (!isSingleCardMode) MaterialTheme.colorScheme.primary else Color.Gray
+            )
+        }
+    }
+}
+
+@Composable
+fun DisplayModeContent(
+    isSingleCardMode: Boolean,
+    onModeChange: (Boolean) -> Unit,
+    verses: List<Verse>
+) {
+    Column {
+        DisplayModeSelector(
+            isSingleCardMode = isSingleCardMode,
+            onModeChange = onModeChange
+        )
+
+        if (isSingleCardMode) {
+            verses.forEach { verse ->
+                ChapterCard(verse)
+            }
+        } else {
+            verses.flatMap { it.verses }.forEach { verse ->
+                VerseCard(verse)
+            }
+        }
+    }
+}
+
 
 
 
