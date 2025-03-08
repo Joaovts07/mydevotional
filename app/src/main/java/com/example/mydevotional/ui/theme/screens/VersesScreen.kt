@@ -1,17 +1,11 @@
 package com.example.mydevotional.ui.theme.screens
 
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
-import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -21,9 +15,9 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
-import com.example.mydevotional.BibleBook
+import com.example.mydevotional.components.BookListView
+import com.example.mydevotional.components.ChaptersGrid
 import com.example.mydevotional.viewmodel.VersesViewModel
 
 @Composable
@@ -47,7 +41,8 @@ fun VersesScreen(viewModel: VersesViewModel = hiltViewModel()) {
                     BookListView(books) { book -> viewModel.selectBook(book) }
                 }
                 selectedChapter == null -> {
-                    ChapterListView(chapters) { chapter -> viewModel.selectChapter(selectedBook!!.name, chapter) }
+                    //ChapterListView(chapters) { chapter -> viewModel.selectChapter(selectedBook!!.name, chapter) }
+                    ChaptersGrid(chapters) {chapter -> viewModel.selectChapter(selectedBook!!.name, chapter)}
                 }
                 else -> {
                     LazyColumn {
@@ -60,49 +55,6 @@ fun VersesScreen(viewModel: VersesViewModel = hiltViewModel()) {
                         }
                     }
                 }
-            }
-        }
-    }
-}
-
-@Composable
-fun BookListView(books: List<BibleBook>, onBookSelected: (BibleBook) -> Unit) {
-    LazyColumn {
-        items(books) { book ->
-            Card(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(8.dp)
-                    .clickable { onBookSelected(book) },
-                elevation = CardDefaults.cardElevation(4.dp)
-            ) {
-                Text(
-                    text = book.name,
-                    modifier = Modifier.padding(16.dp),
-                    fontSize = 18.sp
-                )
-            }
-        }
-    }
-}
-
-@Composable
-fun ChapterListView(chapters: Int, onChapterSelected: (Int) -> Unit) {
-    LazyColumn {
-        items(chapters) { index ->
-            val chapter = index + 1
-            Card(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(8.dp)
-                    .clickable { onChapterSelected(chapter) },
-                elevation = CardDefaults.cardElevation(4.dp)
-            ) {
-                Text(
-                    text = "Capítulo $chapter",
-                    modifier = Modifier.padding(16.dp),
-                    fontSize = 18.sp
-                )
             }
         }
     }
