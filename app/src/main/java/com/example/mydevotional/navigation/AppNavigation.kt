@@ -12,8 +12,8 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import com.example.mydevotional.MyDevocionalScaffold
-import com.example.mydevotional.ui.theme.screens.HomeScreen
-import com.example.mydevotional.ui.theme.screens.VersesScreen
+import com.example.mydevotional.ui.screens.HomeScreen
+import com.example.mydevotional.ui.screens.VersesScreen
 
 @Composable
 fun AppNavigation(navController: NavHostController) {
