@@ -1,4 +1,4 @@
-package com.example.mydevotional.ui.theme.screens
+package com.example.mydevotional.ui.screens
 
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -17,7 +17,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.example.mydevotional.components.BookListView
-import com.example.mydevotional.components.ChaptersGrid
+import com.example.mydevotional.components.ChapterListView
 import com.example.mydevotional.viewmodel.VersesViewModel
 
 @Composable
@@ -41,8 +41,8 @@ fun VersesScreen(viewModel: VersesViewModel = hiltViewModel()) {
                     BookListView(books) { book -> viewModel.selectBook(book) }
                 }
                 selectedChapter == null -> {
-                    //ChapterListView(chapters) { chapter -> viewModel.selectChapter(selectedBook!!.name, chapter) }
-                    ChaptersGrid(chapters) {chapter -> viewModel.selectChapter(selectedBook!!.name, chapter)}
+                    ChapterListView(chapters) { chapter -> viewModel.selectChapter(selectedBook!!.name, chapter) }
+                    //ChaptersGrid(chapters) {chapter -> viewModel.selectChapter(selectedBook!!.name, chapter)}
                 }
                 else -> {
                     LazyColumn {

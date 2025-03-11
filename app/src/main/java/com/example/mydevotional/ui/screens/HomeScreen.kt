@@ -1,4 +1,4 @@
-package com.example.mydevotional.ui.theme.screens
+package com.example.mydevotional.ui.screens
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
