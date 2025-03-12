@@ -12,6 +12,8 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import com.example.mydevotional.MyDevocionalScaffold
+import com.example.mydevotional.ui.screens.BooksScreen
+import com.example.mydevotional.ui.screens.ChaptersScreen
 import com.example.mydevotional.ui.screens.HomeScreen
 import com.example.mydevotional.ui.screens.VersesScreen
 
@@ -36,12 +38,18 @@ fun AppNavigation(navController: NavHostController) {
                 }
             }
         }
-        composable(AppDestination.BibleVerses.route) {
-            MyDevocionalScaffold(navController, selectedItem) { paddingValues ->
-                Box(modifier = Modifier.padding(paddingValues)) {
-                    VersesScreen()
-                }
-            }
+        composable(AppDestination.BibleBooks.route) {
+            BooksScreen(navController)
+        }
+        composable(AppDestination.BibleChapters.route) { backStackEntry ->
+            val bookName = backStackEntry.arguments?.getString("bookName") ?: ""
+            ChaptersScreen(navController, bookName)
+        }
+
+        composable(AppDestination.BibleVerses.route) { backStackEntry ->
+            val bookName = backStackEntry.arguments?.getString("bookName") ?: ""
+            val chapter = backStackEntry.arguments?.getInt("chapter") ?: 1
+            VersesScreen(bookName, chapter)
         }
 
     }

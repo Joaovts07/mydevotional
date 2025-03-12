@@ -16,17 +16,11 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
-import com.example.mydevotional.components.BookListView
-import com.example.mydevotional.components.ChapterListView
 import com.example.mydevotional.viewmodel.VersesViewModel
 
 @Composable
-fun VersesScreen(viewModel: VersesViewModel = hiltViewModel()) {
-    val books by viewModel.books.collectAsState()
-    val chapters by viewModel.chapters.collectAsState()
+fun VersesScreen(bookName: String, chapter: Int, viewModel: VersesViewModel = hiltViewModel()) {
     val verses by viewModel.verses.collectAsState()
-    val selectedBook by viewModel.selectedBook.collectAsState()
-    val selectedChapter by viewModel.selectedChapter.collectAsState()
     val isLoading by viewModel.isLoading.collectAsState()
     var isSingleCardMode by remember { mutableStateOf(true) }
 
@@ -36,30 +30,18 @@ fun VersesScreen(viewModel: VersesViewModel = hiltViewModel()) {
                 CircularProgressIndicator()
             }
         } else {
-            when {
-                selectedBook == null -> {
-                    BookListView(books) { book -> viewModel.selectBook(book) }
-                }
-                selectedChapter == null -> {
-                    ChapterListView(chapters) { chapter -> viewModel.selectChapter(selectedBook!!.name, chapter) }
-                    //ChaptersGrid(chapters) {chapter -> viewModel.selectChapter(selectedBook!!.name, chapter)}
-                }
-                else -> {
-                    LazyColumn {
-                        item {
-                            DisplayModeContent(
-                                isSingleCardMode = isSingleCardMode,
-                                onModeChange = { isSingleCardMode = it },
-                                verses = verses
-                            )
-                        }
-                    }
+            LazyColumn {
+                item {
+                    DisplayModeContent(
+                        isSingleCardMode = isSingleCardMode,
+                        onModeChange = { isSingleCardMode = it },
+                        verses = verses
+                    )
                 }
             }
         }
     }
 }
-
 
 
 
