@@ -115,7 +115,7 @@ fun ChapterListView(chapters: Int, onChapterSelected: (Int) -> Unit) {
 
 @Composable
 fun ChaptersGrid(chapters: Int, onChapterSelected: (Int) -> Unit) {
-    val columns = 3
+    val columns = 4
     LazyVerticalGrid(
         columns = GridCells.Fixed(columns),
         modifier = Modifier.fillMaxSize(),
@@ -123,10 +123,11 @@ fun ChaptersGrid(chapters: Int, onChapterSelected: (Int) -> Unit) {
         horizontalArrangement = Arrangement.spacedBy(4.dp)
     ) {
         items(chapters) { chapter ->
+            val chapterNumber = chapter + 1
             Card(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .clickable { onChapterSelected(chapter) },
+                    .clickable { onChapterSelected(chapterNumber) },
                 elevation = CardDefaults.cardElevation(2.dp)
             ) {
                 Box(
