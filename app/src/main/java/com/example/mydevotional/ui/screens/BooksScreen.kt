@@ -16,14 +16,12 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.example.mydevotional.navigation.AppDestination
-import com.example.mydevotional.navigation.AppNavigation
 import com.example.mydevotional.viewmodel.VersesViewModel
 
 @Composable
-fun BooksScreen(navController: NavController, viewModel: VersesViewModel = hiltViewModel()) {
+fun BooksScreen(navController: NavController, viewModel: VersesViewModel) {
     val books by viewModel.books.collectAsState()
 
     Column(Modifier.fillMaxSize().padding(16.dp)) {
