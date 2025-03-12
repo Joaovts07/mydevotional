@@ -39,17 +39,29 @@ fun AppNavigation(navController: NavHostController) {
             }
         }
         composable(AppDestination.BibleBooks.route) {
-            BooksScreen(navController)
+            MyDevocionalScaffold(navController, selectedItem) { paddingValues ->
+                Box(modifier = Modifier.padding(paddingValues)) {
+                    BooksScreen(navController)
+                }
+            }
         }
         composable(AppDestination.BibleChapters.route) { backStackEntry ->
-            val bookName = backStackEntry.arguments?.getString("bookName") ?: ""
-            ChaptersScreen(navController, bookName)
+            MyDevocionalScaffold(navController, selectedItem) { paddingValues ->
+                val bookName = backStackEntry.arguments?.getString("bookName") ?: ""
+                Box(modifier = Modifier.padding(paddingValues)) {
+                    ChaptersScreen(navController, bookName)
+                }
+            }
         }
 
         composable(AppDestination.BibleVerses.route) { backStackEntry ->
-            val bookName = backStackEntry.arguments?.getString("bookName") ?: ""
-            val chapter = backStackEntry.arguments?.getInt("chapter") ?: 1
-            VersesScreen(bookName, chapter)
+            MyDevocionalScaffold(navController, selectedItem) { paddingValues ->
+                val bookName = backStackEntry.arguments?.getString("bookName") ?: ""
+                val chapter = backStackEntry.arguments?.getInt("chapter") ?: 1
+                Box(modifier = Modifier.padding(paddingValues)) {
+                    VersesScreen(bookName, chapter)
+                }
+            }
         }
 
     }
