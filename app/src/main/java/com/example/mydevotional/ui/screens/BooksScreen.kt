@@ -18,6 +18,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
+import com.example.mydevotional.navigation.AppDestination
+import com.example.mydevotional.navigation.AppNavigation
 import com.example.mydevotional.viewmodel.VersesViewModel
 
 @Composable
@@ -33,7 +35,7 @@ fun BooksScreen(navController: NavController, viewModel: VersesViewModel = hiltV
                         .padding(8.dp)
                         .clickable {
                             viewModel.selectBook(book)
-                            navController.navigate("chapters/${book.name}")
+                            navController.navigate("${AppDestination.BibleChapters.route}/${book.name}")
                         },
                     elevation = CardDefaults.cardElevation(4.dp)
                 ) {
