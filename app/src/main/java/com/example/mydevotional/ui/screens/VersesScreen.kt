@@ -18,7 +18,7 @@ import androidx.compose.ui.unit.dp
 import com.example.mydevotional.viewmodel.VersesViewModel
 
 @Composable
-fun VersesScreen(bookName: String, chapter: Int, viewModel: VersesViewModel) {
+fun VersesScreen(viewModel: VersesViewModel) {
     val verses by viewModel.verses.collectAsState()
     val isLoading by viewModel.isLoading.collectAsState()
     var isSingleCardMode by remember { mutableStateOf(true) }

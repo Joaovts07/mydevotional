@@ -57,12 +57,10 @@ fun AppNavigation(navController: NavHostController) {
             }
         }
 
-        composable(AppDestination.BibleVerses.route) { backStackEntry ->
+        composable(AppDestination.BibleVerses.route) {
             MyDevocionalScaffold(navController, selectedItem) { paddingValues ->
-                val bookName = backStackEntry.arguments?.getString("bookName") ?: ""
-                val chapter = backStackEntry.arguments?.getInt("chapter") ?: 1
                 Box(modifier = Modifier.padding(paddingValues)) {
-                    VersesScreen(bookName, chapter, versesViewModel)
+                    VersesScreen(versesViewModel)
                 }
             }
         }
