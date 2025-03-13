@@ -15,11 +15,10 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import androidx.hilt.navigation.compose.hiltViewModel
 import com.example.mydevotional.viewmodel.VersesViewModel
 
 @Composable
-fun VersesScreen(bookName: String, chapter: Int, viewModel: VersesViewModel = hiltViewModel()) {
+fun VersesScreen(viewModel: VersesViewModel) {
     val verses by viewModel.verses.collectAsState()
     val isLoading by viewModel.isLoading.collectAsState()
     var isSingleCardMode by remember { mutableStateOf(true) }

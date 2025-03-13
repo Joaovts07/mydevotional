@@ -15,12 +15,12 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
+import com.example.mydevotional.navigation.AppDestination
 import com.example.mydevotional.viewmodel.VersesViewModel
 
 @Composable
-fun ChaptersScreen(navController: NavController, bookName: String, viewModel: VersesViewModel = hiltViewModel()) {
+fun ChaptersScreen(navController: NavController, bookName: String, viewModel: VersesViewModel) {
     val chapters by viewModel.chapters.collectAsState()
 
     Column(Modifier.fillMaxSize().padding(16.dp)) {
@@ -33,7 +33,7 @@ fun ChaptersScreen(navController: NavController, bookName: String, viewModel: Ve
                         .padding(8.dp)
                         .clickable {
                             viewModel.selectChapter(bookName, chapter)
-                            navController.navigate("verses/$bookName/$chapter")
+                            navController.navigate(AppDestination.BibleVerses.route)
                         },
                     elevation = CardDefaults.cardElevation(4.dp)
                 ) {

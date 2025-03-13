@@ -24,7 +24,7 @@ val bottomAppBarItems = listOf(
     BottomAppBarItem(
         label = "Biblia",
         icon = Icons.Filled.DateRange,
-        destination = AppDestination.BibleVerses
+        destination = AppDestination.BibleBooks
     ),
     BottomAppBarItem(
         label = "Minha Conta",

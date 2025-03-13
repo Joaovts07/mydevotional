@@ -7,6 +7,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -16,11 +17,13 @@ import com.example.mydevotional.ui.screens.BooksScreen
 import com.example.mydevotional.ui.screens.ChaptersScreen
 import com.example.mydevotional.ui.screens.HomeScreen
 import com.example.mydevotional.ui.screens.VersesScreen
+import com.example.mydevotional.viewmodel.VersesViewModel
 
 @Composable
 fun AppNavigation(navController: NavHostController) {
     val backStackEntryState by navController.currentBackStackEntryAsState()
     val currentDestination = backStackEntryState?.destination
+    val versesViewModel: VersesViewModel = hiltViewModel()
     val selectedItem by remember(currentDestination) {
         mutableStateOf(
             bottomAppBarItems.find { it.destination.route == currentDestination?.route }
@@ -39,17 +42,27 @@ fun AppNavigation(navController: NavHostController) {
             }
         }
         composable(AppDestination.BibleBooks.route) {
-            BooksScreen(navController)
+            MyDevocionalScaffold(navController, selectedItem) { paddingValues ->
+                Box(modifier = Modifier.padding(paddingValues)) {
+                    BooksScreen(navController, versesViewModel)
+                }
+            }
         }
-        composable(AppDestination.BibleChapters.route) { backStackEntry ->
-            val bookName = backStackEntry.arguments?.getString("bookName") ?: ""
-            ChaptersScreen(navController, bookName)
+        composable("${AppDestination.BibleChapters.route}/{bookName}") { backStackEntry ->
+            MyDevocionalScaffold(navController, selectedItem) { paddingValues ->
+                val bookName = backStackEntry.arguments?.getString("bookName") ?: ""
+                Box(modifier = Modifier.padding(paddingValues)) {
+                    ChaptersScreen(navController, bookName, versesViewModel)
+                }
+            }
         }
 
-        composable(AppDestination.BibleVerses.route) { backStackEntry ->
-            val bookName = backStackEntry.arguments?.getString("bookName") ?: ""
-            val chapter = backStackEntry.arguments?.getInt("chapter") ?: 1
-            VersesScreen(bookName, chapter)
+        composable(AppDestination.BibleVerses.route) {
+            MyDevocionalScaffold(navController, selectedItem) { paddingValues ->
+                Box(modifier = Modifier.padding(paddingValues)) {
+                    VersesScreen(versesViewModel)
+                }
+            }
         }
 
     }
