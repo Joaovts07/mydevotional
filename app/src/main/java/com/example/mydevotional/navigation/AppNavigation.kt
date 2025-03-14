@@ -16,6 +16,7 @@ import com.example.mydevotional.MyDevocionalScaffold
 import com.example.mydevotional.ui.screens.BooksScreen
 import com.example.mydevotional.ui.screens.ChaptersScreen
 import com.example.mydevotional.ui.screens.HomeScreen
+import com.example.mydevotional.ui.screens.LoginRequiredScreen
 import com.example.mydevotional.ui.screens.VersesScreen
 import com.example.mydevotional.viewmodel.VersesViewModel
 
@@ -61,6 +62,15 @@ fun AppNavigation(navController: NavHostController) {
             MyDevocionalScaffold(navController, selectedItem) { paddingValues ->
                 Box(modifier = Modifier.padding(paddingValues)) {
                     VersesScreen(versesViewModel)
+                }
+            }
+        }
+        composable(AppDestination.LoginRequired.route) {
+            MyDevocionalScaffold(navController, selectedItem) { paddingValues ->
+                Box(modifier = Modifier.padding(paddingValues)) {
+                    LoginRequiredScreen(onLoginClick = {
+                        navController.navigate(AppDestination.Home.route)
+                    })
                 }
             }
         }

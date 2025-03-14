@@ -13,6 +13,7 @@ sealed class AppDestination(val route: String) {
     data object BibleVerses: AppDestination("bibleverses")
     data object BibleBooks: AppDestination("biblebooks")
     data object BibleChapters: AppDestination("biblechapters")
+    data object LoginRequired: AppDestination("loginrequired")
 }
 
 val bottomAppBarItems = listOf(
@@ -29,7 +30,7 @@ val bottomAppBarItems = listOf(
     BottomAppBarItem(
         label = "Minha Conta",
         icon = Icons.Filled.AccountCircle,
-        destination = AppDestination.Account
+        destination = AppDestination.LoginRequired
     ),
     BottomAppBarItem(
         label = "Favoritos",
