@@ -150,7 +150,7 @@ fun DisplayModeContent(
             }
         } else {
             verses.flatMap { it.verses }.forEach { verse ->
-                VerseCard(verse)
+                VerseCard(verse, false )
             }
         }
     }
