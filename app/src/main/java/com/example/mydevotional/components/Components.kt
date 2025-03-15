@@ -29,6 +29,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.mydevotional.BibleBook
 import com.example.mydevotional.ReadVerseWithTTS
+import com.example.mydevotional.ui.screens.DisplayModeSelector
 import com.example.mydevotional.ui.theme.Verses
 import com.example.mydevotional.ui.theme.Verse
 
@@ -53,7 +54,7 @@ fun ChapterCard(versiculo: Verse) {
 @Composable
 fun VerseCard(
     verse: Verses,
-    isFavorite: Boolean,
+    isFavorite: Boolean = false,
     onFavoriteClick: (Verses) -> Unit = {}
 ) {
     Card(
@@ -88,6 +89,7 @@ fun VerseCard(
         }
     }
 }
+
 
 
 @Composable
@@ -158,6 +160,30 @@ fun ChaptersGrid(chapters: Int, onChapterSelected: (Int) -> Unit) {
                 ) {
                     Text(text = "$chapter", fontSize = 16.sp)
                 }
+            }
+        }
+    }
+}
+
+@Composable
+fun DisplayModeContent(
+    isSingleCardMode: Boolean,
+    onModeChange: (Boolean) -> Unit,
+    verses: List<Verse>
+) {
+    Column {
+        DisplayModeSelector(
+            isSingleCardMode = isSingleCardMode,
+            onModeChange = onModeChange
+        )
+
+        if (isSingleCardMode) {
+            verses.forEach { verse ->
+                ChapterCard(verse)
+            }
+        } else {
+            verses.flatMap { it.verses }.forEach { verse ->
+                VerseCard(verse)
             }
         }
     }
