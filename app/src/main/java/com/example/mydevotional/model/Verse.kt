@@ -1,4 +1,4 @@
-package com.example.mydevotional.ui.theme
+package com.example.mydevotional.model
 
 data class Verse(
     val translation: Translation,
@@ -22,11 +22,11 @@ data class RandomVerse(
     val verse: Int,
     val text: String
 )
-
 data class Verses(
     val book_id: String,
     val book_name: String,
     val chapter: Int,
     val verse: Int,
-    val text: String
+    val text: String,
+    val isFavorite: Boolean = false
 )
