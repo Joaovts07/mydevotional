@@ -12,17 +12,24 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.items
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Favorite
+import androidx.compose.material.icons.outlined.FavoriteBorder
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.mydevotional.BibleBook
 import com.example.mydevotional.ReadVerseWithTTS
+import com.example.mydevotional.ui.screens.DisplayModeSelector
 import com.example.mydevotional.ui.theme.Verses
 import com.example.mydevotional.ui.theme.Verse
 
@@ -45,7 +52,11 @@ fun ChapterCard(versiculo: Verse) {
 }
 
 @Composable
-fun VerseCard(verse: Verses) {
+fun VerseCard(
+    verse: Verses,
+    isFavorite: Boolean = false,
+    onFavoriteClick: (Verses) -> Unit = {}
+) {
     Card(
         modifier = Modifier
             .fillMaxWidth()
@@ -64,11 +75,22 @@ fun VerseCard(verse: Verses) {
                     text = "- ${verse.book_name} ${verse.chapter}:${verse.verse}",
                     fontStyle = FontStyle.Italic
                 )
-                ReadVerseWithTTS(verse.text)
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    IconButton(onClick = { onFavoriteClick(verse) }) {
+                        Icon(
+                            imageVector = if (isFavorite) Icons.Filled.Favorite else Icons.Outlined.FavoriteBorder,
+                            contentDescription = "Favoritar verso",
+                            tint = if (isFavorite) Color.Red else Color.Gray
+                        )
+                    }
+                    ReadVerseWithTTS(verse.text)
+                }
             }
         }
     }
 }
+
+
 
 @Composable
 fun BookListView(books: List<BibleBook>, onBookSelected: (BibleBook) -> Unit) {
@@ -137,6 +159,33 @@ fun ChaptersGrid(chapters: Int, onChapterSelected: (Int) -> Unit) {
                     contentAlignment = Alignment.Center
                 ) {
                     Text(text = "$chapter", fontSize = 16.sp)
+                }
+            }
+        }
+    }
+}
+
+@Composable
+fun DisplayModeContent(
+    isSingleCardMode: Boolean,
+    onModeChange: (Boolean) -> Unit,
+    verses: List<Verse>,
+    onFavoriteClick: (Verses) -> Unit = {}
+) {
+    Column {
+        DisplayModeSelector(
+            isSingleCardMode = isSingleCardMode,
+            onModeChange = onModeChange
+        )
+
+        if (isSingleCardMode) {
+            verses.forEach { verse ->
+                ChapterCard(verse)
+            }
+        } else {
+            verses.flatMap { it.verses }.forEach { verse ->
+                VerseCard(verse) {
+                    onFavoriteClick(verse)
                 }
             }
         }
