@@ -15,6 +15,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import com.example.mydevotional.components.DisplayModeContent
 import com.example.mydevotional.viewmodel.VersesViewModel
 
 @Composable
@@ -34,7 +35,10 @@ fun VersesScreen(viewModel: VersesViewModel) {
                     DisplayModeContent(
                         isSingleCardMode = isSingleCardMode,
                         onModeChange = { isSingleCardMode = it },
-                        verses = verses
+                        verses = verses,
+                        onFavoriteClick = { verse ->
+                            viewModel.toggleFavorite(verse)
+                        }
                     )
                 }
             }

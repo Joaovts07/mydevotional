@@ -4,12 +4,16 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.mydevotional.BibleBook
 import com.example.mydevotional.ui.theme.Verse
+import com.example.mydevotional.ui.theme.Verses
 import com.example.mydevotional.usecase.GetBibleBooksUseCase
 import com.example.mydevotional.usecase.GetBibleChaptersUseCase
+import com.example.mydevotional.usecase.GetFavoriteVersesUseCase
 import com.example.mydevotional.usecase.GetVerseBibleUseCase
+import com.example.mydevotional.usecase.ToggleFavoriteVerseUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -17,7 +21,9 @@ import javax.inject.Inject
 class VersesViewModel @Inject constructor(
     private val getVerseBibleUseCase: GetVerseBibleUseCase,
     private val getBibleBooksUseCase: GetBibleBooksUseCase,
-    private val getBibleChaptersUseCase: GetBibleChaptersUseCase
+    private val getBibleChaptersUseCase: GetBibleChaptersUseCase,
+    private val getFavoriteVersesUseCase: GetFavoriteVersesUseCase,
+    private val toggleFavoriteVerseUseCase: ToggleFavoriteVerseUseCase
 ) : ViewModel() {
 
     private val _books = MutableStateFlow<List<BibleBook>>(emptyList())
@@ -38,8 +44,20 @@ class VersesViewModel @Inject constructor(
     private val _isLoading = MutableStateFlow(false)
     val isLoading: StateFlow<Boolean> = _isLoading
 
+    private val _favoriteVerses = MutableStateFlow<Set<String>>(emptySet())
+    val favoriteVerses: StateFlow<Set<String>> = _favoriteVerses.asStateFlow()
+
     init {
         fetchBooks()
+        verifyFavoriteVerses()
+    }
+
+    private fun verifyFavoriteVerses() {
+        viewModelScope.launch {
+            getFavoriteVersesUseCase().collect { favorites ->
+                _favoriteVerses.value = favorites
+            }
+        }
     }
 
     private fun fetchBooks() {
@@ -73,6 +91,12 @@ class VersesViewModel @Inject constructor(
             _isLoading.value = true
             _verses.value = getVerseBibleUseCase(book, chapter)
             _isLoading.value = false
+        }
+    }
+
+    fun toggleFavorite(verses: Verses) {
+        viewModelScope.launch {
+            toggleFavoriteVerseUseCase(verses.text)
         }
     }
 }

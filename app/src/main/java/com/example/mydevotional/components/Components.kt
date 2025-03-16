@@ -169,7 +169,8 @@ fun ChaptersGrid(chapters: Int, onChapterSelected: (Int) -> Unit) {
 fun DisplayModeContent(
     isSingleCardMode: Boolean,
     onModeChange: (Boolean) -> Unit,
-    verses: List<Verse>
+    verses: List<Verse>,
+    onFavoriteClick: (Verses) -> Unit = {}
 ) {
     Column {
         DisplayModeSelector(
@@ -183,7 +184,9 @@ fun DisplayModeContent(
             }
         } else {
             verses.flatMap { it.verses }.forEach { verse ->
-                VerseCard(verse)
+                VerseCard(verse) {
+                    onFavoriteClick(verse)
+                }
             }
         }
     }

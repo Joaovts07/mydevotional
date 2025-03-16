@@ -2,7 +2,6 @@ package com.example.mydevotional.ui.screens
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -34,9 +33,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.example.mydevotional.components.CalendarReadings
-import com.example.mydevotional.components.ChapterCard
-import com.example.mydevotional.components.VerseCard
-import com.example.mydevotional.ui.theme.Verse
+import com.example.mydevotional.components.DisplayModeContent
 import com.example.mydevotional.viewmodel.HomeScreenViewModel
 
 @Composable
@@ -128,30 +125,6 @@ fun DisplayModeSelector(
                 contentDescription = "Show verse by verse",
                 tint = if (!isSingleCardMode) MaterialTheme.colorScheme.primary else Color.Gray
             )
-        }
-    }
-}
-
-@Composable
-fun DisplayModeContent(
-    isSingleCardMode: Boolean,
-    onModeChange: (Boolean) -> Unit,
-    verses: List<Verse>
-) {
-    Column {
-        DisplayModeSelector(
-            isSingleCardMode = isSingleCardMode,
-            onModeChange = onModeChange
-        )
-
-        if (isSingleCardMode) {
-            verses.forEach { verse ->
-                ChapterCard(verse)
-            }
-        } else {
-            verses.flatMap { it.verses }.forEach { verse ->
-                VerseCard(verse, false )
-            }
         }
     }
 }
