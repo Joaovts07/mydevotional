@@ -3,7 +3,7 @@ package com.example.mydevotional.viewmodel
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.mydevotional.usecase.GetVersesForDayUseCase
-import com.example.mydevotional.ui.theme.Verses
+import com.example.mydevotional.model.Verses
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow

@@ -1,8 +1,7 @@
 package com.example.mydevotional.usecase
 
 import com.example.mydevotional.repositorie.BibleRepository
-import com.example.mydevotional.ui.theme.Verse
-import com.example.mydevotional.ui.theme.Verses
+import com.example.mydevotional.model.Verses
 import javax.inject.Inject
 
 class GetVerseBibleUseCase @Inject constructor(

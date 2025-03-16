@@ -1,7 +1,7 @@
 package com.example.mydevotional.usecase
 
 import com.example.mydevotional.repositorie.BibleRepository
-import com.example.mydevotional.ui.theme.Verses
+import com.example.mydevotional.model.Verses
 import java.util.Date
 import javax.inject.Inject
 

@@ -16,7 +16,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.mydevotional.components.VerseCard
-import com.example.mydevotional.ui.theme.Verses
+import com.example.mydevotional.model.Verses
 import com.example.mydevotional.viewmodel.VersesViewModel
 
 @Composable

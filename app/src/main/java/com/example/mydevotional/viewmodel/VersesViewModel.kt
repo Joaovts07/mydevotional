@@ -3,8 +3,7 @@ package com.example.mydevotional.viewmodel
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.mydevotional.BibleBook
-import com.example.mydevotional.ui.theme.Verse
-import com.example.mydevotional.ui.theme.Verses
+import com.example.mydevotional.model.Verses
 import com.example.mydevotional.usecase.GetBibleBooksUseCase
 import com.example.mydevotional.usecase.GetBibleChaptersUseCase
 import com.example.mydevotional.usecase.GetFavoriteVersesUseCase
@@ -32,8 +31,8 @@ class VersesViewModel @Inject constructor(
     private val _chapters = MutableStateFlow(0)
     val chapters: StateFlow<Int> = _chapters
 
-    private val _verses = MutableStateFlow<List<Verse>>(emptyList())
-    val verses: StateFlow<List<Verse>> = _verses
+    private val _verses = MutableStateFlow<List<Verses>>(emptyList())
+    val verses: StateFlow<List<Verses>> = _verses
 
     private val _selectedBook = MutableStateFlow<BibleBook?>(null)
     val selectedBook: StateFlow<BibleBook?> = _selectedBook
@@ -96,7 +95,7 @@ class VersesViewModel @Inject constructor(
 
     fun toggleFavorite(verses: Verses) {
         viewModelScope.launch {
-            toggleFavoriteVerseUseCase(verses.text)
+            toggleFavoriteVerseUseCase(verses)
         }
     }
 }
