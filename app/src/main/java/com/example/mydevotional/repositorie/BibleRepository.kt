@@ -1,7 +1,7 @@
 package com.example.mydevotional.repositorie
 
 import com.example.mydevotional.BibleBook
-import com.example.mydevotional.ui.theme.Verses
+import com.example.mydevotional.model.Verses
 import java.util.Date
 
 interface BibleRepository {
