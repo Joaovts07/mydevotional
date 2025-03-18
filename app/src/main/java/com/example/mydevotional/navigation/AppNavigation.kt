@@ -15,6 +15,7 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import com.example.mydevotional.MyDevocionalScaffold
 import com.example.mydevotional.ui.screens.BooksScreen
 import com.example.mydevotional.ui.screens.ChaptersScreen
+import com.example.mydevotional.ui.screens.FavoriteVersesScreen
 import com.example.mydevotional.ui.screens.HomeScreen
 import com.example.mydevotional.ui.screens.LoginRequiredScreen
 import com.example.mydevotional.ui.screens.VersesScreen
@@ -71,6 +72,13 @@ fun AppNavigation(navController: NavHostController) {
                     LoginRequiredScreen(onLoginClick = {
                         navController.navigate(AppDestination.Home.route)
                     })
+                }
+            }
+        }
+        composable(AppDestination.FavoriteVerses.route) {
+            MyDevocionalScaffold(navController, selectedItem) { paddingValues ->
+                Box(modifier = Modifier.padding(paddingValues)) {
+                    FavoriteVersesScreen(versesViewModel)
                 }
             }
         }

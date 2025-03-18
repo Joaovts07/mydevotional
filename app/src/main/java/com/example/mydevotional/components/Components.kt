@@ -30,20 +30,19 @@ import androidx.compose.ui.unit.sp
 import com.example.mydevotional.BibleBook
 import com.example.mydevotional.ReadVerseWithTTS
 import com.example.mydevotional.ui.screens.DisplayModeSelector
-import com.example.mydevotional.ui.theme.Verses
-import com.example.mydevotional.ui.theme.Verse
+import com.example.mydevotional.model.Verses
 
 @Composable
-fun ChapterCard(versiculo: Verse) {
+fun ChapterCard(versiculo: String, bookName: String, chapter: String) {
     Card(
         modifier = Modifier
             .fillMaxWidth()
             .padding(12.dp),
     ) {
         Column(Modifier.padding(8.dp)) {
-            Text(text = versiculo.text, fontSize = 18.sp)
+            Text(text = versiculo, fontSize = 18.sp)
             Text(
-                text = "- ${versiculo.verses.first().book_name} ${versiculo.verses.first().chapter}",
+                text = "- $bookName $chapter",
                 fontStyle = FontStyle.Italic,
                 modifier = Modifier.padding(top = 4.dp)
             )
@@ -54,7 +53,6 @@ fun ChapterCard(versiculo: Verse) {
 @Composable
 fun VerseCard(
     verse: Verses,
-    isFavorite: Boolean = false,
     onFavoriteClick: (Verses) -> Unit = {}
 ) {
     Card(
@@ -78,9 +76,9 @@ fun VerseCard(
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     IconButton(onClick = { onFavoriteClick(verse) }) {
                         Icon(
-                            imageVector = if (isFavorite) Icons.Filled.Favorite else Icons.Outlined.FavoriteBorder,
+                            imageVector = if (verse.isFavorite) Icons.Filled.Favorite else Icons.Outlined.FavoriteBorder,
                             contentDescription = "Favoritar verso",
-                            tint = if (isFavorite) Color.Red else Color.Gray
+                            tint = if (verse.isFavorite) Color.Red else Color.Gray
                         )
                     }
                     ReadVerseWithTTS(verse.text)
@@ -169,7 +167,7 @@ fun ChaptersGrid(chapters: Int, onChapterSelected: (Int) -> Unit) {
 fun DisplayModeContent(
     isSingleCardMode: Boolean,
     onModeChange: (Boolean) -> Unit,
-    verses: List<Verse>,
+    verses: List<Verses>,
     onFavoriteClick: (Verses) -> Unit = {}
 ) {
     Column {
@@ -179,15 +177,15 @@ fun DisplayModeContent(
         )
 
         if (isSingleCardMode) {
-            verses.forEach { verse ->
-                ChapterCard(verse)
-            }
+            verses.firstOrNull()
+                ?.let { ChapterCard(it.text,verses.first().text,verses.first().book_name) }
         } else {
-            verses.flatMap { it.verses }.forEach { verse ->
+            verses.forEach { verse ->
                 VerseCard(verse) {
-                    onFavoriteClick(verse)
+                    onFavoriteClick(it)
                 }
             }
+
         }
     }
 }

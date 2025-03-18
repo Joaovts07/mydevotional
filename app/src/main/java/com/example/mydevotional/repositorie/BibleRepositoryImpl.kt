@@ -2,7 +2,8 @@ package com.example.mydevotional.repositorie
 
 import com.example.mydevotional.BibleBook
 import com.example.mydevotional.BibleBooks
-import com.example.mydevotional.ui.theme.Verse
+import com.example.mydevotional.model.BibleResponse
+import com.example.mydevotional.model.Verses
 import com.google.firebase.firestore.FirebaseFirestore
 import io.ktor.client.HttpClient
 import io.ktor.client.request.get
@@ -10,6 +11,7 @@ import io.ktor.client.request.url
 import io.ktor.client.statement.bodyAsText
 import kotlinx.coroutines.tasks.await
 import java.text.SimpleDateFormat
+import java.util.ArrayList
 import java.util.Date
 import java.util.Locale
 import javax.inject.Inject
@@ -27,14 +29,14 @@ class BibleRepositoryImpl @Inject constructor(
         return bibleBook.chapters
     }
 
-    override suspend fun getVerses(book: String, chapter: Int): List<Verse> {
-        val verses = mutableListOf<Verse>()
+    override suspend fun getVerses(book: String, chapter: Int): List<Verses> {
+        val verses = mutableListOf<Verses>()
         try {
             val response: String = httpClient.get {
                 url("https://bible-api.com/$book-$chapter?translation=almeida")
             }.bodyAsText()
 
-            gsonDeserializer<Verse>(response)?.let { verses.add(it) }
+            gsonDeserializer<Verses>(response)?.let { verses.add(it) }
         } catch (e: Exception) {
             e.printStackTrace()
         }
@@ -42,7 +44,7 @@ class BibleRepositoryImpl @Inject constructor(
         return verses
     }
 
-    override suspend fun getVersesForDay(date: Date): List<Verse> {
+    override suspend fun getVersesForDay(date: Date): List<Verses> {
         val passages = searchReadingDaily(date) ?: return emptyList()
         return fetchVersesFromApi(passages)
     }
@@ -62,15 +64,17 @@ class BibleRepositoryImpl @Inject constructor(
         }
     }
 
-    private suspend fun fetchVersesFromApi(passages: List<String>): List<Verse> {
-        val verses = mutableListOf<Verse>()
+    private suspend fun fetchVersesFromApi(passages: List<String>): List<Verses> {
+        val verses = ArrayList<Verses>()
         passages.forEach { passage ->
             try {
                 val response: String = httpClient.get {
                     url("https://bible-api.com/$passage?translation=almeida")
                 }.bodyAsText()
 
-                gsonDeserializer<Verse>(response)?.let { verses.add(it) }
+                val bibleResponse = gsonDeserializer<BibleResponse>(response)
+
+                bibleResponse?.verses?.let { verses.addAll(it) }
             } catch (e: Exception) {
                 e.printStackTrace()
             }

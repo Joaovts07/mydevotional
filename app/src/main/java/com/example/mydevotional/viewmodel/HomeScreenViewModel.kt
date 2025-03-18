@@ -3,7 +3,7 @@ package com.example.mydevotional.viewmodel
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.mydevotional.usecase.GetVersesForDayUseCase
-import com.example.mydevotional.ui.theme.Verse
+import com.example.mydevotional.model.Verses
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -17,8 +17,8 @@ class HomeScreenViewModel @Inject constructor(
     private val getVersesForDayUseCase: GetVersesForDayUseCase
 ) : ViewModel() {
 
-    private val _verses = MutableStateFlow<List<Verse>>(emptyList())
-    val verses: StateFlow<List<Verse>> = _verses.asStateFlow()
+    private val _verses = MutableStateFlow<List<Verses>>(emptyList())
+    val verses: StateFlow<List<Verses>> = _verses.asStateFlow()
 
     private val _selectedDate = MutableStateFlow<Date?>(null)
     val selectedDate: StateFlow<Date?> = _selectedDate.asStateFlow()
