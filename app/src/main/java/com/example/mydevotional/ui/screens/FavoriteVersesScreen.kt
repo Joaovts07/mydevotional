@@ -16,7 +16,6 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.mydevotional.components.VerseCard
-import com.example.mydevotional.model.Verses
 import com.example.mydevotional.viewmodel.VersesViewModel
 
 @Composable
@@ -43,15 +42,11 @@ fun FavoriteVersesScreen(viewModel: VersesViewModel) {
             LazyColumn {
                 items(favoriteVerses.toList()) { it ->
                     VerseCard(
-                        verse = getVerse(it),
+                        verse = it,
                         onFavoriteClick = { viewModel.toggleFavorite(it) }
                     )
                 }
             }
         }
     }
-}
-
-fun getVerse(it: String): Verses {
-    return Verses("", "", 0, 0, "")
 }

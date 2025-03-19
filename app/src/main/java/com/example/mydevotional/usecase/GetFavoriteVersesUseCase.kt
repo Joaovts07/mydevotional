@@ -1,13 +1,22 @@
 package com.example.mydevotional.usecase
 
+import com.example.mydevotional.model.Verses
 import com.example.mydevotional.repositorie.FavoriteVersesRepository
-import kotlinx.coroutines.flow.Flow
 import javax.inject.Inject
 
-class GetFavoriteVersesUseCase @Inject constructor(
-    private val repository: FavoriteVersesRepository
+class FavoriteVerseUseCase @Inject constructor(
+    private val favoriteVersesRepository: FavoriteVersesRepository
 ) {
-    operator fun invoke(): Flow<Set<String>> {
-        return repository.favoriteVerses
+
+    suspend fun toggleFavorite(verse: Verses) {
+        favoriteVersesRepository.toggleFavorite(verse)
+    }
+
+    suspend fun isVerseFavorite(verse: Verses): Boolean {
+        return favoriteVersesRepository.isVerseFavorite(verse)
+    }
+
+    suspend fun getFavoriteVerses(): List<Verses> {
+        return favoriteVersesRepository.getFavoriteVerses()
     }
 }
