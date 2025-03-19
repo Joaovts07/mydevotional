@@ -28,5 +28,6 @@ data class Verses(
     val chapter: Int,
     val verse: Int,
     val text: String,
-    val isFavorite: Boolean = false
+    val isFavorite: Boolean = false,
+    val textChapter: String  = ""
 )
