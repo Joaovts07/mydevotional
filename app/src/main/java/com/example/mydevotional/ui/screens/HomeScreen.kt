@@ -26,7 +26,7 @@ import com.example.mydevotional.viewmodel.HomeScreenViewModel
 
 @Composable
 fun HomeScreen(viewModel: HomeScreenViewModel = hiltViewModel()) {
-    val verses by viewModel.verses.collectAsState()
+    val bibleResponse by viewModel.bibleResponse.collectAsState()
     val isLoading by viewModel.isLoading.collectAsState()
     val completedReadings by viewModel.completedReadings.collectAsState()
 
@@ -74,7 +74,7 @@ fun HomeScreen(viewModel: HomeScreenViewModel = hiltViewModel()) {
                 DisplayModeContent(
                     isSingleCardMode = isSingleCardMode,
                     onModeChange = { isSingleCardMode = it },
-                    verses = verses
+                    bibleResponses = bibleResponse
                 )
             }
         }
