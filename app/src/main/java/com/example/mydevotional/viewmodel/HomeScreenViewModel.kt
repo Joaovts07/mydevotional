@@ -53,7 +53,6 @@ class HomeScreenViewModel @Inject constructor(
 
     private fun loadCompletedReadings() {
         viewModelScope.launch {
-            // TODO: Buscar leituras salvas no Firestore ou localmente
             _completedReadings.value = emptyList()
         }
     }
