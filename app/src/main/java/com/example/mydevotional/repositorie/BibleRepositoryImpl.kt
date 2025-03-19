@@ -11,10 +11,10 @@ import io.ktor.client.request.url
 import io.ktor.client.statement.bodyAsText
 import kotlinx.coroutines.tasks.await
 import java.text.SimpleDateFormat
-import java.util.ArrayList
 import java.util.Date
 import java.util.Locale
 import javax.inject.Inject
+import kotlin.collections.ArrayList
 
 class BibleRepositoryImpl @Inject constructor(
     private val firestore: FirebaseFirestore,
@@ -44,8 +44,8 @@ class BibleRepositoryImpl @Inject constructor(
         return verses
     }
 
-    override suspend fun getVersesForDay(date: Date): List<Verses> {
-        val passages = searchReadingDaily(date) ?: return emptyList()
+    override suspend fun getVersesForDay(date: Date): BibleResponse {
+        val passages = searchReadingDaily(date) ?: ArrayList()
         return fetchVersesFromApi(passages)
     }
 
@@ -64,8 +64,7 @@ class BibleRepositoryImpl @Inject constructor(
         }
     }
 
-    private suspend fun fetchVersesFromApi(passages: List<String>): List<Verses> {
-        val verses = ArrayList<Verses>()
+    private suspend fun fetchVersesFromApi(passages: List<String>): BibleResponse {
         passages.forEach { passage ->
             try {
                 val response: String = httpClient.get {
@@ -74,12 +73,15 @@ class BibleRepositoryImpl @Inject constructor(
 
                 val bibleResponse = gsonDeserializer<BibleResponse>(response)
 
-                bibleResponse?.verses?.let { verses.addAll(it) }
+                bibleResponse?.let {
+                    return it
+                }
             } catch (e: Exception) {
                 e.printStackTrace()
+
             }
         }
-        return verses
+        return BibleResponse()
     }
 
     private fun formatDate(date: Date): String {
