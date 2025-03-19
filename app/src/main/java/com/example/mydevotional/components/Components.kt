@@ -35,10 +35,11 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.mydevotional.BibleBook
 import com.example.mydevotional.ReadVerseWithTTS
+import com.example.mydevotional.model.BibleResponse
 import com.example.mydevotional.model.Verses
 
 @Composable
-fun ChapterCard(versiculo: String, bookName: String, chapter: String) {
+fun ChapterCard(versiculo: String, reference: String, ) {
     Card(
         modifier = Modifier
             .fillMaxWidth()
@@ -47,7 +48,7 @@ fun ChapterCard(versiculo: String, bookName: String, chapter: String) {
         Column(Modifier.padding(8.dp)) {
             Text(text = versiculo, fontSize = 18.sp)
             Text(
-                text = "- $bookName $chapter",
+                text = "- $reference ",
                 fontStyle = FontStyle.Italic,
                 modifier = Modifier.padding(top = 4.dp)
             )
@@ -172,7 +173,8 @@ fun ChaptersGrid(chapters: Int, onChapterSelected: (Int) -> Unit) {
 fun DisplayModeContent(
     isSingleCardMode: Boolean,
     onModeChange: (Boolean) -> Unit,
-    verses: List<Verses>,
+    bibleResponses: List<BibleResponse> = emptyList(),
+    verses: List<Verses> = emptyList(),
     onFavoriteClick: (Verses) -> Unit = {}
 ) {
     Column {
@@ -182,15 +184,18 @@ fun DisplayModeContent(
         )
 
         if (isSingleCardMode) {
-            verses.firstOrNull()
-                ?.let { ChapterCard(it.text,verses.first().text,verses.first().book_name) }
-        } else {
-            verses.forEach { verse ->
-                VerseCard(verse) {
-                    onFavoriteClick(it)
-                }
+            bibleResponses.forEach { bibleResponse ->
+                ChapterCard(bibleResponse.text, bibleResponse.reference)
             }
+        } else {
+            bibleResponses.forEach { bibleResponse ->
+                bibleResponse.verses.forEach { verses ->
+                    VerseCard(verses) {
+                        onFavoriteClick(it)
+                    }
+                }
 
+            }
         }
     }
 }
