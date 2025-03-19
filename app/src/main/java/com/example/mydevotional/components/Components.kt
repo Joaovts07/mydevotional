@@ -174,7 +174,6 @@ fun DisplayModeContent(
     isSingleCardMode: Boolean,
     onModeChange: (Boolean) -> Unit,
     bibleResponses: List<BibleResponse> = emptyList(),
-    verses: List<Verses> = emptyList(),
     onFavoriteClick: (Verses) -> Unit = {}
 ) {
     Column {

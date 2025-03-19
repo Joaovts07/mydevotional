@@ -29,19 +29,19 @@ class BibleRepositoryImpl @Inject constructor(
         return bibleBook.chapters
     }
 
-    override suspend fun getVerses(book: String, chapter: Int): List<Verses> {
-        val verses = mutableListOf<Verses>()
+    override suspend fun getVerses(book: String, chapter: Int): List<BibleResponse> {
+        val bibleResponse = mutableListOf<BibleResponse>()
         try {
             val response: String = httpClient.get {
                 url("https://bible-api.com/$book-$chapter?translation=almeida")
             }.bodyAsText()
 
-            gsonDeserializer<Verses>(response)?.let { verses.add(it) }
+            gsonDeserializer<BibleResponse>(response)?.let { bibleResponse.add(it) }
         } catch (e: Exception) {
             e.printStackTrace()
         }
 
-        return verses
+        return bibleResponse
     }
 
     override suspend fun getVersesForDay(date: Date): List<BibleResponse> {

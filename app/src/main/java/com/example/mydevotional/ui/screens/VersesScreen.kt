@@ -20,7 +20,7 @@ import com.example.mydevotional.viewmodel.VersesViewModel
 
 @Composable
 fun VersesScreen(viewModel: VersesViewModel) {
-    val verses by viewModel.verses.collectAsState()
+    val bibleResponses by viewModel.bibleResponses.collectAsState()
     val isLoading by viewModel.isLoading.collectAsState()
     var isSingleCardMode by remember { mutableStateOf(true) }
 
@@ -35,7 +35,7 @@ fun VersesScreen(viewModel: VersesViewModel) {
                     DisplayModeContent(
                         isSingleCardMode = isSingleCardMode,
                         onModeChange = { isSingleCardMode = it },
-                        verses = verses,
+                        bibleResponses = bibleResponses,
                         onFavoriteClick = { verse ->
                             viewModel.toggleFavorite(verse)
                         }

@@ -3,6 +3,7 @@ package com.example.mydevotional.viewmodel
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.mydevotional.BibleBook
+import com.example.mydevotional.model.BibleResponse
 import com.example.mydevotional.model.Verses
 import com.example.mydevotional.usecase.GetBibleBooksUseCase
 import com.example.mydevotional.usecase.GetBibleChaptersUseCase
@@ -31,8 +32,8 @@ class VersesViewModel @Inject constructor(
     private val _chapters = MutableStateFlow(0)
     val chapters: StateFlow<Int> = _chapters
 
-    private val _verses = MutableStateFlow<List<Verses>>(emptyList())
-    val verses: StateFlow<List<Verses>> = _verses
+    private val _bibleResponses = MutableStateFlow<List<BibleResponse>>(emptyList())
+    val bibleResponses: StateFlow<List<BibleResponse>> = _bibleResponses
 
     private val _selectedBook = MutableStateFlow<BibleBook?>(null)
     val selectedBook: StateFlow<BibleBook?> = _selectedBook
@@ -88,7 +89,7 @@ class VersesViewModel @Inject constructor(
     private fun fetchVerses(book: String,chapter: Int) {
         viewModelScope.launch {
             _isLoading.value = true
-            _verses.value = getVerseBibleUseCase(book, chapter)
+            _bibleResponses.value = getVerseBibleUseCase(book, chapter)
             _isLoading.value = false
         }
     }
