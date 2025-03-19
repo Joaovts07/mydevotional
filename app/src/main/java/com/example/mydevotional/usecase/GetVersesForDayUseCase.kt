@@ -13,7 +13,14 @@ class GetVersesForDayUseCase @Inject constructor(
         return getVersesForDay(repository.getVersesForDay(date))
     }
 
-    private fun getVersesForDay(verses: BibleResponse): List<Verses> {
-        return verses.verses
+    private fun getVersesForDay(verses: List<BibleResponse>): List<Verses> {
+        val versesForday = mutableListOf<Verses>()
+        verses.forEach {
+            it.verses.forEach { verse ->
+                versesForday.add(verse)
+            }
+
+        }
+        return versesForday
     }
 }
