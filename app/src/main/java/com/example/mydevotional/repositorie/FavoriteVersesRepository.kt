@@ -2,9 +2,8 @@ package com.example.mydevotional.repositorie
 
 import android.content.Context
 import androidx.datastore.preferences.core.edit
-import androidx.datastore.preferences.core.stringSetPreferencesKey
+import androidx.datastore.preferences.core.stringPreferencesKey
 import com.example.mydevotional.model.Verses
-import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
 import javax.inject.Inject
@@ -18,39 +17,41 @@ class FavoriteVersesRepository @Inject constructor(
     private val gson: Gson
 ) {
 
-    private val favoriteVersesKey = stringSetPreferencesKey("favorite_verses")
-
-    val favoriteVerses: Flow<Set<String>> = context.dataStore.data
-        .map { preferences ->
-            preferences[favoriteVersesKey] ?: emptySet()
-        }
+    private val favoriteVersesKey = stringPreferencesKey("favorite_verses_map")
 
     suspend fun toggleFavorite(verse: Verses) {
+        val verseId = generateVerseId(verse)
         val verseJson = gson.toJson(verse)
-        val verseId = "${verse.book_id}_${verse.chapter}_${verse.verse}"
 
         context.dataStore.edit { preferences ->
-            val currentFavorites = preferences[favoriteVersesKey] ?: emptySet()
-            val updatedFavorites = if (currentFavorites.contains(verseJson)) { // Check for the serialized object
-                currentFavorites - verseJson
+            val currentFavoritesJson = preferences[favoriteVersesKey] ?: "{}"
+            val currentFavoritesMap = gson.fromJson(currentFavoritesJson, mutableMapOf<String, String>().javaClass)
+
+            if (currentFavoritesMap.containsKey(verseId)) {
+                currentFavoritesMap.remove(verseId)
             } else {
-                currentFavorites + verseJson
+                currentFavoritesMap[verseId] = verseJson
             }
-            preferences[favoriteVersesKey] = updatedFavorites
+
+            preferences[favoriteVersesKey] = gson.toJson(currentFavoritesMap)
         }
     }
 
     suspend fun isVerseFavorite(verse: Verses): Boolean {
-        val verseJson = gson.toJson(verse)
-        val currentFavorites = context.dataStore.data.map { it[favoriteVersesKey] ?: emptySet() }.first()
-        return currentFavorites.contains(verseJson)
+        val verseId = generateVerseId(verse)
+        val currentFavoritesJson = context.dataStore.data.map { it[favoriteVersesKey] ?: "{}" }.first()
+        val currentFavoritesMap = gson.fromJson(currentFavoritesJson, mutableMapOf<String, String>().javaClass)
+        return currentFavoritesMap.containsKey(verseId)
     }
 
     suspend fun getFavoriteVerses(): List<Verses> {
-        val favoriteVerseJsons = context.dataStore.data.map { it[favoriteVersesKey] ?: emptySet() }.first()
-        return favoriteVerseJsons.map { verseJson ->
-            gson.fromJson(verseJson, Verses::class.java)
-        }
+        val currentFavoritesJson = context.dataStore.data.map { it[favoriteVersesKey] ?: "{}" }.first()
+        val currentFavoritesMap = gson.fromJson(currentFavoritesJson, mutableMapOf<String, String>().javaClass)
+        return currentFavoritesMap.values.map { gson.fromJson(it, Verses::class.java) }
+    }
+
+    private fun generateVerseId(verse: Verses): String {
+        return "${verse.book_id}_${verse.chapter}_${verse.verse}"
     }
 }
 

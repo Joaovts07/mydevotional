@@ -6,10 +6,15 @@ import java.util.Date
 import javax.inject.Inject
 
 class GetVersesForDayUseCase @Inject constructor(
-    private val repository: BibleRepository
+    private val repository: BibleRepository,
+    private val favoriteVerseUseCase: FavoriteVerseUseCase
 ) {
     suspend operator fun invoke(date: Date): List<BibleResponse> {
-        return repository.getVersesForDay(date)
+        val bibleResponses = repository.getVersesForDay(date)
+        return favoriteVerseUseCase.updateFavoriteVerses(bibleResponses)
     }
+
+
+
 
 }
