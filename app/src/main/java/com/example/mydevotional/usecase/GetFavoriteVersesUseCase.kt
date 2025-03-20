@@ -9,10 +9,6 @@ class FavoriteVerseUseCase @Inject constructor(
     private val favoriteVersesRepository: FavoriteVersesRepository
 ) {
 
-    suspend fun toggleFavorite(verse: Verses) {
-        favoriteVersesRepository.toggleFavorite(verse)
-    }
-
     suspend fun isVerseFavorite(verse: Verses): Boolean {
         return favoriteVersesRepository.isVerseFavorite(verse)
     }
