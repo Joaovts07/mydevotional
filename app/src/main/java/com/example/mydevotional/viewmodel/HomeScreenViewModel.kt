@@ -2,8 +2,8 @@ package com.example.mydevotional.viewmodel
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.mydevotional.model.BibleResponse
 import com.example.mydevotional.usecase.GetVersesForDayUseCase
-import com.example.mydevotional.model.Verses
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -17,8 +17,8 @@ class HomeScreenViewModel @Inject constructor(
     private val getVersesForDayUseCase: GetVersesForDayUseCase
 ) : ViewModel() {
 
-    private val _verses = MutableStateFlow<List<Verses>>(emptyList())
-    val verses: StateFlow<List<Verses>> = _verses.asStateFlow()
+    private val _bibleResponse = MutableStateFlow<List<BibleResponse>>(emptyList())
+    val bibleResponse: StateFlow<List<BibleResponse>> = _bibleResponse.asStateFlow()
 
     private val _selectedDate = MutableStateFlow<Date?>(null)
     val selectedDate: StateFlow<Date?> = _selectedDate.asStateFlow()
@@ -37,7 +37,7 @@ class HomeScreenViewModel @Inject constructor(
     private fun loadVersesForToday() {
         viewModelScope.launch {
             _isLoading.value = true
-            _verses.value = getVersesForDayUseCase(Date())
+            _bibleResponse.value = getVersesForDayUseCase(Date())
             _isLoading.value = false
         }
     }
@@ -46,7 +46,7 @@ class HomeScreenViewModel @Inject constructor(
         _selectedDate.value = newDate
         viewModelScope.launch {
             _isLoading.value = true
-            _verses.value = getVersesForDayUseCase(newDate)
+            _bibleResponse.value = getVersesForDayUseCase(newDate)
             _isLoading.value = false
         }
     }

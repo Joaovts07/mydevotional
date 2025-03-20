@@ -2,18 +2,19 @@ package com.example.mydevotional.usecase
 
 import com.example.mydevotional.model.BibleResponse
 import com.example.mydevotional.repositorie.BibleRepository
-import com.example.mydevotional.model.Verses
 import java.util.Date
 import javax.inject.Inject
 
 class GetVersesForDayUseCase @Inject constructor(
-    private val repository: BibleRepository
+    private val repository: BibleRepository,
+    private val favoriteVerseUseCase: FavoriteVerseUseCase
 ) {
-    suspend operator fun invoke(date: Date): List<Verses> {
-        return getVersesForDay(repository.getVersesForDay(date))
+    suspend operator fun invoke(date: Date): List<BibleResponse> {
+        val bibleResponses = repository.getVersesForDay(date)
+        return favoriteVerseUseCase.updateFavoriteVerses(bibleResponses)
     }
 
-    private fun getVersesForDay(verses: BibleResponse): List<Verses> {
-        return verses.verses
-    }
+
+
+
 }

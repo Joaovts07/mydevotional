@@ -23,10 +23,11 @@ data class RandomVerse(
     val text: String
 )
 data class Verses(
-    val book_id: String,
-    val book_name: String,
-    val chapter: Int,
-    val verse: Int,
-    val text: String,
-    val isFavorite: Boolean = false
+    val book_id: String = "",
+    val book_name: String = "",
+    val chapter: Int = 0,
+    val verse: Int = 0,
+    val text: String = "",
+    val isFavorite: Boolean = false,
+    val textChapter: String  = ""
 )

@@ -29,22 +29,22 @@ class BibleRepositoryImpl @Inject constructor(
         return bibleBook.chapters
     }
 
-    override suspend fun getVerses(book: String, chapter: Int): List<Verses> {
-        val verses = mutableListOf<Verses>()
+    override suspend fun getVerses(book: String, chapter: Int): List<BibleResponse> {
+        val bibleResponse = mutableListOf<BibleResponse>()
         try {
             val response: String = httpClient.get {
                 url("https://bible-api.com/$book-$chapter?translation=almeida")
             }.bodyAsText()
 
-            gsonDeserializer<Verses>(response)?.let { verses.add(it) }
+            gsonDeserializer<BibleResponse>(response)?.let { bibleResponse.add(it) }
         } catch (e: Exception) {
             e.printStackTrace()
         }
 
-        return verses
+        return bibleResponse
     }
 
-    override suspend fun getVersesForDay(date: Date): BibleResponse {
+    override suspend fun getVersesForDay(date: Date): List<BibleResponse> {
         val passages = searchReadingDaily(date) ?: ArrayList()
         return fetchVersesFromApi(passages)
     }
@@ -64,7 +64,8 @@ class BibleRepositoryImpl @Inject constructor(
         }
     }
 
-    private suspend fun fetchVersesFromApi(passages: List<String>): BibleResponse {
+    private suspend fun fetchVersesFromApi(passages: List<String>): List<BibleResponse> {
+        val bibleResponses = mutableListOf<BibleResponse>()
         passages.forEach { passage ->
             try {
                 val response: String = httpClient.get {
@@ -74,14 +75,14 @@ class BibleRepositoryImpl @Inject constructor(
                 val bibleResponse = gsonDeserializer<BibleResponse>(response)
 
                 bibleResponse?.let {
-                    return it
+                    bibleResponses.add(it)
                 }
             } catch (e: Exception) {
                 e.printStackTrace()
 
             }
         }
-        return BibleResponse()
+        return bibleResponses
     }
 
     private fun formatDate(date: Date): String {

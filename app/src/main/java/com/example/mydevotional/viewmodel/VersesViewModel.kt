@@ -3,10 +3,11 @@ package com.example.mydevotional.viewmodel
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.mydevotional.BibleBook
+import com.example.mydevotional.model.BibleResponse
 import com.example.mydevotional.model.Verses
+import com.example.mydevotional.usecase.FavoriteVerseUseCase
 import com.example.mydevotional.usecase.GetBibleBooksUseCase
 import com.example.mydevotional.usecase.GetBibleChaptersUseCase
-import com.example.mydevotional.usecase.GetFavoriteVersesUseCase
 import com.example.mydevotional.usecase.GetVerseBibleUseCase
 import com.example.mydevotional.usecase.ToggleFavoriteVerseUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -21,7 +22,7 @@ class VersesViewModel @Inject constructor(
     private val getVerseBibleUseCase: GetVerseBibleUseCase,
     private val getBibleBooksUseCase: GetBibleBooksUseCase,
     private val getBibleChaptersUseCase: GetBibleChaptersUseCase,
-    private val getFavoriteVersesUseCase: GetFavoriteVersesUseCase,
+    private val favoriteVerseUseCase: FavoriteVerseUseCase,
     private val toggleFavoriteVerseUseCase: ToggleFavoriteVerseUseCase
 ) : ViewModel() {
 
@@ -31,8 +32,8 @@ class VersesViewModel @Inject constructor(
     private val _chapters = MutableStateFlow(0)
     val chapters: StateFlow<Int> = _chapters
 
-    private val _verses = MutableStateFlow<List<Verses>>(emptyList())
-    val verses: StateFlow<List<Verses>> = _verses
+    private val _bibleResponses = MutableStateFlow<List<BibleResponse>>(emptyList())
+    val bibleResponses: StateFlow<List<BibleResponse>> = _bibleResponses
 
     private val _selectedBook = MutableStateFlow<BibleBook?>(null)
     val selectedBook: StateFlow<BibleBook?> = _selectedBook
@@ -43,8 +44,8 @@ class VersesViewModel @Inject constructor(
     private val _isLoading = MutableStateFlow(false)
     val isLoading: StateFlow<Boolean> = _isLoading
 
-    private val _favoriteVerses = MutableStateFlow<Set<String>>(emptySet())
-    val favoriteVerses: StateFlow<Set<String>> = _favoriteVerses.asStateFlow()
+    private val _favoriteVerses = MutableStateFlow<List<Verses>>(emptyList())
+    val favoriteVerses: StateFlow<List<Verses>> = _favoriteVerses.asStateFlow()
 
     init {
         fetchBooks()
@@ -53,11 +54,10 @@ class VersesViewModel @Inject constructor(
 
     private fun verifyFavoriteVerses() {
         viewModelScope.launch {
-            getFavoriteVersesUseCase().collect { favorites ->
-                _favoriteVerses.value = favorites
-            }
+            _favoriteVerses.value = favoriteVerseUseCase.getFavoriteVerses()
         }
     }
+
 
     private fun fetchBooks() {
         viewModelScope.launch {
@@ -88,7 +88,7 @@ class VersesViewModel @Inject constructor(
     private fun fetchVerses(book: String,chapter: Int) {
         viewModelScope.launch {
             _isLoading.value = true
-            _verses.value = getVerseBibleUseCase(book, chapter)
+            _bibleResponses.value = getVerseBibleUseCase(book, chapter)
             _isLoading.value = false
         }
     }

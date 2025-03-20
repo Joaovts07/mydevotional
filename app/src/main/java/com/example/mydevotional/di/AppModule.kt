@@ -4,9 +4,10 @@ import android.content.Context
 import com.example.mydevotional.repositorie.BibleRepository
 import com.example.mydevotional.repositorie.BibleRepositoryImpl
 import com.example.mydevotional.repositorie.FavoriteVersesRepository
-import com.example.mydevotional.usecase.GetFavoriteVersesUseCase
+import com.example.mydevotional.usecase.FavoriteVerseUseCase
 import com.example.mydevotional.usecase.ToggleFavoriteVerseUseCase
 import com.google.firebase.firestore.FirebaseFirestore
+import com.google.gson.Gson
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -47,8 +48,14 @@ object AppModule {
 
     @Provides
     @Singleton
-    fun provideFavoriteVersesRepository(@ApplicationContext context: Context): FavoriteVersesRepository {
-        return FavoriteVersesRepository(context)
+    fun provideGson(): Gson {
+        return Gson()
+    }
+
+    @Provides
+    @Singleton
+    fun provideFavoriteVersesRepository(@ApplicationContext context: Context, gson: Gson): FavoriteVersesRepository {
+        return FavoriteVersesRepository(context, gson)
     }
 
     @Provides
@@ -57,7 +64,8 @@ object AppModule {
     }
 
     @Provides
-    fun provideGetFavoriteVersesUseCase(repository: FavoriteVersesRepository): GetFavoriteVersesUseCase {
-        return GetFavoriteVersesUseCase(repository)
+    fun provideGetFavoriteVersesUseCase(repository: FavoriteVersesRepository): FavoriteVerseUseCase {
+        return FavoriteVerseUseCase(repository)
     }
+
 }
