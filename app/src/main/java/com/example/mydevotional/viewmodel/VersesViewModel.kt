@@ -93,9 +93,24 @@ class VersesViewModel @Inject constructor(
         }
     }
 
-    fun toggleFavorite(verses: Verses) {
+    fun toggleFavorite(verse: Verses) {
         viewModelScope.launch {
-            toggleFavoriteVerseUseCase(verses)
+            toggleFavoriteVerseUseCase(verse)
+            updateVerseFavoriteState(verse)
+        }
+    }
+
+    private fun updateVerseFavoriteState(verse: Verses) {
+        _bibleResponses.value = _bibleResponses.value.map { bibleResponse ->
+            bibleResponse.copy(
+                verses = bibleResponse.verses.map {
+                    if (it == verse) {
+                        it.copy(isFavorite = !it.isFavorite)
+                    } else {
+                        it
+                    }
+                }
+            )
         }
     }
 }
