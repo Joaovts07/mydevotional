@@ -10,7 +10,6 @@ import javax.inject.Inject
 import javax.inject.Singleton
 import com.google.gson.Gson
 
-
 @Singleton
 class FavoriteVersesRepository @Inject constructor(
     private val context: Context,
