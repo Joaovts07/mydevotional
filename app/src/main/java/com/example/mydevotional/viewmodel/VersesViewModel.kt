@@ -52,7 +52,7 @@ class VersesViewModel @Inject constructor(
         verifyFavoriteVerses()
     }
 
-    private fun verifyFavoriteVerses() {
+    fun verifyFavoriteVerses() {
         viewModelScope.launch {
             _favoriteVerses.value = favoriteVerseUseCase.getFavoriteVerses()
         }

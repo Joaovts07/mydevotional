@@ -8,6 +8,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
@@ -22,6 +23,10 @@ import com.example.mydevotional.viewmodel.VersesViewModel
 fun FavoriteVersesScreen(viewModel: VersesViewModel) {
     val favoriteVerses by viewModel.favoriteVerses.collectAsState()
 
+    LaunchedEffect(Unit) {
+        viewModel.verifyFavoriteVerses()
+    }
+    
     Column(modifier = Modifier.fillMaxSize()) {
         Text(
             text = "Versos Favoritos",
