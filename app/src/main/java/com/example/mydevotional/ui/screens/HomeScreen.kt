@@ -1,6 +1,7 @@
 package com.example.mydevotional.ui.screens
 
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -40,43 +41,37 @@ fun HomeScreen(viewModel: HomeScreenViewModel = hiltViewModel()) {
         calendarHeight = (maxHeight - (listState.firstVisibleItemScrollOffset / 5).dp).coerceIn(minHeight, maxHeight)
     }
 
-    LazyColumn(
-        state = listState,
+    Column(
         modifier = Modifier.fillMaxSize()
     ) {
-        item {
-            Box(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(calendarHeight)
-                    .padding(vertical = 8.dp),
-                contentAlignment = Alignment.Center
-            ) {
-                CalendarReadings(
-                    completedReadings = completedReadings,
-                    onDateSelected = { selectedDate -> viewModel.selectDate(selectedDate) }
-                )
-            }
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(calendarHeight)
+                .padding(vertical = 8.dp),
+            contentAlignment = Alignment.Center
+        ) {
+            CalendarReadings(
+                completedReadings = completedReadings,
+                onDateSelected = { selectedDate -> viewModel.selectDate(selectedDate) }
+            )
         }
         if (isLoading) {
-            item {
-                Box(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .padding(16.dp),
-                    contentAlignment = Alignment.Center
-                ) {
-                    CircularProgressIndicator()
-                }
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(16.dp),
+                contentAlignment = Alignment.Center
+            ) {
+                CircularProgressIndicator()
             }
+
         } else {
-            item {
-                DisplayModeContent(
-                    isSingleCardMode = isSingleCardMode,
-                    onModeChange = { isSingleCardMode = it },
-                    bibleResponses = bibleResponse
-                )
-            }
+            DisplayModeContent(
+                isSingleCardMode = isSingleCardMode,
+                onModeChange = { isSingleCardMode = it },
+                bibleResponses = bibleResponse
+            )
         }
     }
 }
