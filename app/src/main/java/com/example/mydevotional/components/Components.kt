@@ -94,8 +94,6 @@ fun VerseCard(
     }
 }
 
-
-
 @Composable
 fun BookListView(books: List<BibleBook>, onBookSelected: (BibleBook) -> Unit) {
     LazyColumn {
@@ -176,24 +174,21 @@ fun DisplayModeContent(
     bibleResponses: List<BibleResponse> = emptyList(),
     onFavoriteClick: (Verses) -> Unit = {}
 ) {
-    Column {
-        DisplayModeSelector(
-            isSingleCardMode = isSingleCardMode,
-            onModeChange = onModeChange
-        )
+    DisplayModeSelector(
+        isSingleCardMode = isSingleCardMode,
+        onModeChange = onModeChange
+    )
 
-        if (isSingleCardMode) {
-            bibleResponses.forEach { bibleResponse ->
-                ChapterCard(bibleResponse.text, bibleResponse.reference)
-            }
-        } else {
-            bibleResponses.forEach { bibleResponse ->
-                bibleResponse.verses.forEach { verses ->
-                    VerseCard(verses) {
-                        onFavoriteClick(it)
-                    }
+    if (isSingleCardMode) {
+        bibleResponses.forEach { bibleResponse ->
+            ChapterCard(bibleResponse.text, bibleResponse.reference)
+        }
+    } else {
+        LazyColumn {
+            items(bibleResponses.flatMap { it.verses }) { verse ->
+                VerseCard(verse = verse) {
+                    onFavoriteClick(it)
                 }
-
             }
         }
     }
