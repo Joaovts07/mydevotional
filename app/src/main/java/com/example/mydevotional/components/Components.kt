@@ -180,8 +180,10 @@ fun DisplayModeContent(
     )
 
     if (isSingleCardMode) {
-        bibleResponses.forEach { bibleResponse ->
-            ChapterCard(bibleResponse.text, bibleResponse.reference)
+        LazyColumn {
+            items(bibleResponses) { bibleResponse ->
+                ChapterCard(bibleResponse.text, bibleResponse.reference)
+            }
         }
     } else {
         LazyColumn {
