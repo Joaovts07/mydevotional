@@ -24,26 +24,25 @@ fun VersesScreen(viewModel: VersesViewModel) {
     val isLoading by viewModel.isLoading.collectAsState()
     var isSingleCardMode by remember { mutableStateOf(true) }
 
-    Column(Modifier.fillMaxSize().padding(16.dp)) {
-        if (isLoading) {
-            Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                CircularProgressIndicator()
-            }
-        } else {
-            LazyColumn {
-                item {
-                    DisplayModeContent(
-                        isSingleCardMode = isSingleCardMode,
-                        onModeChange = { isSingleCardMode = it },
-                        bibleResponses = bibleResponses,
-                        onFavoriteClick = { verse ->
-                            viewModel.toggleFavorite(verse)
-                        }
-                    )
-                }
+    if (isLoading) {
+        Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+            CircularProgressIndicator()
+        }
+    } else {
+        LazyColumn {
+            item {
+                DisplayModeContent(
+                    isSingleCardMode = isSingleCardMode,
+                    onModeChange = { isSingleCardMode = it },
+                    bibleResponses = bibleResponses,
+                    onFavoriteClick = { verse ->
+                        viewModel.toggleFavorite(verse)
+                    }
+                )
             }
         }
     }
+
 }
 
 

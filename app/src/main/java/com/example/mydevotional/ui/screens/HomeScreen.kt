@@ -19,6 +19,10 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.input.nestedscroll.NestedScrollConnection
+import androidx.compose.ui.input.nestedscroll.NestedScrollSource
+import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.example.mydevotional.components.CalendarReadings
@@ -35,46 +39,60 @@ fun HomeScreen(viewModel: HomeScreenViewModel = hiltViewModel()) {
     var isSingleCardMode by remember { mutableStateOf(true) }
     val listState = rememberLazyListState()
 
-    LaunchedEffect(remember { derivedStateOf { listState.firstVisibleItemScrollOffset } }) {
-        val minHeight = 80.dp
-        val maxHeight = 250.dp
-        calendarHeight = (maxHeight - (listState.firstVisibleItemScrollOffset / 5).dp).coerceIn(minHeight, maxHeight)
+    // Controle de scroll para efeito de Parallax
+    val nestedScrollConnection = remember {
+        object : NestedScrollConnection {
+            override fun onPreScroll(available: Offset, source: NestedScrollSource): Offset {
+                val minHeight = 80.dp
+                val maxHeight = 250.dp
+                val newHeight = (calendarHeight - available.y.dp).coerceIn(minHeight, maxHeight)
+                calendarHeight = newHeight
+                return Offset.Zero
+            }
+        }
     }
 
-    Column(
-        modifier = Modifier.fillMaxSize()
+    Box(
+        modifier = Modifier
+            .fillMaxSize()
+            .nestedScroll(nestedScrollConnection)
     ) {
-        Box(
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(calendarHeight)
-                .padding(vertical = 8.dp),
-            contentAlignment = Alignment.Center
+
+        Column(
+            modifier = Modifier.fillMaxSize()
         ) {
-            CalendarReadings(
-                completedReadings = completedReadings,
-                onDateSelected = { selectedDate -> viewModel.selectDate(selectedDate) }
-            )
-        }
-        if (isLoading) {
             Box(
                 modifier = Modifier
-                    .fillMaxSize()
-                    .padding(16.dp),
+                    .fillMaxWidth()
+                    .height(calendarHeight)
+                    .padding(vertical = 8.dp),
                 contentAlignment = Alignment.Center
             ) {
-                CircularProgressIndicator()
+                CalendarReadings(
+                    completedReadings = completedReadings,
+                    onDateSelected = { selectedDate -> viewModel.selectDate(selectedDate) }
+                )
             }
+            if (isLoading) {
+                Box(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(16.dp),
+                    contentAlignment = Alignment.Center
+                ) {
+                    CircularProgressIndicator()
+                }
 
-        } else {
-            DisplayModeContent(
-                isSingleCardMode = isSingleCardMode,
-                onModeChange = { isSingleCardMode = it },
-                bibleResponses = bibleResponse
-            )
+            } else {
+                DisplayModeContent(
+                    isSingleCardMode = isSingleCardMode,
+                    onModeChange = { isSingleCardMode = it },
+                    bibleResponses = bibleResponse
+                )
+            }
         }
     }
-}
+}  
 
 
 
