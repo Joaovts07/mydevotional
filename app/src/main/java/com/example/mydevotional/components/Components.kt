@@ -6,6 +6,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -174,27 +175,34 @@ fun DisplayModeContent(
     bibleResponses: List<BibleResponse> = emptyList(),
     onFavoriteClick: (Verses) -> Unit = {}
 ) {
-    DisplayModeSelector(
-        isSingleCardMode = isSingleCardMode,
-        onModeChange = onModeChange
-    )
+    Column(modifier = Modifier.fillMaxSize()) {
+        DisplayModeSelector(
+            isSingleCardMode = isSingleCardMode,
+            onModeChange = onModeChange
+        )
 
-    if (isSingleCardMode) {
-        LazyColumn {
-            items(bibleResponses) { bibleResponse ->
-                ChapterCard(bibleResponse.text, bibleResponse.reference)
+        if (isSingleCardMode) {
+            LazyColumn(
+                modifier = Modifier.fillMaxSize()
+            ) {
+                items(bibleResponses) { bibleResponse ->
+                    ChapterCard(bibleResponse.text, bibleResponse.reference)
+                }
             }
-        }
-    } else {
-        LazyColumn {
-            items(bibleResponses.flatMap { it.verses }) { verse ->
-                VerseCard(verse = verse) {
-                    onFavoriteClick(it)
+        } else {
+            LazyColumn(
+                modifier = Modifier.fillMaxSize()
+            ) {
+                items(bibleResponses.flatMap { it.verses }) { verse ->
+                    VerseCard(verse = verse) {
+                        onFavoriteClick(it)
+                    }
                 }
             }
         }
     }
 }
+
 
 @Composable
 fun DisplayModeSelector(
