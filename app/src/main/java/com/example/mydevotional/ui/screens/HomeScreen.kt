@@ -12,19 +12,14 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.MenuBook
 import androidx.compose.material.icons.filled.Book
-import androidx.compose.material.icons.filled.Favorite
-import androidx.compose.material.icons.outlined.FavoriteBorder
-import androidx.compose.material3.Card
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -36,12 +31,10 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
-import com.example.mydevotional.ReadVerseWithTTS
 import com.example.mydevotional.components.CalendarReadings
+import com.example.mydevotional.components.versesListItems
 import com.example.mydevotional.model.BibleResponse
 import com.example.mydevotional.model.Verses
 import com.example.mydevotional.viewmodel.HomeScreenViewModel
@@ -126,81 +119,11 @@ fun HomeScreen(viewModel: HomeScreenViewModel = hiltViewModel()) {
                 }
             }
 
-            if (isSingleCardMode) {
-                items(bibleResponse) { bibleResponse ->
-                    Card(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(12.dp),
-                    ) {
-                        Column(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(8.dp)
-                        ) {
-                            Text(
-                                text = bibleResponse.text,
-                                fontSize = 18.sp,
-                                modifier = Modifier.fillMaxWidth()
-                            )
-
-                            Text(
-                                text = "- ${bibleResponse.reference} ",
-                                fontStyle = FontStyle.Italic,
-                                modifier = Modifier.padding(top = 4.dp)
-                            )
-                        }
-                    }
-                }
-            } else {
-                items(bibleResponse.flatMap { it.verses }) { verse ->
-                    Card(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(12.dp),
-                    ) {
-                        Column(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(8.dp)
-                        ) {
-                            Text(
-                                text = verse.text,
-                                fontSize = 18.sp,
-                                modifier = Modifier.fillMaxWidth()
-                            )
-
-                            Row(
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .padding(top = 8.dp),
-                                horizontalArrangement = Arrangement.SpaceBetween,
-                                verticalAlignment = Alignment.CenterVertically
-                            ) {
-                                Text(
-                                    text = "- ${verse.book_name} ${verse.chapter}:${verse.verse}",
-                                    fontStyle = FontStyle.Italic
-                                )
-
-                                Row(verticalAlignment = Alignment.CenterVertically) {
-                                    IconButton(
-                                        onClick = {
-                                            //onFavoriteClick(verse)
-                                        }
-                                    ) {
-                                        Icon(
-                                            imageVector = if (verse.isFavorite) Icons.Filled.Favorite else Icons.Outlined.FavoriteBorder,
-                                            contentDescription = "Favoritar verso",
-                                            tint = if (verse.isFavorite) Color.Red else Color.Gray
-                                        )
-                                    }
-                                    ReadVerseWithTTS(verse.text)
-                                }
-                            }
-                        }
-                    }
-                }
-            }
+            versesListItems(
+                bibleResponses = bibleResponse,
+                isSingleCardMode = isSingleCardMode,
+                onFavoriteClick = {  }
+            )
         }
     }
 }
