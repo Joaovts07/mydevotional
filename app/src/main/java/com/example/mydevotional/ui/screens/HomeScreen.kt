@@ -2,7 +2,6 @@ package com.example.mydevotional.ui.screens
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -35,8 +34,6 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.example.mydevotional.components.CalendarReadings
 import com.example.mydevotional.components.versesListItems
-import com.example.mydevotional.model.BibleResponse
-import com.example.mydevotional.model.Verses
 import com.example.mydevotional.viewmodel.HomeScreenViewModel
 
 @Composable
@@ -122,21 +119,9 @@ fun HomeScreen(viewModel: HomeScreenViewModel = hiltViewModel()) {
             versesListItems(
                 bibleResponses = bibleResponse,
                 isSingleCardMode = isSingleCardMode,
-                onFavoriteClick = {  }
+                onFavoriteClick = { viewModel.toggleFavorite(it) }
             )
         }
-    }
-}
-
-@Composable
-fun CombinedDisplayContent(
-    bibleResponses: List<BibleResponse> = emptyList(),
-    onFavoriteClick: (Verses) -> Unit = {}
-) {
-    var isSingleCardMode by remember { mutableStateOf(true) }
-
-    Column(modifier = Modifier.fillMaxSize()) {
-
     }
 }
 
