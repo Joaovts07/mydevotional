@@ -6,13 +6,13 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyListScope
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.items
@@ -40,14 +40,26 @@ import com.example.mydevotional.model.BibleResponse
 import com.example.mydevotional.model.Verses
 
 @Composable
-fun ChapterCard(versiculo: String, reference: String, ) {
+fun ChapterCard(
+    versiculo: String,
+    reference: String
+) {
     Card(
         modifier = Modifier
             .fillMaxWidth()
             .padding(12.dp),
     ) {
-        Column(Modifier.padding(8.dp)) {
-            Text(text = versiculo, fontSize = 18.sp)
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(8.dp)
+        ) {
+            Text(
+                text = versiculo,
+                fontSize = 18.sp,
+                modifier = Modifier.fillMaxWidth()
+            )
+
             Text(
                 text = "- $reference ",
                 fontStyle = FontStyle.Italic,
@@ -67,12 +79,21 @@ fun VerseCard(
             .fillMaxWidth()
             .padding(12.dp),
     ) {
-        Column(Modifier.padding(8.dp)) {
-            Text(text = verse.text, fontSize = 18.sp)
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(8.dp)
+        ) {
+            Text(
+                text = verse.text,
+                fontSize = 18.sp,
+                modifier = Modifier.fillMaxWidth()
+            )
+
             Row(
                 modifier = Modifier
-                    .padding(8.dp)
-                    .fillMaxWidth(),
+                    .fillMaxWidth()
+                    .padding(top = 8.dp),
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically
             ) {
@@ -80,8 +101,11 @@ fun VerseCard(
                     text = "- ${verse.book_name} ${verse.chapter}:${verse.verse}",
                     fontStyle = FontStyle.Italic
                 )
+
                 Row(verticalAlignment = Alignment.CenterVertically) {
-                    IconButton(onClick = { onFavoriteClick(verse) }) {
+                    IconButton(
+                        onClick = { onFavoriteClick(verse) }
+                    ) {
                         Icon(
                             imageVector = if (verse.isFavorite) Icons.Filled.Favorite else Icons.Outlined.FavoriteBorder,
                             contentDescription = "Favoritar verso",
@@ -169,42 +193,6 @@ fun ChaptersGrid(chapters: Int, onChapterSelected: (Int) -> Unit) {
 }
 
 @Composable
-fun DisplayModeContent(
-    isSingleCardMode: Boolean,
-    onModeChange: (Boolean) -> Unit,
-    bibleResponses: List<BibleResponse> = emptyList(),
-    onFavoriteClick: (Verses) -> Unit = {}
-) {
-    Column(modifier = Modifier.fillMaxSize()) {
-        DisplayModeSelector(
-            isSingleCardMode = isSingleCardMode,
-            onModeChange = onModeChange
-        )
-
-        if (isSingleCardMode) {
-            LazyColumn(
-                modifier = Modifier.fillMaxSize()
-            ) {
-                items(bibleResponses) { bibleResponse ->
-                    ChapterCard(bibleResponse.text, bibleResponse.reference)
-                }
-            }
-        } else {
-            LazyColumn(
-                modifier = Modifier.fillMaxSize()
-            ) {
-                items(bibleResponses.flatMap { it.verses }) { verse ->
-                    VerseCard(verse = verse) {
-                        onFavoriteClick(it)
-                    }
-                }
-            }
-        }
-    }
-}
-
-
-@Composable
 fun DisplayModeSelector(
     isSingleCardMode: Boolean,
     onModeChange: (Boolean) -> Unit
@@ -240,3 +228,93 @@ fun DisplayModeSelector(
         }
     }
 }
+
+fun LazyListScope.versesListItems(
+    bibleResponses: List<BibleResponse>,
+    isSingleCardMode: Boolean,
+    onFavoriteClick: (Verses) -> Unit
+) {
+    if (isSingleCardMode) {
+        items(bibleResponses) { bibleResponse ->
+            Card(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(12.dp),
+            ) {
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(8.dp)
+                ) {
+                    Text(
+                        text = bibleResponse.text,
+                        fontSize = 18.sp,
+                        modifier = Modifier.fillMaxWidth()
+                    )
+
+                    Text(
+                        text = "- ${bibleResponse.reference} ",
+                        fontStyle = FontStyle.Italic,
+                        modifier = Modifier.padding(top = 4.dp)
+                    )
+                }
+            }
+        }
+    } else {
+        items(bibleResponses.flatMap { it.verses }) { verse ->
+            Card(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(12.dp),
+            ) {
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(8.dp)
+                ) {
+                    Text(
+                        text = verse.text,
+                        fontSize = 18.sp,
+                        modifier = Modifier.fillMaxWidth()
+                    )
+
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(top = 8.dp),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Text(
+                            text = "- ${verse.book_name} ${verse.chapter}:${verse.verse}",
+                            fontStyle = FontStyle.Italic
+                        )
+
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            IconButton(
+                                onClick = {
+                                    onFavoriteClick(verse)
+                                }
+                            ) {
+                                Icon(
+                                    imageVector = if (verse.isFavorite) Icons.Filled.Favorite else Icons.Outlined.FavoriteBorder,
+                                    contentDescription = "Favoritar verso",
+                                    tint = if (verse.isFavorite) Color.Red else Color.Gray
+                                )
+                            }
+                            ReadVerseWithTTS(verse.text)
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+/*@Composable
+fun VersesDisplay(
+    bibleResponses: List<BibleResponse> = emptyList(),
+    isSingleCardMode: Boolean,
+    onFavoriteClick: (Verses) -> Unit = {}
+) {
+    versesListItems(bibleResponses, isSingleCardMode, onFavoriteClick)
+}*/
