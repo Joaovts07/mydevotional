@@ -5,7 +5,9 @@ import androidx.lifecycle.viewModelScope
 import com.example.mydevotional.model.BibleResponse
 import com.example.mydevotional.model.Verses
 import com.example.mydevotional.usecase.FavoriteVerseUseCase
+import com.example.mydevotional.usecase.GetCompletedReadingsUseCase
 import com.example.mydevotional.usecase.GetVersesForDayUseCase
+import com.example.mydevotional.usecase.MarkReadingAsCompleteUseCase
 import com.example.mydevotional.usecase.ToggleFavoriteVerseUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -19,7 +21,9 @@ import javax.inject.Inject
 class HomeScreenViewModel @Inject constructor(
     private val getVersesForDayUseCase: GetVersesForDayUseCase,
     private val favoriteVerseUseCase: FavoriteVerseUseCase,
-    private val toggleFavoriteVerseUseCase: ToggleFavoriteVerseUseCase
+    private val toggleFavoriteVerseUseCase: ToggleFavoriteVerseUseCase,
+    private val getCompletedReadingsUseCase: GetCompletedReadingsUseCase,
+    private val markReadingAsCompleteUseCase: MarkReadingAsCompleteUseCase
 ) : ViewModel() {
 
     private val _bibleResponses = MutableStateFlow<List<BibleResponse>>(emptyList())
@@ -58,14 +62,23 @@ class HomeScreenViewModel @Inject constructor(
 
     private fun loadCompletedReadings() {
         viewModelScope.launch {
-            _completedReadings.value = emptyList()
+            getCompletedReadingsUseCase().collect { readings ->
+                _completedReadings.value = readings as List<String>
+            }
         }
     }
+
 
     fun toggleFavorite(verse: Verses) {
         viewModelScope.launch {
             toggleFavoriteVerseUseCase(verse)
             updateVerseFavoriteState(verse)
+        }
+    }
+
+    fun markReadingAsComplete() {
+        viewModelScope.launch {
+            markReadingAsCompleteUseCase(Date().toString())
         }
     }
 
