@@ -3,7 +3,6 @@ package com.example.mydevotional.repositorie
 import com.example.mydevotional.BibleBook
 import com.example.mydevotional.BibleBooks
 import com.example.mydevotional.model.BibleResponse
-import com.example.mydevotional.model.Verses
 import com.google.firebase.firestore.FirebaseFirestore
 import io.ktor.client.HttpClient
 import io.ktor.client.request.get
@@ -14,7 +13,6 @@ import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
 import javax.inject.Inject
-import kotlin.collections.ArrayList
 
 class BibleRepositoryImpl @Inject constructor(
     private val firestore: FirebaseFirestore,

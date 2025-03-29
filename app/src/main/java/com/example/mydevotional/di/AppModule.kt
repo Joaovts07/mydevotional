@@ -5,6 +5,7 @@ import com.example.mydevotional.repositorie.BibleRepository
 import com.example.mydevotional.repositorie.BibleRepositoryImpl
 import com.example.mydevotional.repositorie.FavoriteVersesRepository
 import com.example.mydevotional.usecase.FavoriteVerseUseCase
+import com.example.mydevotional.usecase.GetCompletedReadingsUseCase
 import com.example.mydevotional.usecase.ToggleFavoriteVerseUseCase
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.gson.Gson
@@ -67,5 +68,8 @@ object AppModule {
     fun provideGetFavoriteVersesUseCase(repository: FavoriteVersesRepository): FavoriteVerseUseCase {
         return FavoriteVerseUseCase(repository)
     }
+
+    @Provides
+    fun provideGetCompletedReadingsUseCase(repository: BibleRepository): GetCompletedReadingsUseCaseImpl {)
 
 }
