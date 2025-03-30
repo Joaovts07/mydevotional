@@ -3,9 +3,12 @@ package com.example.mydevotional.di
 import android.content.Context
 import com.example.mydevotional.repositorie.BibleRepository
 import com.example.mydevotional.repositorie.BibleRepositoryImpl
+import com.example.mydevotional.repositorie.CompletedReadingsRepository
+import com.example.mydevotional.repositorie.DataStoreCompletedReadingsRepository
 import com.example.mydevotional.repositorie.FavoriteVersesRepository
 import com.example.mydevotional.usecase.FavoriteVerseUseCase
 import com.example.mydevotional.usecase.GetCompletedReadingsUseCase
+import com.example.mydevotional.usecase.MarkReadingAsCompleteUseCase
 import com.example.mydevotional.usecase.ToggleFavoriteVerseUseCase
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.gson.Gson
@@ -70,5 +73,20 @@ object AppModule {
     @Provides
     fun provideGetFavoriteVersesUseCase(repository: FavoriteVersesRepository): FavoriteVerseUseCase {
         return FavoriteVerseUseCase(repository)
+    }
+
+    @Provides
+    fun provideGetCompletedReadingsUseCase(repository: DataStoreCompletedReadingsRepository): GetCompletedReadingsUseCase {
+        return GetCompletedReadingsUseCase(repository)
+    }
+
+    @Provides
+    fun provideDataStoreCompletedReadingsRepository(@ApplicationContext context: Context,): DataStoreCompletedReadingsRepository {
+        return DataStoreCompletedReadingsRepository(context)
+    }
+
+    @Provides
+    fun provideMarkReadingAsCompleteUseCase(repository: DataStoreCompletedReadingsRepository): MarkReadingAsCompleteUseCase {
+        return MarkReadingAsCompleteUseCase(repository)
     }
 }
