@@ -55,7 +55,10 @@ object AppModule {
 
     @Provides
     @Singleton
-    fun provideFavoriteVersesRepository(@ApplicationContext context: Context, gson: Gson): FavoriteVersesRepository {
+    fun provideFavoriteVersesRepository(
+        @ApplicationContext context: Context,
+        gson: Gson
+    ): FavoriteVersesRepository {
         return FavoriteVersesRepository(context, gson)
     }
 
@@ -68,8 +71,4 @@ object AppModule {
     fun provideGetFavoriteVersesUseCase(repository: FavoriteVersesRepository): FavoriteVerseUseCase {
         return FavoriteVerseUseCase(repository)
     }
-
-    @Provides
-    fun provideGetCompletedReadingsUseCase(repository: BibleRepository): GetCompletedReadingsUseCaseImpl {)
-
 }
