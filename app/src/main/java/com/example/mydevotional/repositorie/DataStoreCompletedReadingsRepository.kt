@@ -19,9 +19,9 @@ class DataStoreCompletedReadingsRepository @Inject constructor(private val conte
         }
     }
 
-    override fun getCompletedReadings(): Flow<Set<String>> {
+    override fun getCompletedReadings(): Flow<String> {
         return context.dataStore.data.map { preferences ->
-            preferences[COMPLETED_READINGS_KEY] ?: emptySet()
+            (preferences[COMPLETED_READINGS_KEY] ?: emptySet()).toList().toString()
         }
     }
 }

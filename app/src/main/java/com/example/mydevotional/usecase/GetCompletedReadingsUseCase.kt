@@ -7,7 +7,7 @@ import javax.inject.Inject
 class GetCompletedReadingsUseCase @Inject constructor(
     private val completedReadingsRepository: CompletedReadingsRepository
 ){
-    operator fun invoke(): Flow<Set<String>> {
+    operator fun invoke(): Flow<String> {
         return completedReadingsRepository.getCompletedReadings()
     }
 }
