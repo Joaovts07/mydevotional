@@ -66,7 +66,8 @@ class HomeScreenViewModel @Inject constructor(
                 if (readings.isEmpty()) {
                     return@collect
                 }
-                _completedReadings.value = readings as List<String>
+                _completedReadings.value = listOf(readings)
+
             }
         }
     }
