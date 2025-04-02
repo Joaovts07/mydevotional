@@ -28,8 +28,9 @@ fun AppNavigation(navController: NavHostController) {
     val versesViewModel: VersesViewModel = hiltViewModel()
     val selectedItem by remember(currentDestination) {
         mutableStateOf(
-            bottomAppBarItems.find { it.destination.route == currentDestination?.route }
-                ?: bottomAppBarItems.first()
+            bottomAppBarItems.find { item ->
+                currentDestination?.route?.startsWith(item.destination.route) ?: false
+            } ?: bottomAppBarItems.first()
         )
     }
     NavHost(
