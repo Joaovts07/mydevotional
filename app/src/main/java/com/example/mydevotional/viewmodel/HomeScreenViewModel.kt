@@ -72,7 +72,6 @@ class HomeScreenViewModel @Inject constructor(
         }
     }
 
-
     fun toggleFavorite(verse: Verses) {
         viewModelScope.launch {
             toggleFavoriteVerseUseCase(verse)
