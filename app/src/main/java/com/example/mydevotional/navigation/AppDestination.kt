@@ -10,9 +10,9 @@ sealed class AppDestination(val route: String) {
     data object Home : AppDestination("initialScreen")
     data object Account : AppDestination("account")
     data object FavoriteVerses: AppDestination("favoriteverses")
-    data object BibleVerses: AppDestination("bibleverses")
-    data object BibleBooks: AppDestination("biblebooks")
-    data object BibleChapters: AppDestination("biblechapters")
+    data object BibleVerses: AppDestination("bible/verses")
+    data object BibleBooks: AppDestination("bible/books")
+    data object BibleChapters: AppDestination("bible/chapters")
     data object LoginRequired: AppDestination("loginrequired")
 }
 
