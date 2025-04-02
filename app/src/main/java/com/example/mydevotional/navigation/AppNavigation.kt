@@ -29,7 +29,7 @@ fun AppNavigation(navController: NavHostController) {
     val selectedItem by remember(currentDestination) {
         mutableStateOf(
             bottomAppBarItems.find { item ->
-                currentDestination?.route?.startsWith(item.destination.route) ?: false
+                currentDestination?.route?.startsWith(item.destination.route.substringBefore("/")) == true
             } ?: bottomAppBarItems.first()
         )
     }
