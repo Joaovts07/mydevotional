@@ -35,13 +35,14 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.example.mydevotional.components.CalendarReadings
 import com.example.mydevotional.components.versesListItems
+import com.example.mydevotional.extensions.formatDate
 import com.example.mydevotional.viewmodel.HomeScreenViewModel
+import java.util.Date
 
 @Composable
 fun HomeScreen(viewModel: HomeScreenViewModel = hiltViewModel()) {
@@ -152,8 +153,9 @@ fun HomeScreen(viewModel: HomeScreenViewModel = hiltViewModel()) {
             )
         }
         item {
+            val date = Date()
             Button(
-                onClick = { viewModel.markReadingAsComplete() },
+                onClick = { viewModel.markReadingAsComplete(date.formatDate("yyy-MM-dd")) },
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(12.dp)

@@ -2,6 +2,7 @@ package com.example.mydevotional.repositorie
 
 import com.example.mydevotional.BibleBook
 import com.example.mydevotional.BibleBooks
+import com.example.mydevotional.extensions.formatDate
 import com.example.mydevotional.model.BibleResponse
 import com.google.firebase.firestore.FirebaseFirestore
 import io.ktor.client.HttpClient
@@ -50,7 +51,7 @@ class BibleRepositoryImpl @Inject constructor(
     override suspend fun searchReadingDaily(date: Date): List<String>? {
         return try {
             val document = firestore.collection("readings")
-                .document(formatDate(date))
+                .document(date.formatDate("yyyy-MM-dd"))
                 .get().await()
 
             if (document.exists()) {
@@ -81,11 +82,6 @@ class BibleRepositoryImpl @Inject constructor(
             }
         }
         return bibleResponses
-    }
-
-    private fun formatDate(date: Date): String {
-        val formatter = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
-        return formatter.format(date)
     }
 
     private inline fun <reified T> gsonDeserializer(json: String): T? {
