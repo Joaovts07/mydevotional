@@ -79,9 +79,9 @@ class HomeScreenViewModel @Inject constructor(
         }
     }
 
-    fun markReadingAsComplete() {
+    fun markReadingAsComplete(date: String) {
         viewModelScope.launch {
-            markReadingAsCompleteUseCase(Date().toString())
+            markReadingAsCompleteUseCase(date)
         }
     }
 
