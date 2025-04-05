@@ -49,6 +49,7 @@ fun HomeScreen(viewModel: HomeScreenViewModel = hiltViewModel()) {
     val bibleResponse by viewModel.bibleResponse.collectAsState()
     val isLoading by viewModel.isLoading.collectAsState()
     val completedReadings by viewModel.completedReadings.collectAsState()
+    val selectedDate by viewModel.selectedDate.collectAsState()
 
     var calendarHeight by remember { mutableStateOf(250.dp) }
     var isSingleCardMode by remember { mutableStateOf(true) }
@@ -153,9 +154,9 @@ fun HomeScreen(viewModel: HomeScreenViewModel = hiltViewModel()) {
             )
         }
         item {
-            val date = Date()
+            val date = selectedDate?.formatDate("yyy-MM-dd") ?: ""
             Button(
-                onClick = { viewModel.markReadingAsComplete(date.formatDate("yyy-MM-dd")) },
+                onClick = { viewModel.markReadingAsComplete(date) },
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(12.dp)
