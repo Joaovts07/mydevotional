@@ -68,7 +68,7 @@ class HomeScreenViewModel @Inject constructor(
                 }
             }
         }
-        loadCompletedReadings()
+
     }
 
     fun toggleFavorite(verse: Verses) {
