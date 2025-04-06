@@ -62,13 +62,10 @@ class HomeScreenViewModel @Inject constructor(
 
     private fun loadCompletedReadings() {
         viewModelScope.launch {
-            getCompletedReadingsUseCase().collect { readings ->
-                if (readings.isEmpty()) {
-                    return@collect
-                }
+            getCompletedReadingsUseCase().collect { reading ->
+                _completedReadings.value = listOf(reading)
             }
         }
-
     }
 
     fun toggleFavorite(verse: Verses) {
