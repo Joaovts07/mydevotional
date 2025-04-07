@@ -162,6 +162,7 @@ fun HomeScreen(viewModel: HomeScreenViewModel = hiltViewModel()) {
                     .padding(12.dp)
                     .height(48.dp),
                 shape = RoundedCornerShape(8.dp),
+                //todo add a snackbar e mudar a cor do botao para desabled
             ){
                 Text("Marcar como Lido")
             }

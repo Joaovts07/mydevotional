@@ -99,7 +99,10 @@ fun CalendarReadings(
 
                         val date = calendar.time
                         val formattedDate = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(date)
-                        val isRead = completedReadings.contains(formattedDate)
+                        val cleanedCompletedReadings = completedReadings.map {
+                            it.replace("[", "").replace("]", "").replace(" ", "")
+                        }
+                        val isRead = cleanedCompletedReadings.contains(formattedDate)
                         val isSelected = date == selectedDate
 
                         Box(
