@@ -4,5 +4,5 @@ import kotlinx.coroutines.flow.Flow
 
 interface CompletedReadingsRepository {
     suspend fun markReadingAsComplete(date: String)
-    fun getCompletedReadings(): Flow<String>
+    fun getCompletedReadings(): Flow<List<String>>
 }
