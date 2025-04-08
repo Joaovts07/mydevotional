@@ -63,7 +63,7 @@ class HomeScreenViewModel @Inject constructor(
     private fun loadCompletedReadings() {
         viewModelScope.launch {
             getCompletedReadingsUseCase().collect { reading ->
-                _completedReadings.value = listOf(reading)
+                _completedReadings.value = reading
             }
         }
     }
