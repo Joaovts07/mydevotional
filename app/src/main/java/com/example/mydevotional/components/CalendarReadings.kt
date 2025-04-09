@@ -43,7 +43,7 @@ fun CalendarReadings(
     completedReadings: List<String>,
     onDateSelected: (Date) -> Unit
 ) {
-    val today = Calendar.getInstance().time // Data atual
+    val today = Calendar.getInstance().time
     var selectedDate by remember { mutableStateOf(today) }
     var currentMonth by remember { mutableStateOf(Calendar.getInstance().apply { set(Calendar.DAY_OF_MONTH, 1) }) }
 
@@ -60,7 +60,6 @@ fun CalendarReadings(
             .padding(12.dp),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        // Cabeçalho com troca de mês
         Row(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.SpaceBetween,
@@ -104,7 +103,7 @@ fun CalendarReadings(
 
                         Box(
                             modifier = Modifier
-                                .size(36.dp) // Tamanho menor do dia
+                                .size(36.dp)
                                 .clip(CircleShape)
                                 .background(
                                     when {
