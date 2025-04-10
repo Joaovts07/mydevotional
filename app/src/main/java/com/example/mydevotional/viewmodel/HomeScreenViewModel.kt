@@ -2,6 +2,7 @@ package com.example.mydevotional.viewmodel
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.mydevotional.extensions.formatDate
 import com.example.mydevotional.model.BibleResponse
 import com.example.mydevotional.model.Verses
 import com.example.mydevotional.state.DailyReadingUiState
@@ -111,5 +112,9 @@ class HomeScreenViewModel @Inject constructor(
                 }
             )
         }
+    }
+
+    fun verifyDailyIsReading() : Boolean {
+        return _completedReadings.value.contains(selectedDate.value?.formatDate("yyy-MM-dd"))
     }
 }
