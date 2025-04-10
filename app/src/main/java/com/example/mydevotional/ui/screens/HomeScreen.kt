@@ -13,16 +13,16 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.rememberLazyListState
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.MenuBook
 import androidx.compose.material.icons.filled.Book
-import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.SnackbarDuration
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -31,6 +31,7 @@ import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -39,26 +40,34 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.example.mydevotional.components.CalendarReadings
+import com.example.mydevotional.components.CompleteReadingButton
 import com.example.mydevotional.components.versesListItems
 import com.example.mydevotional.extensions.formatDate
+import com.example.mydevotional.state.DailyReadingUiState
 import com.example.mydevotional.viewmodel.HomeScreenViewModel
-import java.util.Date
+import kotlinx.coroutines.launch
 
 @Composable
 fun HomeScreen(viewModel: HomeScreenViewModel = hiltViewModel()) {
     val bibleResponse by viewModel.bibleResponse.collectAsState()
     val isLoading by viewModel.isLoading.collectAsState()
     val completedReadings by viewModel.completedReadings.collectAsState()
-    val selectedDate by viewModel.selectedDate.collectAsState()
 
     var calendarHeight by remember { mutableStateOf(250.dp) }
     var isSingleCardMode by remember { mutableStateOf(true) }
     val listState = rememberLazyListState()
 
+    val uiState by viewModel.uiState.collectAsState()
+    val snackbarHostState = remember { SnackbarHostState() }
+    val coroutineScope = rememberCoroutineScope()
+
     LaunchedEffect(remember { derivedStateOf { listState.firstVisibleItemScrollOffset } }) {
         val minHeight = 80.dp
         val maxHeight = 250.dp
-        calendarHeight = (maxHeight - (listState.firstVisibleItemScrollOffset / 5).dp).coerceIn(minHeight, maxHeight)
+        calendarHeight = (maxHeight - (listState.firstVisibleItemScrollOffset / 5).dp).coerceIn(
+            minHeight,
+            maxHeight
+        )
     }
 
     LazyColumn(
@@ -154,17 +163,36 @@ fun HomeScreen(viewModel: HomeScreenViewModel = hiltViewModel()) {
             )
         }
         item {
-            val date = selectedDate?.formatDate("yyy-MM-dd") ?: ""
-            Button(
-                onClick = { viewModel.markReadingAsComplete(date) },
+            CompleteReadingButton(
+                isReadingCompleted = viewModel.verifyDailyIsReading(),
+                onClick = {
+                    if (viewModel.verifyDailyIsReading()) {
+                        val date = viewModel.selectedDate.value
+                        viewModel.markReadingAsComplete(date?.formatDate("yyy-MM-dd") ?: "")
+                        coroutineScope.launch {
+                            snackbarHostState.showSnackbar(
+                                message = "Leitura Desmarcada!",
+                                duration = SnackbarDuration.Short
+                            )
+                        }
+                    } else {
+                        val date = viewModel.selectedDate.value
+                        viewModel.markReadingAsComplete(date?.formatDate("yyy-MM-dd") ?: "")
+                        coroutineScope.launch {
+                            snackbarHostState.showSnackbar(
+                                message = "Leitura marcada como lida!",
+                                duration = SnackbarDuration.Short
+                            )
+                        }
+                    }
+                },
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(12.dp)
-                    .height(48.dp),
-                shape = RoundedCornerShape(8.dp),
-            ){
-                Text("Marcar como Lido")
-            }
+                    .height(48.dp)
+            )
+
+
         }
     }
 }
