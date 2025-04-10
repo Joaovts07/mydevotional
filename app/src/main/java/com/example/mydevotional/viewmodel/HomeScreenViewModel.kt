@@ -2,8 +2,10 @@ package com.example.mydevotional.viewmodel
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.mydevotional.extensions.formatDate
 import com.example.mydevotional.model.BibleResponse
 import com.example.mydevotional.model.Verses
+import com.example.mydevotional.state.DailyReadingUiState
 import com.example.mydevotional.usecase.FavoriteVerseUseCase
 import com.example.mydevotional.usecase.GetCompletedReadingsUseCase
 import com.example.mydevotional.usecase.GetVersesForDayUseCase
@@ -13,6 +15,7 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import java.util.Date
 import javax.inject.Inject
@@ -37,6 +40,10 @@ class HomeScreenViewModel @Inject constructor(
 
     private val _isLoading = MutableStateFlow(false)
     val isLoading: StateFlow<Boolean> = _isLoading.asStateFlow()
+
+    private val _uiState = MutableStateFlow<DailyReadingUiState>(DailyReadingUiState.Success())
+    val uiState: StateFlow<DailyReadingUiState> = _uiState.asStateFlow()
+
 
     init {
         loadVersesForToday()
@@ -65,6 +72,7 @@ class HomeScreenViewModel @Inject constructor(
             getCompletedReadingsUseCase().collect { reading ->
                 _completedReadings.value = reading
             }
+            _uiState.value = DailyReadingUiState.Success(true)
         }
     }
 
@@ -77,8 +85,18 @@ class HomeScreenViewModel @Inject constructor(
 
     fun markReadingAsComplete(date: String) {
         viewModelScope.launch {
-            markReadingAsCompleteUseCase(date)
-            loadCompletedReadings()
+            try {
+                markReadingAsCompleteUseCase(date)
+                _uiState.update { currentState ->
+                    if (currentState is DailyReadingUiState.Success) {
+                        currentState.copy(isReadingCompleted = true)
+                    } else {
+                        currentState
+                    }
+                }
+            } catch (e: Exception) {
+                _uiState.value = DailyReadingUiState.Error(e.message ?: "Erro desconhecido")
+            }
         }
     }
 
@@ -94,5 +112,9 @@ class HomeScreenViewModel @Inject constructor(
                 }
             )
         }
+    }
+
+    fun verifyDailyIsReading() : Boolean {
+        return _completedReadings.value.contains(selectedDate.value?.formatDate("yyy-MM-dd"))
     }
 }
