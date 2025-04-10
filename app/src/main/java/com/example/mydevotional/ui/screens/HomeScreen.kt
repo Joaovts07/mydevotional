@@ -64,7 +64,10 @@ fun HomeScreen(viewModel: HomeScreenViewModel = hiltViewModel()) {
     LaunchedEffect(remember { derivedStateOf { listState.firstVisibleItemScrollOffset } }) {
         val minHeight = 80.dp
         val maxHeight = 250.dp
-        calendarHeight = (maxHeight - (listState.firstVisibleItemScrollOffset / 5).dp).coerceIn(minHeight, maxHeight)
+        calendarHeight = (maxHeight - (listState.firstVisibleItemScrollOffset / 5).dp).coerceIn(
+            minHeight,
+            maxHeight
+        )
     }
 
     LazyColumn(
@@ -160,47 +163,39 @@ fun HomeScreen(viewModel: HomeScreenViewModel = hiltViewModel()) {
             )
         }
         item {
-            when (uiState) {
-                is DailyReadingUiState.Loading -> {
-                    // Mostrar indicador de carregamento
-                }
-                is DailyReadingUiState.Success -> {
-                    CompleteReadingButton(
-                        isReadingCompleted = viewModel.verifyDailyIsReading(),
-                        onClick = {
-                            val date = viewModel.selectedDate.value
-                            viewModel.markReadingAsComplete(date?.formatDate("yyy-MM-dd") ?: "")
-                            coroutineScope.launch {
-                                snackbarHostState.showSnackbar(
-                                    message = "Leitura marcada como lida!",
-                                    duration = SnackbarDuration.Short
-                                )
-                            }
-                        },
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(12.dp)
-                            .height(48.dp)
-                    )
-                }
-                is DailyReadingUiState.Error -> {
-                    // Mostrar mensagem de erro
-                }
-            /*val date = selectedDate?.formatDate("yyy-MM-dd") ?: ""
-            Button(
-                onClick = { viewModel.markReadingAsComplete(date) },
+            CompleteReadingButton(
+                isReadingCompleted = viewModel.verifyDailyIsReading(),
+                onClick = {
+                    if (viewModel.verifyDailyIsReading()) {
+                        val date = viewModel.selectedDate.value
+                        viewModel.markReadingAsComplete(date?.formatDate("yyy-MM-dd") ?: "")
+                        coroutineScope.launch {
+                            snackbarHostState.showSnackbar(
+                                message = "Leitura Desmarcada!",
+                                duration = SnackbarDuration.Short
+                            )
+                        }
+                    } else {
+                        val date = viewModel.selectedDate.value
+                        viewModel.markReadingAsComplete(date?.formatDate("yyy-MM-dd") ?: "")
+                        coroutineScope.launch {
+                            snackbarHostState.showSnackbar(
+                                message = "Leitura marcada como lida!",
+                                duration = SnackbarDuration.Short
+                            )
+                        }
+                    }
+                },
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(12.dp)
-                    .height(48.dp),
-                shape = RoundedCornerShape(8.dp),
-            ){
-                Text("Marcar como Lido")
-            }*/
+                    .height(48.dp)
+            )
+
+
         }
     }
 }
-    }
 
 
 

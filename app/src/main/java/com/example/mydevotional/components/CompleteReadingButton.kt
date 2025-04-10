@@ -36,7 +36,7 @@ fun CompleteReadingButton(
             horizontalArrangement = Arrangement.spacedBy(4.dp)
         ) {
             Text(
-                text = if (isReadingCompleted) "Leitura Concluída" else "Marcar como Lido"
+                text = if (isReadingCompleted) "Desmarcar Leitura" else "Marcar como Lido"
             )
             if (isReadingCompleted) {
                 Icon(
