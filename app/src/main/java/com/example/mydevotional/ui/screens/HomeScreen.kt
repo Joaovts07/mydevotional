@@ -166,9 +166,9 @@ fun HomeScreen(viewModel: HomeScreenViewModel = hiltViewModel()) {
             CompleteReadingButton(
                 isReadingCompleted = viewModel.verifyDailyIsReading(),
                 onClick = {
+                    val date = viewModel.selectedDate.value?.formatDate("yyy-MM-dd") ?: ""
                     if (viewModel.verifyDailyIsReading()) {
-                        val date = viewModel.selectedDate.value
-                        viewModel.markReadingAsComplete(date?.formatDate("yyy-MM-dd") ?: "")
+                        viewModel.markReadingAsComplete(date)
                         coroutineScope.launch {
                             snackbarHostState.showSnackbar(
                                 message = "Leitura Desmarcada!",
@@ -176,8 +176,7 @@ fun HomeScreen(viewModel: HomeScreenViewModel = hiltViewModel()) {
                             )
                         }
                     } else {
-                        val date = viewModel.selectedDate.value
-                        viewModel.markReadingAsComplete(date?.formatDate("yyy-MM-dd") ?: "")
+                        viewModel.markReadingAsComplete(date)
                         coroutineScope.launch {
                             snackbarHostState.showSnackbar(
                                 message = "Leitura marcada como lida!",
