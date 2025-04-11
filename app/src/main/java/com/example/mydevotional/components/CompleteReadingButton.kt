@@ -28,8 +28,7 @@ fun CompleteReadingButton(
         shape = RoundedCornerShape(8.dp),
         colors = ButtonDefaults.buttonColors(
             containerColor = if (isReadingCompleted) Color.Green else MaterialTheme.colorScheme.primary
-        ),
-        enabled = !isReadingCompleted
+        )
     ) {
         Row(
             verticalAlignment = Alignment.CenterVertically,
