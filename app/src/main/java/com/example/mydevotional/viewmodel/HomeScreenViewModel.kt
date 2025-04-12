@@ -42,8 +42,6 @@ class HomeScreenViewModel @Inject constructor(
     val isLoading: StateFlow<Boolean> = _isLoading.asStateFlow()
 
     private val _uiState = MutableStateFlow<DailyReadingUiState>(DailyReadingUiState.Success())
-    val uiState: StateFlow<DailyReadingUiState> = _uiState.asStateFlow()
-
 
     init {
         loadVersesForToday()
