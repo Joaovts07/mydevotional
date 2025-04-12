@@ -57,7 +57,6 @@ fun HomeScreen(viewModel: HomeScreenViewModel = hiltViewModel()) {
     var isSingleCardMode by remember { mutableStateOf(true) }
     val listState = rememberLazyListState()
 
-    val uiState by viewModel.uiState.collectAsState()
     val snackbarHostState = remember { SnackbarHostState() }
     val coroutineScope = rememberCoroutineScope()
 
