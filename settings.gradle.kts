@@ -21,4 +21,4 @@ dependencyResolutionManagement {
 
 rootProject.name = "MyDevotional"
 include(":app")
- 
+include(":login")
