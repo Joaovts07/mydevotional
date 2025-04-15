@@ -21,6 +21,7 @@ navigationCompose = "2.8.9"
 firebaseFirestoreKtx = "25.1.2"
 hiltNavigationCompose = "1.2.0"
 hiltAndroid = "2.49"
+appcompat = "1.6.1"
 
 [libraries]
 accompanist-pager = { module = "com.google.accompanist:accompanist-pager", version.ref = "accompanistPager" }
@@ -53,6 +54,7 @@ firebase-firestore-ktx = { group = "com.google.firebase", name = "firebase-fires
 hilt-android = { module = "com.google.dagger:hilt-android", version.ref = "hiltAndroid" }
 androidx-hilt-navigation-compose = { module = "androidx.hilt:hilt-navigation-compose", version.ref = "hiltNavigationCompose" }
 hilt-android-compiler = { module = "com.google.dagger:hilt-android-compiler", version.ref = "hiltAndroid" }
+androidx-appcompat = { group = "androidx.appcompat", name = "appcompat", version.ref = "appcompat" }
 
 
 [plugins]
