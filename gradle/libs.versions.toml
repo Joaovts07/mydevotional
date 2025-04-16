@@ -1,10 +1,10 @@
 [versions]
 accompanistPager = "0.31.5-beta"
 agp = "8.9.1"
-datastorePreferences = "1.1.3"
-firebaseBom = "33.10.0"
-kotlin = "2.0.0"
-coreKtx = "1.15.0"
+datastorePreferences = "1.1.4"
+firebaseBom = "33.12.0"
+kotlin = "2.0.21"
+coreKtx = "1.16.0"
 junit = "4.13.2"
 junitVersion = "1.2.1"
 espressoCore = "3.6.1"
@@ -14,14 +14,19 @@ ktorClientContentNegotiation = "2.3.4"
 ktorSerializationGsonVersion = "2.3.4"
 lifecycleRuntimeKtx = "2.8.7"
 activityCompose = "1.10.1"
-composeBom = "2025.03.00"
+composeBom = "2025.04.00"
 material = "1.12.0"
 materialIconsCore = "1.7.8"
 navigationCompose = "2.8.9"
-firebaseFirestoreKtx = "25.1.2"
+firebaseFirestoreKtx = "25.1.3"
 hiltNavigationCompose = "1.2.0"
 hiltAndroid = "2.49"
-appcompat = "1.6.1"
+firebaseAuthKtx = "23.2.0"
+appcompat = "1.7.0"
+credentials = "1.5.0"
+playServicesAuth = "21.3.0"
+googleid = "1.1.1"
+firebaseStorageKtx = "21.0.1"
 
 [libraries]
 accompanist-pager = { module = "com.google.accompanist:accompanist-pager", version.ref = "accompanistPager" }
@@ -55,6 +60,12 @@ hilt-android = { module = "com.google.dagger:hilt-android", version.ref = "hiltA
 androidx-hilt-navigation-compose = { module = "androidx.hilt:hilt-navigation-compose", version.ref = "hiltNavigationCompose" }
 hilt-android-compiler = { module = "com.google.dagger:hilt-android-compiler", version.ref = "hiltAndroid" }
 androidx-appcompat = { group = "androidx.appcompat", name = "appcompat", version.ref = "appcompat" }
+firebase-auth-ktx = { group = "com.google.firebase", name = "firebase-auth-ktx", version.ref = "firebaseAuthKtx" }
+androidx-credentials = { module = "androidx.credentials:credentials", version.ref = "credentials" }
+play-services-auth = { module = "com.google.android.gms:play-services-auth", version.ref = "playServicesAuth" }
+googleid = { group = "com.google.android.libraries.identity.googleid", name = "googleid", version.ref = "googleid" }
+firebase-storage-ktx = { group = "com.google.firebase", name = "firebase-storage-ktx", version.ref = "firebaseStorageKtx" }
+
 
 
 [plugins]
