@@ -88,6 +88,9 @@ dependencies {
     //data store
     implementation(libs.androidx.datastore.preferences)
 
+    //login
+    implementation(project(":login"))
+
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)

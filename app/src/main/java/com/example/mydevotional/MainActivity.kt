@@ -24,8 +24,10 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
+import com.example.login.presentation.login.LoginNavigation
 import com.example.mydevotional.components.BottomAppBarItem
 import com.example.mydevotional.components.MyDevotionalBottomAppBar
+import com.example.mydevotional.navigation.AppDestination
 import com.example.mydevotional.navigation.AppNavigation
 import com.example.mydevotional.navigation.bottomAppBarItems
 import com.example.mydevotional.ui.theme.MyDevotionalTheme
