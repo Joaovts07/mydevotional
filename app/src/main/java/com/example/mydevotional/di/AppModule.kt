@@ -3,13 +3,13 @@ package com.example.mydevotional.di
 import android.content.Context
 import com.example.mydevotional.repositorie.BibleRepository
 import com.example.mydevotional.repositorie.BibleRepositoryImpl
-import com.example.mydevotional.repositorie.CompletedReadingsRepository
 import com.example.mydevotional.repositorie.DataStoreCompletedReadingsRepository
 import com.example.mydevotional.repositorie.FavoriteVersesRepository
 import com.example.mydevotional.usecase.FavoriteVerseUseCase
 import com.example.mydevotional.usecase.GetCompletedReadingsUseCase
 import com.example.mydevotional.usecase.MarkReadingAsCompleteUseCase
 import com.example.mydevotional.usecase.ToggleFavoriteVerseUseCase
+import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.gson.Gson
 import dagger.Module
@@ -26,6 +26,10 @@ import javax.inject.Singleton
 @Module
 @InstallIn(SingletonComponent::class)
 object AppModule {
+
+    @Provides
+    @Singleton
+    fun provideFirebaseAuth(): FirebaseAuth = FirebaseAuth.getInstance()
 
     @Provides
     @Singleton
