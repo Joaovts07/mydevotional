@@ -24,7 +24,7 @@ fun LoadingButton(
 ) {
     Button(
         onClick = onClick,
-        modifier = Modifier.fillMaxWidth().height(45.dp),
+        modifier = Modifier.fillMaxWidth().height(48.dp),
         shape = RoundedCornerShape(8.dp),
         enabled = enabled,
         colors = colors
