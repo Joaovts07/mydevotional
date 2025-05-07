@@ -1,5 +1,6 @@
 package com.example.mydevotional.repositorie
 
+import android.util.Log
 import com.example.mydevotional.BibleBook
 import com.example.mydevotional.BibleBooks
 import com.example.mydevotional.extensions.formatDate
@@ -10,9 +11,7 @@ import io.ktor.client.request.get
 import io.ktor.client.request.url
 import io.ktor.client.statement.bodyAsText
 import kotlinx.coroutines.tasks.await
-import java.text.SimpleDateFormat
 import java.util.Date
-import java.util.Locale
 import javax.inject.Inject
 
 class BibleRepositoryImpl @Inject constructor(
@@ -34,7 +33,7 @@ class BibleRepositoryImpl @Inject constructor(
             val response: String = httpClient.get {
                 url("https://bible-api.com/$book-$chapter?translation=almeida")
             }.bodyAsText()
-
+            Log.e("bible-url", "https://bible-api.com/$book-$chapter?translation=almeida")
             gsonDeserializer<BibleResponse>(response)?.let { bibleResponse.add(it) }
         } catch (e: Exception) {
             e.printStackTrace()
@@ -70,7 +69,7 @@ class BibleRepositoryImpl @Inject constructor(
                 val response: String = httpClient.get {
                     url("https://bible-api.com/$passage?translation=almeida")
                 }.bodyAsText()
-
+                Log.e("bible-url", "https://bible-api.com/$passage?translation=almeida")
                 val bibleResponse = gsonDeserializer<BibleResponse>(response)
 
                 bibleResponse?.let {
