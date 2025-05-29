@@ -28,6 +28,8 @@ import java.text.SimpleDateFormat
 import java.util.Calendar
 import java.util.Date
 import java.util.Locale
+import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 
 @Composable
 fun CalendarReadings(
@@ -38,6 +40,7 @@ fun CalendarReadings(
     var selectedDate by remember { mutableStateOf(today) }
     var currentMonthCalendar by remember {
         mutableStateOf(Calendar.getInstance().apply { set(Calendar.DAY_OF_MONTH, 1) })
+
     }
 
     val isDarkMode = isSystemInDarkTheme()
@@ -177,6 +180,44 @@ fun CalendarReadings(
                             fontSize = 14.sp
                         )
                     }
+        val daysInMonth = currentMonth.getActualMaximum(Calendar.DAY_OF_MONTH)
+
+        LazyVerticalGrid(
+            columns = GridCells.Fixed(7),
+            modifier = Modifier.fillMaxWidth()
+        ) {
+            items(daysInMonth) { day ->
+                val calendar = (currentMonth.clone() as Calendar).apply {
+                    set(Calendar.DAY_OF_MONTH, day + 1)
+                }
+                val date = calendar.time
+                val formattedDate = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(date)
+                val isRead = completedReadings.contains(formattedDate)
+                val isSelected = date == selectedDate
+
+                Box(
+                    modifier = Modifier
+                        .size(36.dp)
+                        .clip(CircleShape)
+                        .background(
+                            when {
+                                isSelected -> Color.Cyan
+                                isRead -> Color(0xFF4A90E2)
+                                else -> Color.Transparent
+                            }
+                        )
+                        .clickable {
+                            selectedDate = date
+                            onDateSelected(date)
+                        },
+                    contentAlignment = Alignment.Center
+                ) {
+                    Text(
+                        text = SimpleDateFormat("d", Locale.getDefault()).format(date),
+                        color = if (isSelected || isRead) Color.White else normalTextColor,
+                        fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Normal,
+                        fontSize = 14.sp
+                    )
                 }
             }
         }
