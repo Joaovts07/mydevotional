@@ -53,7 +53,6 @@ fun CalendarReadings(
             .padding(12.dp),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        // Cabeçalho do Mês e Navegação
         Row(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.SpaceBetween,
@@ -89,7 +88,6 @@ fun CalendarReadings(
 
         Spacer(modifier = Modifier.height(8.dp))
 
-        // Cabeçalho dos Dias da Semana (Dom, Seg, Ter, ...)
         val weekdays = listOf("D", "S", "T", "Q", "Q", "S", "S") // Domingo a Sábado
         Row(
             modifier = Modifier.fillMaxWidth(),
@@ -101,7 +99,7 @@ fun CalendarReadings(
                     fontSize = 12.sp,
                     fontWeight = FontWeight.Bold,
                     color = normalTextColor,
-                    modifier = Modifier.width(36.dp), // Ajusta para o tamanho da célula do dia
+                    modifier = Modifier.width(36.dp),
                     textAlign = TextAlign.Center
                 )
             }
@@ -109,55 +107,48 @@ fun CalendarReadings(
 
         Spacer(modifier = Modifier.height(4.dp))
 
-        // Calcular os dias a serem exibidos no calendário
-        val daysList = remember(currentMonthCalendar.time) { // Recomposição quando o mês muda
+        val daysList = remember(currentMonthCalendar.time) {
             val firstDayOfMonth = (currentMonthCalendar.clone() as Calendar).apply { set(Calendar.DAY_OF_MONTH, 1) }
-            val firstDayOfWeekIndex = firstDayOfMonth.get(Calendar.DAY_OF_WEEK) - 1 // 0-indexed for Sunday
+            val firstDayOfWeekIndex = firstDayOfMonth.get(Calendar.DAY_OF_WEEK) - 1
 
             val daysInMonth = currentMonthCalendar.getActualMaximum(Calendar.DAY_OF_MONTH)
 
             val calendarDays = mutableListOf<Date?>()
 
-            // Preencher com nulls para os dias do mês anterior
             for (i in 0 until firstDayOfWeekIndex) {
                 calendarDays.add(null)
             }
 
-            // Adicionar os dias do mês atual
             for (i in 1..daysInMonth) {
                 val dayCalendar = (currentMonthCalendar.clone() as Calendar).apply { set(Calendar.DAY_OF_MONTH, i) }
                 calendarDays.add(dayCalendar.time)
             }
 
-            // Preencher com nulls para os dias do próximo mês, para completar a última semana
-            // Calcula o número de slots para exibir 6 semanas cheias (42 dias no total)
-            val totalSlots = 6 * 7 // Para garantir 6 semanas
+            val totalSlots = 6 * 7
             while (calendarDays.size < totalSlots) {
                 calendarDays.add(null)
             }
             calendarDays
         }
 
-        // Novo cálculo para gridHeight:
-        val cellSide = 36.dp // Tamanho do lado do quadrado do dia
-        val cellSpacing = 4.dp // Espaçamento entre as células
+        val cellSide = 36.dp
+        val cellSpacing = 4.dp
         val rowHeight = cellSide + cellSpacing
 
-        // Um calendário sempre exibirá 6 linhas de dias para ter certeza que todos os dias do mês aparecem
         val gridHeight = rowHeight * 6
 
         LazyVerticalGrid(
-            columns = GridCells.Fixed(7), // Sempre 7 colunas (dias da semana)
+            columns = GridCells.Fixed(7),
             modifier = Modifier
                 .fillMaxWidth()
-                .height(gridHeight), // <-- Aplica a altura calculada aqui
-            userScrollEnabled = false, // Desabilita o scroll do grid, a Column pai já scrolla
+                .height(gridHeight),
+            userScrollEnabled = false,
             verticalArrangement = Arrangement.spacedBy(cellSpacing),
             horizontalArrangement = Arrangement.spacedBy(cellSpacing)
         ) {
             items(daysList) { date ->
                 if (date == null) {
-                    Spacer(modifier = Modifier.size(cellSide)) // Slot vazio com o mesmo tamanho da célula
+                    Spacer(modifier = Modifier.size(cellSide))
                 } else {
                     val formattedDate = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(date)
                     val isRead = completedReadings.contains(formattedDate)
@@ -167,7 +158,7 @@ fun CalendarReadings(
 
                     Box(
                         modifier = Modifier
-                            .size(cellSide) // Usa o tamanho da célula
+                            .size(cellSide)
                             .clip(CircleShape)
                             .background(
                                 when {
