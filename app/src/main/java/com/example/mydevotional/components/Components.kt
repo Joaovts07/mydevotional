@@ -229,7 +229,7 @@ fun DisplayModeSelector(
     }
 }
 
-fun LazyListScope.versesListItems(
+fun LazyListScope. versesListItems(
     bibleResponses: List<BibleResponse>,
     isSingleCardMode: Boolean,
     onFavoriteClick: (Verses) -> Unit

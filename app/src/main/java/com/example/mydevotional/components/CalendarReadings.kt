@@ -28,8 +28,6 @@ import java.text.SimpleDateFormat
 import java.util.Calendar
 import java.util.Date
 import java.util.Locale
-import androidx.compose.foundation.lazy.grid.GridCells
-import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 
 @Composable
 fun CalendarReadings(
@@ -40,7 +38,6 @@ fun CalendarReadings(
     var selectedDate by remember { mutableStateOf(today) }
     var currentMonthCalendar by remember {
         mutableStateOf(Calendar.getInstance().apply { set(Calendar.DAY_OF_MONTH, 1) })
-
     }
 
     val isDarkMode = isSystemInDarkTheme()
@@ -72,7 +69,7 @@ fun CalendarReadings(
             }
 
             Text(
-                text = SimpleDateFormat("MMMM yyyy", Locale.getDefault()).format(currentMonthCalendar.time),
+                text = SimpleDateFormat("MMMM yyyy", Locale.getDefault()).format(currentMonthCalendar.time), // Use yyyy para o ano
                 fontSize = 18.sp,
                 fontWeight = FontWeight.Bold,
                 color = normalTextColor
@@ -91,7 +88,6 @@ fun CalendarReadings(
 
         Spacer(modifier = Modifier.height(8.dp))
 
-        // Cabeçalho dos Dias da Semana (Dom, Seg, Ter, ...)
         val weekdays = listOf("D", "S", "T", "Q", "Q", "S", "S") // Domingo a Sábado
         Row(
             modifier = Modifier.fillMaxWidth(),
@@ -103,7 +99,7 @@ fun CalendarReadings(
                     fontSize = 12.sp,
                     fontWeight = FontWeight.Bold,
                     color = normalTextColor,
-                    modifier = Modifier.width(36.dp), // Ajusta para o tamanho da célula do dia
+                    modifier = Modifier.width(36.dp),
                     textAlign = TextAlign.Center
                 )
             }
@@ -111,9 +107,9 @@ fun CalendarReadings(
 
         Spacer(modifier = Modifier.height(4.dp))
 
-        val daysList = remember(currentMonthCalendar.time) { // Recomposição quando o mês muda
+        val daysList = remember(currentMonthCalendar.time) {
             val firstDayOfMonth = (currentMonthCalendar.clone() as Calendar).apply { set(Calendar.DAY_OF_MONTH, 1) }
-            val firstDayOfWeekIndex = firstDayOfMonth.get(Calendar.DAY_OF_WEEK) - 1 // 0-indexed for Sunday
+            val firstDayOfWeekIndex = firstDayOfMonth.get(Calendar.DAY_OF_WEEK) - 1
 
             val daysInMonth = currentMonthCalendar.getActualMaximum(Calendar.DAY_OF_MONTH)
 
@@ -128,27 +124,31 @@ fun CalendarReadings(
                 calendarDays.add(dayCalendar.time)
             }
 
-            // Opcional: Preencher com nulls para os dias do próximo mês, para completar a última semana
-            val remainingDays = calendarDays.size % 7
-            if (remainingDays != 0) {
-                for (i in 0 until (7 - remainingDays)) {
-                    calendarDays.add(null)
-                }
+            val totalSlots = 6 * 7
+            while (calendarDays.size < totalSlots) {
+                calendarDays.add(null)
             }
             calendarDays
         }
 
+        val cellSide = 36.dp
+        val cellSpacing = 4.dp
+        val rowHeight = cellSide + cellSpacing
+
+        val gridHeight = rowHeight * 6
 
         LazyVerticalGrid(
-            columns = GridCells.Fixed(7), // Sempre 7 colunas (dias da semana)
-            modifier = Modifier.fillMaxWidth(),
-            userScrollEnabled = false, // Desabilita o scroll do grid, a Column pai já scrolla
-            verticalArrangement = Arrangement.spacedBy(4.dp), // Espaçamento entre as linhas de dias
-            horizontalArrangement = Arrangement.spacedBy(4.dp) // Espaçamento entre as colunas de dias
+            columns = GridCells.Fixed(7),
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(gridHeight),
+            userScrollEnabled = false,
+            verticalArrangement = Arrangement.spacedBy(cellSpacing),
+            horizontalArrangement = Arrangement.spacedBy(cellSpacing)
         ) {
             items(daysList) { date ->
                 if (date == null) {
-                    Spacer(modifier = Modifier.size(36.dp)) // Slot vazio
+                    Spacer(modifier = Modifier.size(cellSide))
                 } else {
                     val formattedDate = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(date)
                     val isRead = completedReadings.contains(formattedDate)
@@ -158,12 +158,12 @@ fun CalendarReadings(
 
                     Box(
                         modifier = Modifier
-                            .size(36.dp)
+                            .size(cellSide)
                             .clip(CircleShape)
                             .background(
                                 when {
                                     isSelected -> Color.Cyan
-                                    isRead -> Color(0xFF4A90E2) // Cor para dia lido
+                                    isRead -> Color(0xFF4A90E2)
                                     else -> Color.Transparent
                                 }
                             )
@@ -180,52 +180,8 @@ fun CalendarReadings(
                             fontSize = 14.sp
                         )
                     }
-        val daysInMonth = currentMonth.getActualMaximum(Calendar.DAY_OF_MONTH)
-
-        LazyVerticalGrid(
-            columns = GridCells.Fixed(7),
-            modifier = Modifier.fillMaxWidth()
-        ) {
-            items(daysInMonth) { day ->
-                val calendar = (currentMonth.clone() as Calendar).apply {
-                    set(Calendar.DAY_OF_MONTH, day + 1)
-                }
-                val date = calendar.time
-                val formattedDate = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(date)
-                val isRead = completedReadings.contains(formattedDate)
-                val isSelected = date == selectedDate
-
-                Box(
-                    modifier = Modifier
-                        .size(36.dp)
-                        .clip(CircleShape)
-                        .background(
-                            when {
-                                isSelected -> Color.Cyan
-                                isRead -> Color(0xFF4A90E2)
-                                else -> Color.Transparent
-                            }
-                        )
-                        .clickable {
-                            selectedDate = date
-                            onDateSelected(date)
-                        },
-                    contentAlignment = Alignment.Center
-                ) {
-                    Text(
-                        text = SimpleDateFormat("d", Locale.getDefault()).format(date),
-                        color = if (isSelected || isRead) Color.White else normalTextColor,
-                        fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Normal,
-                        fontSize = 14.sp
-                    )
                 }
             }
         }
     }
 }
-
-
-
-
-
-

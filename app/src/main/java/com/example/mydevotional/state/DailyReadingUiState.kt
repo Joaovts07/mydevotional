@@ -6,4 +6,4 @@ sealed interface DailyReadingUiState {
         val isReadingCompleted: Boolean = false,
     ) : DailyReadingUiState
     data class Error(val message: String) : DailyReadingUiState
-}
+} 
