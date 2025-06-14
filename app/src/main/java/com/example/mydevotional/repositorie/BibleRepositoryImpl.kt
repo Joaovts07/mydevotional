@@ -43,8 +43,26 @@ class BibleRepositoryImpl @Inject constructor(
     }
 
     override suspend fun getVersesForDay(date: Date): List<BibleResponse> {
-        val passages = searchReadingDaily(date) ?: ArrayList()
-        return fetchVersesFromApi(passages)
+        val passages = searchReadingDaily(date) ?: return emptyList()
+
+        val bibleResponses = mutableListOf<BibleResponse>() // Usar mutableListOf para adicionar elementos
+
+        (passages as List<*>).forEach { passage -> // Assume que 'passage' é uma String tipo "João+3:16" ou "Números+6"
+            try {
+                val response: String = httpClient.get {
+                    url("https://bible-api.com/$passage?translation=almeida")
+                }.bodyAsText()
+
+                val bibleResponse = gsonDeserializer<BibleResponse>(response)
+
+                bibleResponse?.let {
+                    bibleResponses.add(it)
+                }
+            } catch (e: Exception) {
+                e.printStackTrace()
+            }
+        }
+        return bibleResponses
     }
 
     override suspend fun searchReadingDaily(date: Date): List<String>? {
