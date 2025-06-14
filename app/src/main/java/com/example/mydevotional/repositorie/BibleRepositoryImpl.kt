@@ -10,8 +10,13 @@ import io.ktor.client.HttpClient
 import io.ktor.client.request.get
 import io.ktor.client.request.url
 import io.ktor.client.statement.bodyAsText
+import kotlinx.coroutines.async
+import kotlinx.coroutines.awaitAll
+import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.tasks.await
+import java.text.SimpleDateFormat
 import java.util.Date
+import java.util.Locale
 import javax.inject.Inject
 
 class BibleRepositoryImpl @Inject constructor(
@@ -43,19 +48,35 @@ class BibleRepositoryImpl @Inject constructor(
     }
 
     override suspend fun getVersesForDay(date: Date): List<BibleResponse> {
-        val passages = searchReadingDaily(date) ?: ArrayList()
-        return fetchVersesFromApi(passages)
+        val dateFormated = getDate(date)
+        val passages = searchReadingDaily(dateFormated) as? List<String> ?: return emptyList()
+
+        return coroutineScope {
+            val deferredResponses = passages.map { passage ->
+                async {
+                    try {
+                        val response: String = httpClient.get {
+                            url("https://bible-api.com/$passage?translation=almeida")
+                        }.bodyAsText()
+                        gsonDeserializer<BibleResponse>(response)
+                    } catch (e: Exception) {
+                        e.printStackTrace()
+                        null
+                    }
+                }
+            }
+            deferredResponses.awaitAll().filterNotNull()
+        }
     }
 
-    override suspend fun searchReadingDaily(date: Date): List<String>? {
+    override suspend fun searchReadingDaily(date: String): Any? {
         return try {
-            val document = firestore.collection("readings")
-                .document(date.formatDate("yyyy-MM-dd"))
-                .get().await()
-
+            val document = firestore.collection("readings").document(date).get().await()
             if (document.exists()) {
-                document.get("passages") as? List<String>
-            } else null
+                document.get("passages")
+            } else {
+                null
+            }
         } catch (e: Exception) {
             e.printStackTrace()
             null
@@ -81,6 +102,11 @@ class BibleRepositoryImpl @Inject constructor(
             }
         }
         return bibleResponses
+    }
+
+    fun getDate(date: Date): String {
+        val format = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
+        return format.format(date)
     }
 
     private inline fun <reified T> gsonDeserializer(json: String): T? {
