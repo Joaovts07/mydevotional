@@ -10,5 +10,5 @@ interface BibleRepository {
     fun getChapters(bibleBook: BibleBook): Int
     suspend fun getVerses(book: String, chapter: Int): List<BibleResponse>
     suspend fun getVersesForDay(date: Date): List<BibleResponse>
-    suspend fun searchReadingDaily(date: Date): Any?
+    suspend fun searchReadingDaily(date: String): Any?
 }
