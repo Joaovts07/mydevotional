@@ -28,14 +28,15 @@ fun CompleteReadingButton(
         shape = RoundedCornerShape(8.dp),
         colors = ButtonDefaults.buttonColors(
             containerColor = if (isReadingCompleted) Color.Green else MaterialTheme.colorScheme.primary
-        )
+        ),
+        enabled = true
     ) {
         Row(
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.spacedBy(4.dp)
         ) {
             Text(
-                text = if (isReadingCompleted) "Desmarcar Leitura" else "Marcar como Lido"
+                text = if (isReadingCompleted) "Leitura Concluída" else "Marcar como Lido"
             )
             if (isReadingCompleted) {
                 Icon(
