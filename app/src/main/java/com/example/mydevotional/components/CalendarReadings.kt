@@ -43,6 +43,8 @@ fun CalendarReadings(
     val isDarkMode = isSystemInDarkTheme()
     val backgroundColor = if (isDarkMode) Color.DarkGray else Color.White
     val normalTextColor = if (isDarkMode) Color.White else Color.Black
+    val selectedDayBgColor = Color(0xFF8AB4F8)
+    val readDotColor = Color(0xFF4A90E2)
 
     Column(
         modifier = Modifier
@@ -69,7 +71,7 @@ fun CalendarReadings(
             }
 
             Text(
-                text = SimpleDateFormat("MMMM yyyy", Locale.getDefault()).format(currentMonthCalendar.time), // Ajuste para mostrar o ano
+                text = SimpleDateFormat("MMMM yyyy", Locale.getDefault()).format(currentMonthCalendar.time),
                 fontSize = 18.sp,
                 fontWeight = FontWeight.Bold,
                 color = normalTextColor
@@ -99,14 +101,13 @@ fun CalendarReadings(
                     fontSize = 12.sp,
                     fontWeight = FontWeight.Bold,
                     color = normalTextColor,
-                    modifier = Modifier.width(36.dp), // Ajusta para o tamanho da célula do dia
+                    modifier = Modifier.width(40.dp), // Ajuste o tamanho para caber o novo dia
                     textAlign = TextAlign.Center
                 )
             }
         }
 
         Spacer(modifier = Modifier.height(4.dp))
-        val numWeeksToShow = 6
 
         val daysList = remember(currentMonthCalendar.time) {
             val calendar = currentMonthCalendar.clone() as Calendar
@@ -117,44 +118,45 @@ fun CalendarReadings(
 
             val calendarDays = mutableListOf<Date?>()
 
-              for (i in 0 until firstDayOfWeekIndex) {
+            for (i in 0 until firstDayOfWeekIndex) {
                 calendarDays.add(null)
-            }
 
-            // Adicionar os dias do mês atual
+            }
             for (i in 1..daysInMonth) {
                 val dayCalendar = (calendar.clone() as Calendar).apply { set(Calendar.DAY_OF_MONTH, i) }
                 calendarDays.add(dayCalendar.time)
             }
 
-            // Pad with nulls at the end to ensure 6 full weeks (42 slots total)
-            // This maintains consistent height and prevents cutting off days
+            val numWeeksToShow = 6
             while (calendarDays.size < numWeeksToShow * 7) {
-                calendarDays.add(null)
+                calendarDays.add(null) // Preencher com nulls para os dias do próximo mês
             }
             calendarDays
         }
 
-        // Medidas fixas para as células
-        val cellSide = 36.dp
+        val cellSide = 40.dp
         val cellSpacing = 4.dp
-        val rowHeight = cellSide + cellSpacing
+        val dayNumberFontSize = 14.sp
+        val dotSize = 5.dp
+        val dotPadding = 2.dp
+        val rowHeight = cellSide + dotSize + dotPadding
 
-        // A altura da LazyVerticalGrid será  sempre 6 linhas cheias (numWeeksToShow)
+        val numWeeksToShow = 6
         val gridHeight = rowHeight * numWeeksToShow
 
+
         LazyVerticalGrid(
-            columns = GridCells.Fixed(7), // Sempre 7 colunas (dias da semana)
+            columns = GridCells.Fixed(7),
             modifier = Modifier
                 .fillMaxWidth()
-                .height(gridHeight), // Altura fixa para o grid
-            userScrollEnabled = false, // Desabilita o scroll do grid, a Column pai já scrolla
+                .height(gridHeight),
+            userScrollEnabled = false,
             verticalArrangement = Arrangement.spacedBy(cellSpacing),
             horizontalArrangement = Arrangement.spacedBy(cellSpacing)
         ) {
             items(daysList) { date ->
                 if (date == null) {
-                    Spacer(modifier = Modifier.size(cellSide)) // Slot vazio do tamanho da célula
+                    Spacer(modifier = Modifier.size(cellSide))
                 } else {
                     val formattedDate = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(date)
                     val isRead = completedReadings.contains(formattedDate)
@@ -163,29 +165,32 @@ fun CalendarReadings(
                                 SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(date)
                     }
 
-                    Box(
+                    Column(
+                        horizontalAlignment = Alignment.CenterHorizontally,
                         modifier = Modifier
-                            .size(cellSide) // Usa o tamanho da célula
-                            .clip(CircleShape)
-                            .background(
-                                when {
-                                    isSelected -> Color.Cyan
-                                    isRead -> Color(0xFF4A90E2) // Cor para dia lido
-                                    else -> Color.Transparent
-                                }
-                            )
+                            .size(cellSide) // Tamanho da célula
+                            .clip(if (isSelected) CircleShape else RoundedCornerShape(0.dp))
+                            .background(if (isSelected) selectedDayBgColor else Color.Transparent)
                             .clickable {
                                 selectedDate = date
                                 onDateSelected(date)
-                            },
-                        contentAlignment = Alignment.Center
+                            }
+                            .padding(top = 4.dp, bottom = dotSize + dotPadding),
                     ) {
                         Text(
                             text = SimpleDateFormat("d", Locale.getDefault()).format(date),
-                            color = if (isSelected || isRead) Color.White else normalTextColor,
+                            color = if (isSelected) Color.White else normalTextColor,
                             fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Normal,
-                            fontSize = 14.sp
+                            fontSize = dayNumberFontSize,
                         )
+                        if (isRead) {
+                            Box(
+                                modifier = Modifier
+                                    .size(dotSize)
+                                    .clip(CircleShape)
+                                    .background(readDotColor)
+                            )
+                        }
                     }
                 }
             }
