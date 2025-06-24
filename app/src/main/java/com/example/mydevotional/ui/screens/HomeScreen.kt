@@ -43,17 +43,22 @@ import com.example.mydevotional.components.CalendarReadings
 import com.example.mydevotional.components.CompleteReadingButton
 import com.example.mydevotional.components.versesListItems
 import com.example.mydevotional.extensions.formatDate
-import com.example.mydevotional.state.DailyReadingUiState
+ import com.example.mydevotional.viewmodel.DailyReadingViewModel
 import com.example.mydevotional.viewmodel.HomeScreenViewModel
 import kotlinx.coroutines.launch
 
 @Composable
-fun HomeScreen(viewModel: HomeScreenViewModel = hiltViewModel()) {
+fun HomeScreen(
+    viewModel: HomeScreenViewModel = hiltViewModel(),
+    dailyReadingViewModel: DailyReadingViewModel = hiltViewModel()
+) {
     val bibleResponse by viewModel.bibleResponse.collectAsState()
     val isLoading by viewModel.isLoading.collectAsState()
     val completedReadings by viewModel.completedReadings.collectAsState()
+    val isReadingCompleted by dailyReadingViewModel.isReadingCompletedForSelectedDate.collectAsState()
 
-    var calendarHeight by remember { mutableStateOf(250.dp) }
+
+    var calendarHeight by remember { mutableStateOf(354.dp) }
     var isSingleCardMode by remember { mutableStateOf(true) }
     val listState = rememberLazyListState()
 
@@ -62,7 +67,7 @@ fun HomeScreen(viewModel: HomeScreenViewModel = hiltViewModel()) {
 
     LaunchedEffect(remember { derivedStateOf { listState.firstVisibleItemScrollOffset } }) {
         val minHeight = 80.dp
-        val maxHeight = 250.dp
+        val maxHeight = 354.dp
         calendarHeight = (maxHeight - (listState.firstVisibleItemScrollOffset / 5).dp).coerceIn(
             minHeight,
             maxHeight
@@ -163,7 +168,7 @@ fun HomeScreen(viewModel: HomeScreenViewModel = hiltViewModel()) {
         }
         item {
             CompleteReadingButton(
-                isReadingCompleted = viewModel.verifyDailyIsReading(),
+                isReadingCompleted = isReadingCompleted,
                 onClick = {
                     val date = viewModel.selectedDate.value?.formatDate("yyy-MM-dd") ?: ""
                     if (viewModel.verifyDailyIsReading()) {
