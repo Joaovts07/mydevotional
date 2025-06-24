@@ -69,7 +69,7 @@ fun CalendarReadings(
             }
 
             Text(
-                text = SimpleDateFormat("MMMM yyyy", Locale.getDefault()).format(currentMonthCalendar.time), // Use yyyy para o ano
+                text = SimpleDateFormat("MMMM yyyy", Locale.getDefault()).format(currentMonthCalendar.time), // Ajuste para mostrar o ano
                 fontSize = 18.sp,
                 fontWeight = FontWeight.Bold,
                 color = normalTextColor
@@ -99,71 +99,78 @@ fun CalendarReadings(
                     fontSize = 12.sp,
                     fontWeight = FontWeight.Bold,
                     color = normalTextColor,
-                    modifier = Modifier.width(36.dp),
+                    modifier = Modifier.width(36.dp), // Ajusta para o tamanho da célula do dia
                     textAlign = TextAlign.Center
                 )
             }
         }
 
         Spacer(modifier = Modifier.height(4.dp))
+        val numWeeksToShow = 6
 
         val daysList = remember(currentMonthCalendar.time) {
-            val firstDayOfMonth = (currentMonthCalendar.clone() as Calendar).apply { set(Calendar.DAY_OF_MONTH, 1) }
-            val firstDayOfWeekIndex = firstDayOfMonth.get(Calendar.DAY_OF_WEEK) - 1
+            val calendar = currentMonthCalendar.clone() as Calendar
+            val firstDayOfMonth = (calendar.clone() as Calendar).apply { set(Calendar.DAY_OF_MONTH, 1) }
+            val firstDayOfWeekIndex = firstDayOfMonth.get(Calendar.DAY_OF_WEEK) - 1 // 0-indexed for Sunday
 
-            val daysInMonth = currentMonthCalendar.getActualMaximum(Calendar.DAY_OF_MONTH)
+            val daysInMonth = calendar.getActualMaximum(Calendar.DAY_OF_MONTH)
 
             val calendarDays = mutableListOf<Date?>()
 
-            for (i in 0 until firstDayOfWeekIndex) {
+              for (i in 0 until firstDayOfWeekIndex) {
                 calendarDays.add(null)
             }
 
+            // Adicionar os dias do mês atual
             for (i in 1..daysInMonth) {
-                val dayCalendar = (currentMonthCalendar.clone() as Calendar).apply { set(Calendar.DAY_OF_MONTH, i) }
+                val dayCalendar = (calendar.clone() as Calendar).apply { set(Calendar.DAY_OF_MONTH, i) }
                 calendarDays.add(dayCalendar.time)
             }
 
-            val totalSlots = 6 * 7
-            while (calendarDays.size < totalSlots) {
+            // Pad with nulls at the end to ensure 6 full weeks (42 slots total)
+            // This maintains consistent height and prevents cutting off days
+            while (calendarDays.size < numWeeksToShow * 7) {
                 calendarDays.add(null)
             }
             calendarDays
         }
 
+        // Medidas fixas para as células
         val cellSide = 36.dp
         val cellSpacing = 4.dp
         val rowHeight = cellSide + cellSpacing
 
-        val gridHeight = rowHeight * 6
+        // A altura da LazyVerticalGrid será  sempre 6 linhas cheias (numWeeksToShow)
+        val gridHeight = rowHeight * numWeeksToShow
 
         LazyVerticalGrid(
-            columns = GridCells.Fixed(7),
+            columns = GridCells.Fixed(7), // Sempre 7 colunas (dias da semana)
             modifier = Modifier
                 .fillMaxWidth()
-                .height(gridHeight),
-            userScrollEnabled = false,
+                .height(gridHeight), // Altura fixa para o grid
+            userScrollEnabled = false, // Desabilita o scroll do grid, a Column pai já scrolla
             verticalArrangement = Arrangement.spacedBy(cellSpacing),
             horizontalArrangement = Arrangement.spacedBy(cellSpacing)
         ) {
             items(daysList) { date ->
                 if (date == null) {
-                    Spacer(modifier = Modifier.size(cellSide))
+                    Spacer(modifier = Modifier.size(cellSide)) // Slot vazio do tamanho da célula
                 } else {
                     val formattedDate = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(date)
                     val isRead = completedReadings.contains(formattedDate)
                     val isSelected = remember(selectedDate, date) {
-                        SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(selectedDate) == SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(date)
+                        SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(selectedDate) ==
+                                SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(date)
                     }
 
                     Box(
                         modifier = Modifier
-                            .size(cellSide)
+                            .size(cellSide) // Usa o tamanho da célula
                             .clip(CircleShape)
                             .background(
                                 when {
                                     isSelected -> Color.Cyan
-                                    isRead -> Color(0xFF4A90E2)
+                                    isRead -> Color(0xFF4A90E2) // Cor para dia lido
                                     else -> Color.Transparent
                                 }
                             )
