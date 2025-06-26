@@ -19,8 +19,6 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.MenuBook
 import androidx.compose.material.icons.filled.Book
-import androidx.compose.material.icons.filled.Favorite
-import androidx.compose.material.icons.outlined.FavoriteBorder
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
@@ -35,7 +33,6 @@ import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.mydevotional.BibleBook
-import com.example.mydevotional.ReadVerseWithTTS
 import com.example.mydevotional.model.BibleResponse
 import com.example.mydevotional.model.Verses
 
@@ -65,56 +62,6 @@ fun ChapterCard(
                 fontStyle = FontStyle.Italic,
                 modifier = Modifier.padding(top = 4.dp)
             )
-        }
-    }
-}
-
-@Composable
-fun VerseCard(
-    verse: Verses,
-    onFavoriteClick: (Verses) -> Unit = {}
-) {
-    Card(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(12.dp),
-    ) {
-        Column(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(8.dp)
-        ) {
-            Text(
-                text = verse.text,
-                fontSize = 18.sp,
-                modifier = Modifier.fillMaxWidth()
-            )
-
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(top = 8.dp),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Text(
-                    text = "- ${verse.book_name} ${verse.chapter}:${verse.verse}",
-                    fontStyle = FontStyle.Italic
-                )
-
-                Row(verticalAlignment = Alignment.CenterVertically) {
-                    IconButton(
-                        onClick = { onFavoriteClick(verse) }
-                    ) {
-                        Icon(
-                            imageVector = if (verse.isFavorite) Icons.Filled.Favorite else Icons.Outlined.FavoriteBorder,
-                            contentDescription = "Favoritar verso",
-                            tint = if (verse.isFavorite) Color.Red else Color.Gray
-                        )
-                    }
-                    ReadVerseWithTTS(verse.text)
-                }
-            }
         }
     }
 }
@@ -262,51 +209,10 @@ fun LazyListScope. versesListItems(
         }
     } else {
         items(bibleResponses.flatMap { it.verses }) { verse ->
-            Card(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(12.dp),
-            ) {
-                Column(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(8.dp)
-                ) {
-                    Text(
-                        text = verse.text,
-                        fontSize = 18.sp,
-                        modifier = Modifier.fillMaxWidth()
-                    )
-
-                    Row(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(top = 8.dp),
-                        horizontalArrangement = Arrangement.SpaceBetween,
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        Text(
-                            text = "- ${verse.book_name} ${verse.chapter}:${verse.verse}",
-                            fontStyle = FontStyle.Italic
-                        )
-
-                        Row(verticalAlignment = Alignment.CenterVertically) {
-                            IconButton(
-                                onClick = {
-                                    onFavoriteClick(verse)
-                                }
-                            ) {
-                                Icon(
-                                    imageVector = if (verse.isFavorite) Icons.Filled.Favorite else Icons.Outlined.FavoriteBorder,
-                                    contentDescription = "Favoritar verso",
-                                    tint = if (verse.isFavorite) Color.Red else Color.Gray
-                                )
-                            }
-                            ReadVerseWithTTS(verse.text)
-                        }
-                    }
-                }
-            }
+            VerseCard(
+                verse = verse,
+                onFavoriteClick = onFavoriteClick
+            )
         }
     }
 }
