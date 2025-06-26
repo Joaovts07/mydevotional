@@ -70,56 +70,6 @@ fun ChapterCard(
 }
 
 @Composable
-fun VerseCard(
-    verse: Verses,
-    onFavoriteClick: (Verses) -> Unit = {}
-) {
-    Card(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(12.dp),
-    ) {
-        Column(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(8.dp)
-        ) {
-            Text(
-                text = verse.text,
-                fontSize = 18.sp,
-                modifier = Modifier.fillMaxWidth()
-            )
-
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(top = 8.dp),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Text(
-                    text = "- ${verse.book_name} ${verse.chapter}:${verse.verse}",
-                    fontStyle = FontStyle.Italic
-                )
-
-                Row(verticalAlignment = Alignment.CenterVertically) {
-                    IconButton(
-                        onClick = { onFavoriteClick(verse) }
-                    ) {
-                        Icon(
-                            imageVector = if (verse.isFavorite) Icons.Filled.Favorite else Icons.Outlined.FavoriteBorder,
-                            contentDescription = "Favoritar verso",
-                            tint = if (verse.isFavorite) Color.Red else Color.Gray
-                        )
-                    }
-                    ReadVerseWithTTS(verse.text)
-                }
-            }
-        }
-    }
-}
-
-@Composable
 fun BookListView(books: List<BibleBook>, onBookSelected: (BibleBook) -> Unit) {
     LazyColumn {
         items(books) { book ->
