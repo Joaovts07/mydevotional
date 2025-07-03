@@ -4,11 +4,13 @@ import android.content.Context
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.stringPreferencesKey
 import com.example.mydevotional.model.Verses
+import com.google.common.reflect.TypeToken
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
 import javax.inject.Inject
 import javax.inject.Singleton
 import com.google.gson.Gson
+import kotlinx.coroutines.flow.Flow
 
 @Singleton
 class FavoriteVersesRepository @Inject constructor(
@@ -43,10 +45,16 @@ class FavoriteVersesRepository @Inject constructor(
         return currentFavoritesMap.containsKey(verseId)
     }
 
-    suspend fun getFavoriteVerses(): List<Verses> {
-        val currentFavoritesJson = context.dataStore.data.map { it[favoriteVersesKey] ?: "{}" }.first()
-        val currentFavoritesMap = gson.fromJson(currentFavoritesJson, mutableMapOf<String, String>().javaClass)
-        return currentFavoritesMap.values.map { gson.fromJson(it, Verses::class.java) }
+    fun getFavoriteVersesFlow(): Flow<List<Verses>> {
+        return context.dataStore.data.map { preferences ->
+            val currentFavoritesJson = preferences[favoriteVersesKey] ?: "{}"
+            val type = object : TypeToken<Map<String, String>>() {}.type
+            val currentFavoritesMap: Map<String, String> = gson.fromJson(currentFavoritesJson, type) ?: emptyMap()
+
+            currentFavoritesMap.values.map { verseJson ->
+                gson.fromJson(verseJson, Verses::class.java).copy(isFavorite = true)
+            }
+        }
     }
 
     private fun generateVerseId(verse: Verses): String {
