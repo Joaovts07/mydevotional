@@ -23,10 +23,6 @@ import com.example.mydevotional.viewmodel.VersesViewModel
 fun FavoriteVersesScreen(viewModel: VersesViewModel) {
     val favoriteVerses by viewModel.favoriteVerses.collectAsState()
 
-    LaunchedEffect(Unit) {
-        //viewModel.verifyFavoriteVerses()
-    }
-    
     Column(modifier = Modifier.fillMaxSize()) {
         Text(
             text = "Versos Favoritos",
