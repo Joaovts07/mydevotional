@@ -24,7 +24,7 @@ fun FavoriteVersesScreen(viewModel: VersesViewModel) {
     val favoriteVerses by viewModel.favoriteVerses.collectAsState()
 
     LaunchedEffect(Unit) {
-        viewModel.verifyFavoriteVerses()
+        //viewModel.verifyFavoriteVerses()
     }
     
     Column(modifier = Modifier.fillMaxSize()) {

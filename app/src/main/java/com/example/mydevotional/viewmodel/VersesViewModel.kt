@@ -14,6 +14,7 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -49,14 +50,13 @@ class VersesViewModel @Inject constructor(
 
     init {
         fetchBooks()
-        verifyFavoriteVerses()
-    }
-
-    fun verifyFavoriteVerses() {
         viewModelScope.launch {
-            _favoriteVerses.value = favoriteVerseUseCase.getFavoriteVerses()
+            favoriteVerseUseCase.getFavoriteVersesFlow().collectLatest { updatedFavorites ->
+                _favoriteVerses.value = updatedFavorites
+            }
         }
     }
+
 
 
     private fun fetchBooks() {
