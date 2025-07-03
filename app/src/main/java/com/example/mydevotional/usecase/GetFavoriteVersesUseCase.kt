@@ -3,6 +3,7 @@ package com.example.mydevotional.usecase
 import com.example.mydevotional.model.BibleResponse
 import com.example.mydevotional.model.Verses
 import com.example.mydevotional.repositorie.FavoriteVersesRepository
+import kotlinx.coroutines.flow.Flow
 import javax.inject.Inject
 
 class FavoriteVerseUseCase @Inject constructor(
@@ -13,8 +14,8 @@ class FavoriteVerseUseCase @Inject constructor(
         return favoriteVersesRepository.isVerseFavorite(verse)
     }
 
-    suspend fun getFavoriteVerses(): List<Verses> {
-        return favoriteVersesRepository.getFavoriteVerses()
+    fun getFavoriteVersesFlow(): Flow<List<Verses>> {
+        return favoriteVersesRepository.getFavoriteVersesFlow()
     }
 
     suspend fun updateFavoriteVerses(bibleResponses: List<BibleResponse>): List<BibleResponse> {
