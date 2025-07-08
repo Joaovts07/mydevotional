@@ -30,7 +30,7 @@ val bottomAppBarItems = listOf(
     BottomAppBarItem(
         label = "Minha Conta",
         icon = Icons.Filled.AccountCircle,
-        destination = AppDestination.LoginRequired
+        destination = AppDestination.Account
     ),
     BottomAppBarItem(
         label = "Favoritos",

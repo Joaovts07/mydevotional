@@ -74,7 +74,7 @@ class MainActivity : ComponentActivity() {
             AuthState.UNAUTHENTICATED -> {
                 LoginNavigation(
                     navController = navController,
-                    routeSuccess = AppDestination.Home.route,
+                    routeSuccess = AppDestination.Account.route,
                     onLoginSuccess = {
                         authState = AuthState.AUTHENTICATED
                     }
