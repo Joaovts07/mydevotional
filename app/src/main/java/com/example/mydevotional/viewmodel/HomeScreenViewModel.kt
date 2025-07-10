@@ -4,11 +4,14 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.mydevotional.extensions.formatDate
 import com.example.mydevotional.model.BibleResponse
+import com.example.mydevotional.model.BibleTranslation
 import com.example.mydevotional.model.Verses
 import com.example.mydevotional.state.DailyReadingUiState
 import com.example.mydevotional.usecase.GetCompletedReadingsUseCase
+import com.example.mydevotional.usecase.GetSelectedTranslationUseCase
 import com.example.mydevotional.usecase.GetVersesForDayUseCase
 import com.example.mydevotional.usecase.MarkReadingAsCompleteUseCase
+import com.example.mydevotional.usecase.SetSelectedTranslationUseCase
 import com.example.mydevotional.usecase.ToggleFavoriteVerseUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -24,7 +27,9 @@ class HomeScreenViewModel @Inject constructor(
     private val getVersesForDayUseCase: GetVersesForDayUseCase,
     private val toggleFavoriteVerseUseCase: ToggleFavoriteVerseUseCase,
     private val getCompletedReadingsUseCase: GetCompletedReadingsUseCase,
-    private val markReadingAsCompleteUseCase: MarkReadingAsCompleteUseCase
+    private val markReadingAsCompleteUseCase: MarkReadingAsCompleteUseCase,
+    private val getSelectedTranslationUseCase: GetSelectedTranslationUseCase,
+    private val setSelectedTranslationUseCase: SetSelectedTranslationUseCase
 ) : ViewModel() {
 
     private val _bibleResponses = MutableStateFlow<List<BibleResponse>>(emptyList())
@@ -41,9 +46,37 @@ class HomeScreenViewModel @Inject constructor(
 
     private val _uiState = MutableStateFlow<DailyReadingUiState>(DailyReadingUiState.Success())
 
+    private val _selectedTranslation = MutableStateFlow(BibleTranslation.WEB) // Valor default
+    val selectedTranslation: StateFlow<BibleTranslation> = _selectedTranslation.asStateFlow()
+
     init {
         loadVersesForToday()
         loadCompletedReadings()
+        observeSelectedTranslation()
+    }
+
+    private fun observeSelectedTranslation() {
+        viewModelScope.launch {
+            getSelectedTranslationUseCase().collect { translation ->
+                _selectedTranslation.value = translation
+                // Recarrega os versículos com a nova tradução
+                _selectedDate.value?.let { date ->
+                    _isLoading.value = true
+                    _bibleResponses.value = getVersesForDayUseCase(date)
+                    _isLoading.value = false
+                } ?: run {
+                    // Se não houver data selecionada, recarrega o dia atual
+                    loadVersesForToday()
+                }
+            }
+        }
+    }
+
+    fun setTranslation(translation: BibleTranslation) {
+        viewModelScope.launch {
+            setSelectedTranslationUseCase(translation)
+            // observeSelectedTranslation() vai reagir e recarregar
+        }
     }
 
     private fun loadVersesForToday() {
