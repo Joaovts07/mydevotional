@@ -10,11 +10,9 @@ class CalculateReadingPercentageUseCase @Inject constructor(
     private val getCompletedReadingsUseCase: GetCompletedReadingsUseCase,
     private val authRepository: AuthRepository // Para saber qual usuário buscar os dados
 ) {
-    // Defina o número total de dias no seu plano de leitura
-    // TODO: Ajuste este valor de acordo com o seu plano de leitura diária
-    private val TOTAL_READING_DAYS = 365 // Exemplo: 365 dias para um ano completo
+    private val TOTAL_READING_DAYS = 365
 
-    operator fun invoke(): Flow<Float> {
+    /*operator fun invoke(): Flow<Float> {
         return authRepository.getCurrentUserId().combine(getCompletedReadingsUseCase()) { userId, completedDates ->
             if (userId == null) {
                 // Se não houver userId (usuário não logado), a porcentagem é 0.
@@ -26,5 +24,5 @@ class CalculateReadingPercentageUseCase @Inject constructor(
                 if (TOTAL_READING_DAYS == 0) 0f else completedDates.size.toFloat() / TOTAL_READING_DAYS.toFloat()
             }
         }
-    }
+    }*/
 }

@@ -3,9 +3,10 @@ package com.example.mydevotional.repositorie
 import android.util.Log
 import com.example.mydevotional.BibleBook
 import com.example.mydevotional.BibleBooks
-import com.example.mydevotional.extensions.formatDate
 import com.example.mydevotional.model.BibleResponse
+import com.example.mydevotional.usecase.GetSelectedTranslationUseCase
 import com.google.firebase.firestore.FirebaseFirestore
+import com.google.gson.Gson
 import io.ktor.client.HttpClient
 import io.ktor.client.request.get
 import io.ktor.client.request.url
@@ -13,15 +14,20 @@ import io.ktor.client.statement.bodyAsText
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.tasks.await
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
 import javax.inject.Inject
+import javax.inject.Singleton
 
+@Singleton
 class BibleRepositoryImpl @Inject constructor(
     private val firestore: FirebaseFirestore,
-    private val httpClient: HttpClient
+    private val httpClient: HttpClient,
+    private val gson: Gson,
+    private val getSelectedTranslationUseCase: GetSelectedTranslationUseCase
 ) : BibleRepository {
 
     override fun getBibleBooks(): List<BibleBook> {
@@ -50,14 +56,17 @@ class BibleRepositoryImpl @Inject constructor(
     override suspend fun getVersesForDay(date: Date): List<BibleResponse> {
         val dateFormated = getDate(date)
         val passages = searchReadingDaily(dateFormated) as? List<String> ?: return emptyList()
+        val selectedTranslation = getSelectedTranslationUseCase().first()
 
         return coroutineScope {
             val deferredResponses = passages.map { passage ->
                 async {
                     try {
+                        val url = "https://bible-api.com/$passage?translation=${selectedTranslation.apiCode}"
                         val response: String = httpClient.get {
-                            url("https://bible-api.com/$passage?translation=almeida")
+                            url(url)
                         }.bodyAsText()
+
                         gsonDeserializer<BibleResponse>(response)
                     } catch (e: Exception) {
                         e.printStackTrace()
@@ -111,7 +120,7 @@ class BibleRepositoryImpl @Inject constructor(
 
     private inline fun <reified T> gsonDeserializer(json: String): T? {
         return try {
-            com.google.gson.Gson().fromJson(json, T::class.java)
+            gson.fromJson(json, T::class.java)
         } catch (e: Exception) {
             e.printStackTrace()
             null

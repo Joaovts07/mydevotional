@@ -4,6 +4,7 @@ package com.example.mydevotional.viewmodel
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.login.data.repository.AuthRepository
+import com.example.mydevotional.usecase.CalculateReadingPercentageUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.SharingStarted
@@ -20,7 +21,7 @@ class AccountViewModel @Inject constructor(
 ) : ViewModel() {
 
     // Informações do Usuário (Flows para observação na UI)
-    val userName: StateFlow<String> = authRepository.getCurrentUserName()
+    /*val userName: StateFlow<String> = authRepository.getCurrentUserName()
         .map { it ?: "Convidado" } // Default para "Convidado" se nome nulo
         .stateIn(
             scope = viewModelScope,
@@ -43,7 +44,7 @@ class AccountViewModel @Inject constructor(
             scope = viewModelScope,
             started = SharingStarted.WhileSubscribed(5000), // Inicia a coleta enquanto a UI está ativa
             initialValue = 0f // Valor inicial da porcentagem
-        )
+        )*/
 
     // Função para logout (exemplo, você precisará implementar a lógica no AuthRepository)
     fun logout() {
