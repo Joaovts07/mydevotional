@@ -5,9 +5,12 @@ import com.example.mydevotional.repositorie.BibleRepository
 import com.example.mydevotional.repositorie.BibleRepositoryImpl
 import com.example.mydevotional.repositorie.DataStoreCompletedReadingsRepository
 import com.example.mydevotional.repositorie.FavoriteVersesRepository
+import com.example.mydevotional.repositorie.TranslationPreferenceRepository
 import com.example.mydevotional.usecase.FavoriteVerseUseCase
 import com.example.mydevotional.usecase.GetCompletedReadingsUseCase
+import com.example.mydevotional.usecase.GetSelectedTranslationUseCase
 import com.example.mydevotional.usecase.MarkReadingAsCompleteUseCase
+import com.example.mydevotional.usecase.SetSelectedTranslationUseCase
 import com.example.mydevotional.usecase.ToggleFavoriteVerseUseCase
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
@@ -35,9 +38,11 @@ object AppModule {
     @Singleton
     fun provideBibleRepository(
         firestore: FirebaseFirestore,
-        httpClient: HttpClient
+        httpClient: HttpClient,
+        gson: Gson,
+        getSelectedTranslationUseCase: GetSelectedTranslationUseCase
     ): BibleRepository {
-        return BibleRepositoryImpl(firestore, httpClient)
+        return BibleRepositoryImpl(firestore, httpClient, gson, getSelectedTranslationUseCase)
     }
 
     @Provides
@@ -70,6 +75,12 @@ object AppModule {
     }
 
     @Provides
+    @Singleton
+    fun provideTranslationPreferenceRepository(@ApplicationContext context: Context): TranslationPreferenceRepository {
+        return TranslationPreferenceRepository(context)
+    }
+
+    @Provides
     fun provideToggleFavoriteVerseUseCase(repository: FavoriteVersesRepository): ToggleFavoriteVerseUseCase {
         return ToggleFavoriteVerseUseCase(repository)
     }
@@ -93,4 +104,15 @@ object AppModule {
     fun provideMarkReadingAsCompleteUseCase(repository: DataStoreCompletedReadingsRepository): MarkReadingAsCompleteUseCase {
         return MarkReadingAsCompleteUseCase(repository)
     }
+
+    @Provides
+    fun provideGetSelectedTranslationUseCase(repository: TranslationPreferenceRepository): GetSelectedTranslationUseCase {
+        return GetSelectedTranslationUseCase(repository)
+    }
+
+    @Provides
+    fun provideSetSelectedTranslationUseCase(repository: TranslationPreferenceRepository): SetSelectedTranslationUseCase {
+        return SetSelectedTranslationUseCase(repository)
+    }
 }
+
