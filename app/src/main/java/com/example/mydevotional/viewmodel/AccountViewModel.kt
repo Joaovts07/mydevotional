@@ -4,21 +4,52 @@ package com.example.mydevotional.viewmodel
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.login.data.repository.AuthRepository
+import com.example.mydevotional.model.BibleTranslation
 import com.example.mydevotional.usecase.CalculateReadingPercentageUseCase
+import com.example.mydevotional.usecase.GetSelectedTranslationUseCase
+import com.example.mydevotional.usecase.SetSelectedTranslationUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
 class AccountViewModel @Inject constructor(
     private val authRepository: AuthRepository,
-    private val calculateReadingPercentageUseCase: CalculateReadingPercentageUseCase
-) : ViewModel() {
+    private val calculateReadingPercentageUseCase: CalculateReadingPercentageUseCase,
+    private val setSelectedTranslationUseCase: SetSelectedTranslationUseCase,
+    private val getSelectedTranslationUseCase: GetSelectedTranslationUseCase,
+
+    ) : ViewModel() {
+
+    private val _selectedTranslation = MutableStateFlow(BibleTranslation.WEB)
+    val selectedTranslation: StateFlow<BibleTranslation> = _selectedTranslation.asStateFlow()
+
+    fun setTranslation(translation: BibleTranslation) {
+        viewModelScope.launch {
+            setSelectedTranslationUseCase(translation)
+            // observeSelectedTranslation() vai reagir e recarregar
+        }
+    }
+
+    /*private fun observeSelectedTranslation() {
+        viewModelScope.launch {
+            getSelectedTranslationUseCase().collect { translation ->
+                _selectedTranslation.value = translation
+                // Recarrega os versículos com a nova tradução
+                _selectedDate.value?.let { date ->
+                    _isLoading.value = true
+                    _bibleResponses.value = getVersesForDayUseCase(date)
+                    _isLoading.value = false
+                } ?: run {
+                    // Se não houver data selecionada, recarrega o dia atual
+                    loadVersesForToday()
+                }
+            }
+        }
+    }*/
 
     // Informações do Usuário (Flows para observação na UI)
     /*val userName: StateFlow<String> = authRepository.getCurrentUserName()
