@@ -18,12 +18,17 @@ import androidx.compose.material.icons.automirrored.filled.MenuBook
 import androidx.compose.material.icons.filled.Book
 import androidx.compose.material3.Card
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.DropdownMenuItem
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.ExposedDropdownMenuBox
+import androidx.compose.material3.ExposedDropdownMenuDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.SnackbarDuration
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -43,20 +48,21 @@ import com.example.mydevotional.components.CalendarReadings
 import com.example.mydevotional.components.CompleteReadingButton
 import com.example.mydevotional.components.versesListItems
 import com.example.mydevotional.extensions.formatDate
- import com.example.mydevotional.viewmodel.DailyReadingViewModel
+import com.example.mydevotional.model.BibleTranslation
+import com.example.mydevotional.viewmodel.DailyReadingViewModel
 import com.example.mydevotional.viewmodel.HomeScreenViewModel
 import kotlinx.coroutines.launch
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun HomeScreen(
-    viewModel: HomeScreenViewModel = hiltViewModel(),
+    homeViewModel: HomeScreenViewModel = hiltViewModel(),
     dailyReadingViewModel: DailyReadingViewModel = hiltViewModel()
 ) {
-    val bibleResponse by viewModel.bibleResponse.collectAsState()
-    val isLoading by viewModel.isLoading.collectAsState()
-    val completedReadings by viewModel.completedReadings.collectAsState()
+    val bibleResponse by homeViewModel.bibleResponse.collectAsState()
+    val isLoading by homeViewModel.isLoading.collectAsState()
+    val completedReadings by homeViewModel.completedReadings.collectAsState()
     val isReadingCompleted by dailyReadingViewModel.isReadingCompletedForSelectedDate.collectAsState()
-
 
     var calendarHeight by remember { mutableStateOf(354.dp) }
     var isSingleCardMode by remember { mutableStateOf(true) }
@@ -88,11 +94,10 @@ fun HomeScreen(
             ) {
                 CalendarReadings(
                     completedReadings = completedReadings,
-                    onDateSelected = { selectedDate -> viewModel.selectDate(selectedDate) }
+                    onDateSelected = { selectedDate -> homeViewModel.selectDate(selectedDate) }
                 )
             }
         }
-
         if (isLoading) {
             item {
                 Box(
@@ -163,16 +168,16 @@ fun HomeScreen(
             versesListItems(
                 bibleResponses = bibleResponse,
                 isSingleCardMode = isSingleCardMode,
-                onFavoriteClick = { viewModel.toggleFavorite(it) }
+                onFavoriteClick = { homeViewModel.toggleFavorite(it) }
             )
         }
         item {
             CompleteReadingButton(
                 isReadingCompleted = isReadingCompleted,
                 onClick = {
-                    val date = viewModel.selectedDate.value?.formatDate("yyy-MM-dd") ?: ""
-                    if (viewModel.verifyDailyIsReading()) {
-                        viewModel.markReadingAsComplete(date)
+                    val date = homeViewModel.selectedDate.value?.formatDate("yyy-MM-dd") ?: ""
+                    if (homeViewModel.verifyDailyIsReading()) {
+                        homeViewModel.markReadingAsComplete(date)
                         coroutineScope.launch {
                             snackbarHostState.showSnackbar(
                                 message = "Leitura Desmarcada!",
@@ -180,7 +185,7 @@ fun HomeScreen(
                             )
                         }
                     } else {
-                        viewModel.markReadingAsComplete(date)
+                        homeViewModel.markReadingAsComplete(date)
                         coroutineScope.launch {
                             snackbarHostState.showSnackbar(
                                 message = "Leitura marcada como lida!",
