@@ -55,14 +55,13 @@ fun AccountScreen(accountViewModel: AccountViewModel = hiltViewModel()) {
                         label = { Text("Tradução da Bíblia") },
                         trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded) },
                         modifier = Modifier
-                            .menuAnchor()
                             .fillMaxWidth()
                     )
                     ExposedDropdownMenu(
                         expanded = expanded,
                         onDismissRequest = { expanded = false }
                     ) {
-                        BibleTranslation.values().forEach { translation ->
+                        BibleTranslation.entries.forEach { translation ->
                             DropdownMenuItem(
                                 text = { Text(translation.displayName) },
                                 onClick = {
@@ -75,8 +74,6 @@ fun AccountScreen(accountViewModel: AccountViewModel = hiltViewModel()) {
                 }
             }
         }
-
-        // Porcentagem de Dias Lidos
         Card(
             modifier = Modifier
                 .fillMaxWidth()
