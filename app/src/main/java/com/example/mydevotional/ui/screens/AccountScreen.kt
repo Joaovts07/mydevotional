@@ -3,6 +3,11 @@ package com.example.mydevotional.ui.screens
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -10,13 +15,14 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.example.mydevotional.model.BibleTranslation
 import com.example.mydevotional.viewmodel.AccountViewModel
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun AccountScreen(viewModel: AccountViewModel = hiltViewModel()) {
-    //val readingPercentage by viewModel.readingPercentage.collectAsState(initial = 0f)
-    //val userName by viewModel.userName.collectAsState(initial = "")
-    //val userEmail by viewModel.userEmail.collectAsState(initial = "")
+fun AccountScreen(accountViewModel: AccountViewModel = hiltViewModel()) {
+    val selectedTranslation by accountViewModel.selectedTranslation.collectAsState()
+    var expanded by remember { mutableStateOf(false) } // Para o DropdownMenu
 
     Column(
         modifier = Modifier
@@ -30,6 +36,45 @@ fun AccountScreen(viewModel: AccountViewModel = hiltViewModel()) {
             fontWeight = FontWeight.Bold,
             modifier = Modifier.padding(bottom = 24.dp)
         )
+
+        Column {
+            // Seletor de Tradução
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 16.dp, vertical = 8.dp)
+            ) {
+                ExposedDropdownMenuBox(
+                    expanded = expanded,
+                    onExpandedChange = { expanded = !expanded }
+                ) {
+                    TextField(
+                        readOnly = true,
+                        value = selectedTranslation.displayName,
+                        onValueChange = { },
+                        label = { Text("Tradução da Bíblia") },
+                        trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded) },
+                        modifier = Modifier
+                            .menuAnchor()
+                            .fillMaxWidth()
+                    )
+                    ExposedDropdownMenu(
+                        expanded = expanded,
+                        onDismissRequest = { expanded = false }
+                    ) {
+                        BibleTranslation.values().forEach { translation ->
+                            DropdownMenuItem(
+                                text = { Text(translation.displayName) },
+                                onClick = {
+                                    accountViewModel.setTranslation(translation)
+                                    expanded = false
+                                }
+                            )
+                        }
+                    }
+                }
+            }
+        }
 
         // Porcentagem de Dias Lidos
         Card(
@@ -50,15 +95,15 @@ fun AccountScreen(viewModel: AccountViewModel = hiltViewModel()) {
                     fontWeight = FontWeight.SemiBold,
                     modifier = Modifier.padding(bottom = 8.dp)
                 )
-                CircularProgressIndicator(
-                    //progress = readingPercentage,
+                /*CircularProgressIndicator(
+                    progress = readingPercentage,
                     modifier = Modifier.size(80.dp),
                     color = MaterialTheme.colorScheme.primary,
                     strokeWidth = 8.dp
-                )
+                )*/
                 Spacer(modifier = Modifier.height(8.dp))
                 Text(
-                    text = "", // "${(readingPercentage * 100).toInt()}% Lido",
+                    text = "", //"${(readingPercentage * 100).toInt()}% Lido",
                     fontSize = 16.sp,
                     color = MaterialTheme.colorScheme.onSurface
                 )
@@ -114,5 +159,7 @@ fun AccountScreen(viewModel: AccountViewModel = hiltViewModel()) {
         ) {
             Text("Sair", color = Color.White)
         }
+
+
     }
 }

@@ -40,9 +40,10 @@ class BibleRepositoryImpl @Inject constructor(
 
     override suspend fun getVerses(book: String, chapter: Int): List<BibleResponse> {
         val bibleResponse = mutableListOf<BibleResponse>()
+        val selectedTranslation = getSelectedTranslationUseCase().first()
         try {
             val response: String = httpClient.get {
-                url("https://bible-api.com/$book-$chapter?translation=almeida")
+                url("https://bible-api.com/$book-$chapter?${selectedTranslation.apiCode}")
             }.bodyAsText()
             Log.e("bible-url", "https://bible-api.com/$book-$chapter?translation=almeida")
             gsonDeserializer<BibleResponse>(response)?.let { bibleResponse.add(it) }
@@ -52,7 +53,7 @@ class BibleRepositoryImpl @Inject constructor(
 
         return bibleResponse
     }
-
+ 
     override suspend fun getVersesForDay(date: Date): List<BibleResponse> {
         val dateFormated = getDate(date)
         val passages = searchReadingDaily(dateFormated) as? List<String> ?: return emptyList()
