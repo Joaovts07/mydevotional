@@ -4,15 +4,18 @@ package com.example.mydevotional.viewmodel
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.login.data.repository.AuthRepository
+import com.example.mydevotional.model.BibleResponse
 import com.example.mydevotional.model.BibleTranslation
 import com.example.mydevotional.usecase.CalculateReadingPercentageUseCase
 import com.example.mydevotional.usecase.GetSelectedTranslationUseCase
+import com.example.mydevotional.usecase.GetVersesForDayUseCase
 import com.example.mydevotional.usecase.SetSelectedTranslationUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
+import java.util.Date
 import javax.inject.Inject
 
 @HiltViewModel
@@ -21,35 +24,37 @@ class AccountViewModel @Inject constructor(
     private val calculateReadingPercentageUseCase: CalculateReadingPercentageUseCase,
     private val setSelectedTranslationUseCase: SetSelectedTranslationUseCase,
     private val getSelectedTranslationUseCase: GetSelectedTranslationUseCase,
+    private val getVersesForDayUseCase: GetVersesForDayUseCase
 
     ) : ViewModel() {
 
     private val _selectedTranslation = MutableStateFlow(BibleTranslation.WEB)
     val selectedTranslation: StateFlow<BibleTranslation> = _selectedTranslation.asStateFlow()
 
+    private val _selectedDate = MutableStateFlow<Date?>(null)
+    val selectedDate: StateFlow<Date?> = _selectedDate.asStateFlow()
+
+    private val _isLoading = MutableStateFlow(false)
+    val isLoading: StateFlow<Boolean> = _isLoading
+
+    private val _bibleResponses = MutableStateFlow<List<BibleResponse>>(emptyList())
+    val bibleResponses: StateFlow<List<BibleResponse>> = _bibleResponses
+
+
     fun setTranslation(translation: BibleTranslation) {
         viewModelScope.launch {
             setSelectedTranslationUseCase(translation)
-            // observeSelectedTranslation() vai reagir e recarregar
+            observeSelectedTranslation()
         }
     }
 
-    /*private fun observeSelectedTranslation() {
+    private fun observeSelectedTranslation() {
         viewModelScope.launch {
             getSelectedTranslationUseCase().collect { translation ->
                 _selectedTranslation.value = translation
-                // Recarrega os versículos com a nova tradução
-                _selectedDate.value?.let { date ->
-                    _isLoading.value = true
-                    _bibleResponses.value = getVersesForDayUseCase(date)
-                    _isLoading.value = false
-                } ?: run {
-                    // Se não houver data selecionada, recarrega o dia atual
-                    loadVersesForToday()
-                }
             }
         }
-    }*/
+    }
 
     // Informações do Usuário (Flows para observação na UI)
     /*val userName: StateFlow<String> = authRepository.getCurrentUserName()
@@ -80,7 +85,6 @@ class AccountViewModel @Inject constructor(
     // Função para logout (exemplo, você precisará implementar a lógica no AuthRepository)
     fun logout() {
         viewModelScope.launch {
-            // TODO: Implementar a lógica de logout no AuthRepository
             // Exemplo: authRepository.logout()
         }
     }
