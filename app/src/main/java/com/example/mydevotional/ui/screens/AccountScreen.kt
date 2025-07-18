@@ -45,7 +45,7 @@ fun AccountScreen(accountViewModel: AccountViewModel = hiltViewModel()) {
             ) {
                 ExposedDropdownMenuBox(
                     expanded = expanded,
-                    onExpandedChange = { expanded = !expanded }
+                    onExpandedChange = { newExpandedState -> expanded = newExpandedState }
                 ) {
                     TextField(
                         readOnly = true,
@@ -54,6 +54,7 @@ fun AccountScreen(accountViewModel: AccountViewModel = hiltViewModel()) {
                         label = { Text("Tradução da Bíblia") },
                         trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded) },
                         modifier = Modifier
+                            .menuAnchor()
                             .fillMaxWidth()
                     )
                     ExposedDropdownMenu(
