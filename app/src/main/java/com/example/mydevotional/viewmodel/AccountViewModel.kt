@@ -25,10 +25,9 @@ class AccountViewModel @Inject constructor(
     private val setSelectedTranslationUseCase: SetSelectedTranslationUseCase,
     private val getSelectedTranslationUseCase: GetSelectedTranslationUseCase,
     private val getVersesForDayUseCase: GetVersesForDayUseCase
-
     ) : ViewModel() {
 
-    private val _selectedTranslation = MutableStateFlow(BibleTranslation.WEB)
+    private val _selectedTranslation = MutableStateFlow(BibleTranslation.ALMEIDA)
     val selectedTranslation: StateFlow<BibleTranslation> = _selectedTranslation.asStateFlow()
 
     private val _selectedDate = MutableStateFlow<Date?>(null)
@@ -39,7 +38,6 @@ class AccountViewModel @Inject constructor(
 
     private val _bibleResponses = MutableStateFlow<List<BibleResponse>>(emptyList())
     val bibleResponses: StateFlow<List<BibleResponse>> = _bibleResponses
-
 
     fun setTranslation(translation: BibleTranslation) {
         viewModelScope.launch {
