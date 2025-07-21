@@ -42,10 +42,13 @@ class BibleRepositoryImpl @Inject constructor(
         val bibleResponse = mutableListOf<BibleResponse>()
         val selectedTranslation = getSelectedTranslationUseCase().first()
         try {
+            val url = "https://bible-api.com/$book-$chapter?${selectedTranslation.apiCode}"
             val response: String = httpClient.get {
-                url("https://bible-api.com/$book-$chapter?${selectedTranslation.apiCode}")
+                url(url)
             }.bodyAsText()
-            Log.e("bible-url", "https://bible-api.com/$book-$chapter?translation=almeida")
+            Log.e("bible-url",
+                url
+            )
             gsonDeserializer<BibleResponse>(response)?.let { bibleResponse.add(it) }
         } catch (e: Exception) {
             e.printStackTrace()
@@ -63,7 +66,7 @@ class BibleRepositoryImpl @Inject constructor(
             val deferredResponses = passages.map { passage ->
                 async {
                     try {
-                        val url = "https://bible-api.com/$passage?translation=${selectedTranslation.apiCode}"
+                        val url = "https://bible-api.com/$passage?${selectedTranslation.apiCode}"
                         val response: String = httpClient.get {
                             url(url)
                         }.bodyAsText()
