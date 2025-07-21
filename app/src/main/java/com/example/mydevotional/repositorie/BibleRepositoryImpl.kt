@@ -66,7 +66,7 @@ class BibleRepositoryImpl @Inject constructor(
             val deferredResponses = passages.map { passage ->
                 async {
                     try {
-                        val url = "https://bible-api.com/$passage?translation=${selectedTranslation.apiCode}"
+                        val url = "https://bible-api.com/$passage?${selectedTranslation.apiCode}"
                         val response: String = httpClient.get {
                             url(url)
                         }.bodyAsText()
