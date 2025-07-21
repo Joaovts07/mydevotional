@@ -21,15 +21,13 @@ class TranslationPreferenceRepository @Inject constructor(
 ) {
     private val SELECTED_TRANSLATION_KEY = stringPreferencesKey("selected_bible_translation")
 
-    // Retorna o Flow da tradução selecionada
     fun getTranslationPreference(): Flow<BibleTranslation> {
         return context.translationDataStore.data.map { preferences ->
-            val apiCode = preferences[SELECTED_TRANSLATION_KEY] ?: BibleTranslation.WEB.apiCode // Default é WEB
-            BibleTranslation.values().find { it.apiCode == apiCode } ?: BibleTranslation.WEB
+            val apiCode = preferences[SELECTED_TRANSLATION_KEY] ?: BibleTranslation.ALMEIDA.apiCode
+            BibleTranslation.entries.find { it.apiCode == apiCode } ?: BibleTranslation.ALMEIDA
         }
     }
 
-    // Salva a tradução selecionada
     suspend fun setTranslationPreference(translation: BibleTranslation) {
         context.translationDataStore.edit { preferences ->
             preferences[SELECTED_TRANSLATION_KEY] = translation.apiCode
