@@ -20,6 +20,7 @@ import com.example.mydevotional.ui.screens.FavoriteVersesScreen
 import com.example.mydevotional.ui.screens.HomeScreen
 import com.example.mydevotional.ui.screens.LoginRequiredScreen
 import com.example.mydevotional.ui.screens.VersesScreen
+import com.example.mydevotional.viewmodel.AccountViewModel
 import com.example.mydevotional.viewmodel.VersesViewModel
 
 @Composable
@@ -27,6 +28,7 @@ fun AppNavigation(navController: NavHostController) {
     val backStackEntryState by navController.currentBackStackEntryAsState()
     val currentDestination = backStackEntryState?.destination
     val versesViewModel: VersesViewModel = hiltViewModel()
+    val accountViewModel: AccountViewModel = hiltViewModel()
     val selectedItem by remember(currentDestination) {
         mutableStateOf(
             bottomAppBarItems.find { item ->
@@ -48,7 +50,7 @@ fun AppNavigation(navController: NavHostController) {
         composable(AppDestination.BibleBooks.route) {
             MyDevocionalScaffold(navController, selectedItem) { paddingValues ->
                 Box(modifier = Modifier.padding(paddingValues)) {
-                    BooksScreen(navController, versesViewModel)
+                    BooksScreen(navController, versesViewModel, accountViewModel)
                 }
             }
         }
