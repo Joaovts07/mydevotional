@@ -70,8 +70,11 @@ class BibleRepositoryImpl @Inject constructor(
                         val response: String = httpClient.get {
                             url(url)
                         }.bodyAsText()
-
+                        Log.e("bible-url",
+                            url
+                        )
                         gsonDeserializer<BibleResponse>(response)
+
                     } catch (e: Exception) {
                         e.printStackTrace()
                         null
