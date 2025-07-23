@@ -17,12 +17,19 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
+import com.example.mydevotional.model.getLocalizedName
 import com.example.mydevotional.navigation.AppDestination
+import com.example.mydevotional.viewmodel.AccountViewModel
 import com.example.mydevotional.viewmodel.VersesViewModel
 
 @Composable
-fun BooksScreen(navController: NavController, viewModel: VersesViewModel) {
+fun BooksScreen(
+    navController: NavController,
+    viewModel: VersesViewModel,
+    accountViewModel: AccountViewModel
+) {
     val books by viewModel.books.collectAsState()
+    val selectedTranslation by accountViewModel.selectedTranslation.collectAsState()
 
     Column(Modifier.fillMaxSize().padding(16.dp)) {
         LazyColumn {
@@ -38,7 +45,7 @@ fun BooksScreen(navController: NavController, viewModel: VersesViewModel) {
                     elevation = CardDefaults.cardElevation(4.dp)
                 ) {
                     Text(
-                        text = book.name,
+                        text = book.getLocalizedName(selectedTranslation),
                         modifier = Modifier.padding(16.dp),
                         fontSize = 18.sp
                     )
