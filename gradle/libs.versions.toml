@@ -24,7 +24,7 @@ hiltAndroid = "2.49"
 firebaseAuthKtx = "23.2.1"
 appcompat = "1.7.1"
 credentials = "1.5.0"
-playServicesAuth = "21.3.0"
+playServicesAuth = "21.4.0"
 googleid = "1.1.1"
 firebaseStorageKtx = "21.0.2"
 
