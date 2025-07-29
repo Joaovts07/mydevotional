@@ -60,13 +60,12 @@ class BibleRepositoryImpl @Inject constructor(
     override suspend fun getVersesForDay(date: Date): List<BibleResponse> {
         val dateFormated = getDate(date)
         val passages = searchReadingDaily(dateFormated) as? List<String> ?: return emptyList()
-        val selectedTranslation = getSelectedTranslationUseCase().first()
 
         return coroutineScope {
             val deferredResponses = passages.map { passage ->
                 async {
                     try {
-                        val url = "https://bible-api.com/$passage?${selectedTranslation.apiCode}"
+                        val url = "https://bible-api.com/$passage?translation=almeida"
                         val response: String = httpClient.get {
                             url(url)
                         }.bodyAsText()
