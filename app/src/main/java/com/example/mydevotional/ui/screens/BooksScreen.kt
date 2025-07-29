@@ -40,7 +40,10 @@ fun BooksScreen(
                         .padding(8.dp)
                         .clickable {
                             viewModel.selectBook(book)
-                            navController.navigate("${AppDestination.BibleChapters.route}/${book.name}")
+                            navController.navigate(
+                                "${AppDestination.
+                                BibleChapters.route}/${book.getLocalizedName(selectedTranslation)}"
+                            )
                         },
                     elevation = CardDefaults.cardElevation(4.dp)
                 ) {
