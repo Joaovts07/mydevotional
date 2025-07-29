@@ -99,27 +99,6 @@ class BibleRepositoryImpl @Inject constructor(
         }
     }
 
-    private suspend fun fetchVersesFromApi(passages: List<String>): List<BibleResponse> {
-        val bibleResponses = mutableListOf<BibleResponse>()
-        passages.forEach { passage ->
-            try {
-                val response: String = httpClient.get {
-                    url("https://bible-api.com/$passage?translation=almeida")
-                }.bodyAsText()
-                Log.e("bible-url", "https://bible-api.com/$passage?translation=almeida")
-                val bibleResponse = gsonDeserializer<BibleResponse>(response)
-
-                bibleResponse?.let {
-                    bibleResponses.add(it)
-                }
-            } catch (e: Exception) {
-                e.printStackTrace()
-
-            }
-        }
-        return bibleResponses
-    }
-
     fun getDate(date: Date): String {
         val format = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
         return format.format(date)
