@@ -60,13 +60,12 @@ class BibleRepositoryImpl @Inject constructor(
     override suspend fun getVersesForDay(date: Date): List<BibleResponse> {
         val dateFormated = getDate(date)
         val passages = searchReadingDaily(dateFormated) as? List<String> ?: return emptyList()
-        val selectedTranslation = getSelectedTranslationUseCase().first()
 
         return coroutineScope {
             val deferredResponses = passages.map { passage ->
                 async {
                     try {
-                        val url = "https://bible-api.com/$passage?${selectedTranslation.apiCode}"
+                        val url = "https://bible-api.com/$passage?translation=almeida"
                         val response: String = httpClient.get {
                             url(url)
                         }.bodyAsText()
@@ -97,27 +96,6 @@ class BibleRepositoryImpl @Inject constructor(
             e.printStackTrace()
             null
         }
-    }
-
-    private suspend fun fetchVersesFromApi(passages: List<String>): List<BibleResponse> {
-        val bibleResponses = mutableListOf<BibleResponse>()
-        passages.forEach { passage ->
-            try {
-                val response: String = httpClient.get {
-                    url("https://bible-api.com/$passage?translation=almeida")
-                }.bodyAsText()
-                Log.e("bible-url", "https://bible-api.com/$passage?translation=almeida")
-                val bibleResponse = gsonDeserializer<BibleResponse>(response)
-
-                bibleResponse?.let {
-                    bibleResponses.add(it)
-                }
-            } catch (e: Exception) {
-                e.printStackTrace()
-
-            }
-        }
-        return bibleResponses
     }
 
     fun getDate(date: Date): String {
