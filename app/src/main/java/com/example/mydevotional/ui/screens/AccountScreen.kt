@@ -12,17 +12,19 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.example.mydevotional.model.BibleTranslation
+import com.example.mydevotional.ui.theme.MyDevotionalTheme
 import com.example.mydevotional.viewmodel.AccountViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AccountScreen(accountViewModel: AccountViewModel = hiltViewModel()) {
     val selectedTranslation by accountViewModel.selectedTranslation.collectAsState()
-    var expanded by remember { mutableStateOf(false) } // Para o DropdownMenu
+    var expanded by remember { mutableStateOf(false) } 
 
     Column(
         modifier = Modifier
@@ -41,7 +43,6 @@ fun AccountScreen(accountViewModel: AccountViewModel = hiltViewModel()) {
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(horizontal = 16.dp, vertical = 16.dp)
             ) {
                 ExposedDropdownMenuBox(
                     expanded = expanded,
@@ -74,40 +75,6 @@ fun AccountScreen(accountViewModel: AccountViewModel = hiltViewModel()) {
                 }
             }
         }
-        Card(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(bottom = 16.dp),
-            elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
-        ) {
-            Column(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(16.dp),
-                horizontalAlignment = Alignment.CenterHorizontally
-            ) {
-                Text(
-                    text = "Progresso de Leitura",
-                    fontSize = 18.sp,
-                    fontWeight = FontWeight.SemiBold,
-                    modifier = Modifier.padding(bottom = 8.dp)
-                )
-                /*CircularProgressIndicator(
-                    progress = readingPercentage,
-                    modifier = Modifier.size(80.dp),
-                    color = MaterialTheme.colorScheme.primary,
-                    strokeWidth = 8.dp
-                )*/
-                Spacer(modifier = Modifier.height(8.dp))
-                Text(
-                    text = "", //"${(readingPercentage * 100).toInt()}% Lido",
-                    fontSize = 16.sp,
-                    color = MaterialTheme.colorScheme.onSurface
-                )
-            }
-        }
-
-        // Informações do Usuário
         Text(
             text = "Informações do Usuário",
             fontSize = 18.sp,
@@ -158,5 +125,15 @@ fun AccountScreen(accountViewModel: AccountViewModel = hiltViewModel()) {
         }
 
 
+    }
+}
+
+@Preview
+@Composable
+fun AccountScreenPreview() {
+    MyDevotionalTheme {
+        AccountScreen(
+
+        )
     }
 }
