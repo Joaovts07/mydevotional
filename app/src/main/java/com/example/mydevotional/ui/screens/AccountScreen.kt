@@ -12,17 +12,19 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.example.mydevotional.model.BibleTranslation
+import com.example.mydevotional.ui.theme.MyDevotionalTheme
 import com.example.mydevotional.viewmodel.AccountViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AccountScreen(accountViewModel: AccountViewModel = hiltViewModel()) {
     val selectedTranslation by accountViewModel.selectedTranslation.collectAsState()
-    var expanded by remember { mutableStateOf(false) } // Para o DropdownMenu
+    var expanded by remember { mutableStateOf(false) } 
 
     Column(
         modifier = Modifier
@@ -87,19 +89,6 @@ fun AccountScreen(accountViewModel: AccountViewModel = hiltViewModel()) {
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
                 Text(
-                    text = "Progresso de Leitura",
-                    fontSize = 18.sp,
-                    fontWeight = FontWeight.SemiBold,
-                    modifier = Modifier.padding(bottom = 8.dp)
-                )
-                /*CircularProgressIndicator(
-                    progress = readingPercentage,
-                    modifier = Modifier.size(80.dp),
-                    color = MaterialTheme.colorScheme.primary,
-                    strokeWidth = 8.dp
-                )*/
-                Spacer(modifier = Modifier.height(8.dp))
-                Text(
                     text = "", //"${(readingPercentage * 100).toInt()}% Lido",
                     fontSize = 16.sp,
                     color = MaterialTheme.colorScheme.onSurface
@@ -158,5 +147,15 @@ fun AccountScreen(accountViewModel: AccountViewModel = hiltViewModel()) {
         }
 
 
+    }
+}
+
+@Preview
+@Composable
+fun AccountScreenPreview() {
+    MyDevotionalTheme {
+        AccountScreen(
+
+        )
     }
 }
