@@ -43,7 +43,6 @@ fun AccountScreen(accountViewModel: AccountViewModel = hiltViewModel()) {
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(horizontal = 16.dp, vertical = 16.dp)
             ) {
                 ExposedDropdownMenuBox(
                     expanded = expanded,
