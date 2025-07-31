@@ -76,27 +76,6 @@ fun AccountScreen(accountViewModel: AccountViewModel = hiltViewModel()) {
                 }
             }
         }
-        Card(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(bottom = 16.dp),
-            elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
-        ) {
-            Column(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(16.dp),
-                horizontalAlignment = Alignment.CenterHorizontally
-            ) {
-                Text(
-                    text = "", //"${(readingPercentage * 100).toInt()}% Lido",
-                    fontSize = 16.sp,
-                    color = MaterialTheme.colorScheme.onSurface
-                )
-            }
-        }
-
-        // Informações do Usuário
         Text(
             text = "Informações do Usuário",
             fontSize = 18.sp,
