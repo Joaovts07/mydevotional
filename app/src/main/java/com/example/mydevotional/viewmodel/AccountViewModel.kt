@@ -32,4 +32,7 @@ class AccountViewModel @Inject constructor(
             setSelectedTranslationUseCase(translation)
             }
     }
+    fun logout() {
+
+    }
 }

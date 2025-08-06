@@ -142,6 +142,8 @@ fun launchGoogleSignIn(context: android.content.Context, viewModel: LoginViewMod
     launcher.launch(googleSignInClient.signInIntent)
 }
 
+
+
 @Composable
 fun LoginNavigation(navController: NavHostController, routeSuccess: String, onLoginSuccess: @Composable () -> Unit) {
     MyLoginTheme {
@@ -188,3 +190,4 @@ fun LoginNavigation(navController: NavHostController, routeSuccess: String, onLo
         }
     }
 }
+
