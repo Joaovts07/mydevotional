@@ -9,6 +9,7 @@ import com.example.login.domain.usecase.CheckIfUserExistsUseCase
 import com.example.login.domain.usecase.CreateUserUseCase
 import com.example.login.domain.usecase.LoginUseCase
 import com.example.login.domain.usecase.LoginWithGoogleUseCase
+import com.example.login.usecase.LogoutUseCase
 import com.example.login.validators.isValidEmail
 import com.example.login.validators.isValidPassword
 import com.google.android.gms.auth.api.signin.GoogleSignIn
@@ -31,7 +32,8 @@ class LoginViewModel @Inject constructor(
     private val loginUseCase: LoginUseCase,
     private val loginWithGoogleUseCase: LoginWithGoogleUseCase,
     private val createUserUseCase: CreateUserUseCase,
-    private val checkIfUserExistsUseCase: CheckIfUserExistsUseCase
+    private val checkIfUserExistsUseCase: CheckIfUserExistsUseCase,
+    private val logoutUseCase: LogoutUseCase
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(LoginUiState())
@@ -98,6 +100,12 @@ class LoginViewModel @Inject constructor(
             } else {
                 _uiState.update { it.copy(errorMessage = result.exceptionOrNull()?.message, isLoading = false) }
             }
+        }
+    }
+
+    fun logout() {
+        viewModelScope.launch {
+            logoutUseCase()
         }
     }
 

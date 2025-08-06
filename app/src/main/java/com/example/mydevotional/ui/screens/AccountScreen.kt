@@ -16,15 +16,18 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.example.login.presentation.login.LoginViewModel
 import com.example.mydevotional.model.BibleTranslation
 import com.example.mydevotional.ui.theme.MyDevotionalTheme
 import com.example.mydevotional.viewmodel.AccountViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun AccountScreen(accountViewModel: AccountViewModel = hiltViewModel()) {
+fun AccountScreen(
+    accountViewModel: AccountViewModel = hiltViewModel(),
+    loginViewModel: LoginViewModel = hiltViewModel()) {
     val selectedTranslation by accountViewModel.selectedTranslation.collectAsState()
-    var expanded by remember { mutableStateOf(false) } 
+    var expanded by remember { mutableStateOf(false) }
 
     Column(
         modifier = Modifier
@@ -114,7 +117,7 @@ fun AccountScreen(accountViewModel: AccountViewModel = hiltViewModel()) {
         Spacer(modifier = Modifier.height(24.dp))
 
         Button(
-            onClick = { /* Lógica para logout */ },
+            onClick = { loginViewModel.logout() },
             modifier = Modifier
                 .fillMaxWidth()
                 .height(48.dp),
