@@ -106,6 +106,7 @@ class LoginViewModel @Inject constructor(
     fun logout() {
         viewModelScope.launch {
             logoutUseCase()
+            _loginState.value = LoginState.Logout
         }
     }
 
@@ -153,15 +154,8 @@ sealed class LoginState {
     object Idle : LoginState()
     object Loading : LoginState()
     object Logged : LoginState()
+    object Logout : LoginState()
     data class Error(val message: String) : LoginState()
 }
 
-fun isValidEmail(email: String): Boolean {
-    val emailRegex = "^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}\$".toRegex()
-    return emailRegex.matches(email)
-}
-
-fun isValidPassword(password: String): Boolean {
-    return password.length >= 6
-}
 

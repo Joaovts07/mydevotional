@@ -44,7 +44,8 @@ import com.google.android.gms.auth.api.signin.GoogleSignInOptions
 fun LoginScreen(
     navController: NavController,
     viewModel: LoginViewModel = hiltViewModel(),
-    onLoginSuccess: () -> Unit
+    onLoginSuccess: () -> Unit,
+    onLogout: () -> Unit
 ) {
     val uiState by viewModel.uiState.collectAsState()
     val loginState by viewModel.loginState.collectAsState()
@@ -66,6 +67,7 @@ fun LoginScreen(
             onGoogleSignInClick = { launchGoogleSignIn(context, viewModel, launcher) },
             onRegisterClick = { navController.navigate("basicForm") },
             onLoginSuccess = onLoginSuccess,
+            onLogout = onLogout,
             modifier = Modifier
                 .fillMaxSize()
                 .padding(innerPadding)
@@ -84,6 +86,7 @@ fun LoginContent(
     onGoogleSignInClick: () -> Unit,
     onRegisterClick: () -> Unit,
     onLoginSuccess: () -> Unit,
+    onLogout: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     Column(
@@ -106,6 +109,7 @@ fun LoginContent(
                 Text(text = loginState.message, color = Color.Red)
                 Spacer(modifier = Modifier.height(8.dp))
             }
+            is LoginState.Logout -> onLogout()
             else -> {}
         }
 
@@ -158,6 +162,9 @@ fun LoginNavigation(navController: NavHostController, routeSuccess: String, onLo
                         navController.navigate(routeSuccess) {
                             popUpTo("login") { inclusive = true }
                         }
+                    },
+                    onLogout = {
+                        navController.navigate("login")
                     }
                 )
             }
