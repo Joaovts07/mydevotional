@@ -1,7 +1,9 @@
-package com.example.login.presentation.login
+package com.example.login.ui.screens
 
+import android.content.Context
 import android.content.Intent
 import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
@@ -28,13 +30,13 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
 import com.example.login.BuildConfig
+import com.example.login.presentation.login.LoginState
+import com.example.login.presentation.login.LoginUiState
+import com.example.login.presentation.login.LoginViewModel
 import com.example.login.ui.components.EmailInput
 import com.example.login.ui.components.GoogleSignInButton
 import com.example.login.ui.components.LoadingButton
 import com.example.login.ui.components.PasswordInput
-import com.example.login.ui.screens.ConfirmationScreen
-import com.example.login.ui.screens.RegistrationBasicScreen
-import com.example.login.ui.screens.RegistrationChoiseScreen
 import com.example.mylogin.ui.theme.MyLoginTheme
 import com.google.android.gms.auth.api.signin.GoogleSignIn
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions
@@ -135,7 +137,7 @@ fun LoginContent(
     }
 }
 
-fun launchGoogleSignIn(context: android.content.Context, viewModel: LoginViewModel, launcher: androidx.activity.result.ActivityResultLauncher<Intent>) {
+fun launchGoogleSignIn(context: Context, viewModel: LoginViewModel, launcher: ActivityResultLauncher<Intent>) {
 
     val googleClientId = BuildConfig.GOOGLE_CLIENT_ID
     val gso = GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)

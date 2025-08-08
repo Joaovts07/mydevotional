@@ -1,5 +1,7 @@
 package com.example.mydevotional.ui.screens
 
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
@@ -11,6 +13,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -18,6 +21,8 @@ import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.example.login.presentation.login.LoginState
 import com.example.login.presentation.login.LoginViewModel
+import com.example.login.ui.screens.LoginContent
+import com.example.login.ui.screens.launchGoogleSignIn
 import com.example.mydevotional.model.BibleTranslation
 import com.example.mydevotional.ui.theme.MyDevotionalTheme
 import com.example.mydevotional.viewmodel.AccountViewModel
@@ -32,10 +37,30 @@ fun AccountScreen(
     val selectedTranslation by accountViewModel.selectedTranslation.collectAsState()
     var expanded by remember { mutableStateOf(false) }
     val loginState by loginViewModel.loginState.collectAsState()
+    val uiState by loginViewModel.uiState.collectAsState()
+    val context = LocalContext.current
+    val launcher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.StartActivityForResult()
+    ) { result ->
+        loginViewModel.handleGoogleSignInResult(result)
+    }
 
     when(loginState) {
         is LoginState.Logout -> onLogout
-        else -> { }
+        else -> {
+            LoginContent(
+                uiState = uiState,
+                loginState = loginState,
+                onEmailChange = loginViewModel::onEmailChange,
+                onPasswordChange = loginViewModel::onPasswordChange,
+                onLoginClick = loginViewModel::login,
+                onGoogleSignInClick = { launchGoogleSignIn(context, loginViewModel, launcher) },
+                onRegisterClick = { /* Lógica para navegação de cadastro */ },
+                onLoginSuccess = { /* Lógica de navegação após login */ },
+                onLogout = { /* Lógica de navegação após logout */ },
+                modifier = Modifier.fillMaxWidth()
+            )
+        }
     }
 
     Column(
