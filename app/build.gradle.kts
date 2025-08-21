@@ -88,6 +88,9 @@ dependencies {
     //data store
     implementation(libs.androidx.datastore.preferences)
 
+    //ML Kit
+    implementation(libs.text.recognition)
+
     //login
     implementation(project(":login"))
 
