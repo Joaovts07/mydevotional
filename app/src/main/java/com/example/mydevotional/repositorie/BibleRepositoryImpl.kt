@@ -60,7 +60,7 @@ class BibleRepositoryImpl @Inject constructor(
  
     override suspend fun getVersesForDay(date: Date): List<BibleResponse> {
         val dateFormated = getDate(date)
-        val passages = searchReadingDaily(dateFormated) as? List<String> ?: return emptyList()
+        val passages = searchReadingDaily(dateFormated) as? List<*> ?: return emptyList()
 
         return coroutineScope {
             val deferredResponses = passages.map { passage ->
