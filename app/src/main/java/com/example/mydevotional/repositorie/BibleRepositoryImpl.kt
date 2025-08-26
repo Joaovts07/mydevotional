@@ -6,6 +6,7 @@ import com.example.mydevotional.BibleBooks
 import com.example.mydevotional.model.BibleResponse
 import com.example.mydevotional.usecase.GetSelectedTranslationUseCase
 import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.firestore.SetOptions
 import com.google.gson.Gson
 import io.ktor.client.HttpClient
 import io.ktor.client.request.get
@@ -59,7 +60,7 @@ class BibleRepositoryImpl @Inject constructor(
  
     override suspend fun getVersesForDay(date: Date): List<BibleResponse> {
         val dateFormated = getDate(date)
-        val passages = searchReadingDaily(dateFormated) as? List<String> ?: return emptyList()
+        val passages = searchReadingDaily(dateFormated) as? List<*> ?: return emptyList()
 
         return coroutineScope {
             val deferredResponses = passages.map { passage ->
@@ -95,6 +96,17 @@ class BibleRepositoryImpl @Inject constructor(
         } catch (e: Exception) {
             e.printStackTrace()
             null
+        }
+    }
+
+    override suspend fun savePassages(date: String, passages: List<Map<String, Any>>): Boolean {
+        return try {
+            val document = firestore.collection("readings").document(date)
+            document.set(mapOf("verses" to passages), SetOptions.merge()).await()
+            true
+        } catch (e: Exception) {
+            e.printStackTrace()
+            false
         }
     }
 
