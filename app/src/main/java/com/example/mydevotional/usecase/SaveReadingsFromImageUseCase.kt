@@ -1,62 +1,111 @@
 package com.example.mydevotional.usecase
 
+
 import android.graphics.Bitmap
+import com.example.mydevotional.BibleBook
 import com.example.mydevotional.BibleBooks
 import com.example.mydevotional.repositorie.BibleRepository
-import javax.inject.Inject
 import com.google.mlkit.vision.common.InputImage
 import com.google.mlkit.vision.text.TextRecognition
 import com.google.mlkit.vision.text.latin.TextRecognizerOptions
 import kotlinx.coroutines.tasks.await
+import java.util.Calendar
+import java.util.regex.Pattern
+import javax.inject.Inject
 import javax.inject.Singleton
 
 @Singleton
 class SaveReadingsFromImageUseCase @Inject constructor(
     private val bibleRepository: BibleRepository
 ) {
-    suspend operator fun invoke(bitmap: Bitmap, date: String): Boolean {
+    suspend operator fun invoke(bitmap: Bitmap): Boolean {
         // Step 1: Initialize the TextRecognizer
         val recognizer = TextRecognition.getClient(TextRecognizerOptions.DEFAULT_OPTIONS)
-        val image = InputImage.fromBitmap(bitmap, 0) // O ângulo de rotação é 0
+        val image = InputImage.fromBitmap(bitmap, 0)
 
         // Step 2: Process the image to get text
         val result = recognizer.process(image).await()
         val rawText = result.text
 
-        // Step 3: Parse the text to extract Bible passages
-        val passages = parseBiblePassages(rawText)
+        // Step 3: Parse the text to extract the date and Bible passages
+        val passagesMap = parseImageText(rawText)
+
+        if (passagesMap.isNullOrEmpty()) {
+            return false
+        }
+
+        // A primeira chave do mapa é a data, o valor são as passagens
+        val date = passagesMap.keys.first()
+        val passages = passagesMap[date] ?: emptyList()
 
         // Step 4: Save the structured passages to Firestore
-        return bibleRepository.savePassages(date, passages) // Você precisará criar esta função
+        return bibleRepository.savePassages(date, passages)
     }
 
-    private fun parseBiblePassages(text: String): List<Map<String, Any>> {
-        val parsedPassages = mutableListOf<Map<String, Any>>()
+    private fun parseImageText(text: String): Map<String, List<Map<String, Any>>> {
+        val parsedReadings = mutableMapOf<String, List<Map<String, Any>>>()
         val lines = text.split("\n")
 
         val bibleBookMap = BibleBooks.books.associateBy { it.name }
 
+        // Regex para capturar a data no formato "25/AGO"
+        val dateRegex = "(\\d{1,2})/(JAN|FEV|MAR|ABR|MAI|JUN|JUL|AGO|SET|OUT|NOV|DEZ)"
+        val passageRegex = "(.*?)\\s+(\\d+)(?:-(\\d+))?(?::(\\d+)(?:-(\\d+))?)?"
+
+        var currentDateString: String? = null
+        val currentYear = Calendar.getInstance().get(Calendar.YEAR)
+
         lines.forEach { line ->
-            // Exemplo de lógica de parsing (pode precisar ser mais complexa)
-            // Regex para capturar "Livro Capítulo" ou "Livro Capítulo:Verso"
-            val regex = "(\\d?\\s?[a-zA-ZáàâãéèêíïóôõöúüçÁÀÂÃÉÈÊÍÏÓÔÕÖÚÜÇ]+)\\s+(\\d+)"
-            val matchResult = Regex(regex).find(line)
+            val dateMatch = Pattern.compile(dateRegex, Pattern.CASE_INSENSITIVE).matcher(line)
+            if (dateMatch.find()) {
+                val day = dateMatch.group(1)
+                val month = dateMatch.group(2)
+                val monthNumber = when (month?.uppercase()) {
+                    "JAN" -> 1
+                    "FEV" -> 2
+                    // ... adicione outros meses aqui
+                    "AGO" -> 8
+                    // ...
+                    else -> null
+                }
+                if (day != null && monthNumber != null) {
+                    currentDateString = String.format("%d-%02d-%s", currentYear, monthNumber, day)
+                }
+            }
 
-            matchResult?.let {
-                val bookName = it.groupValues[1].trim()
-                val chapter = it.groupValues[2].toInt()
-                val bibleBook = bibleBookMap[bookName]
-
-                if (bibleBook != null) {
-                    val passage = mapOf(
-                        "bookAbbr" to bibleBook.abbreviation,
-                        "chapter" to chapter,
-                        "type" to "chapter" // Assumindo capítulo inteiro por simplicidade
-                    )
-                    parsedPassages.add(passage)
+            if (currentDateString != null) {
+                // Lógica de parsing das passagens para o dia atual
+                val passages = parsePassagesInLine(line, bibleBookMap)
+                if (passages.isNotEmpty()) {
+                    parsedReadings[currentDateString!!] = passages
                 }
             }
         }
-        return parsedPassages
+        return parsedReadings
+    }
+
+    private fun parsePassagesInLine(line: String, bookMap: Map<String, BibleBook>): List<Map<String, Any>> {
+        val passages = mutableListOf<Map<String, Any>>()
+
+        // Regex para capturar "Livro Capítulo" ou "Livro Capítulo:Verso"
+        val passageRegex = "(.*?)\\s+(\\d+)(?:-(\\d+))?(?::(\\d+)(?:-(\\d+))?)?"
+        val matcher = Pattern.compile(passageRegex, Pattern.CASE_INSENSITIVE).matcher(line)
+
+        while (matcher.find()) {
+            val bookName = matcher.group(1)?.trim()
+            val chapter = matcher.group(2)?.toIntOrNull()
+            val bibleBook = bookMap[bookName]
+
+            if (bookName != null && chapter != null && bibleBook != null) {
+                val passageMap = mutableMapOf<String, Any>()
+                passageMap["bookAbbr"] = bibleBook.abbreviation
+                passageMap["chapter"] = chapter
+                passageMap["type"] = "chapter"
+
+                passages.add(passageMap)
+            }
+        }
+
+        return passages
     }
 }
