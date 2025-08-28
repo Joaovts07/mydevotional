@@ -9,6 +9,7 @@ import com.example.mydevotional.state.DailyReadingUiState
 import com.example.mydevotional.usecase.GetCompletedReadingsUseCase
 import com.example.mydevotional.usecase.GetVersesForDayUseCase
 import com.example.mydevotional.usecase.MarkReadingAsCompleteUseCase
+import com.example.mydevotional.usecase.SaveReadingsFromImageUseCase
 import com.example.mydevotional.usecase.ToggleFavoriteVerseUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -25,6 +26,7 @@ class HomeScreenViewModel @Inject constructor(
     private val toggleFavoriteVerseUseCase: ToggleFavoriteVerseUseCase,
     private val getCompletedReadingsUseCase: GetCompletedReadingsUseCase,
     private val markReadingAsCompleteUseCase: MarkReadingAsCompleteUseCase,
+    private val saveReadingsFromImageUseCase: SaveReadingsFromImageUseCase
 ) : ViewModel() {
 
     private val _bibleResponses = MutableStateFlow<List<BibleResponse>>(emptyList())
