@@ -1,5 +1,12 @@
 package com.example.mydevotional.ui.screens
 
+import android.R.attr.bitmap
+import android.graphics.ImageDecoder
+import android.net.Uri
+import android.os.Build
+import android.provider.MediaStore
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -16,17 +23,16 @@ import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.MenuBook
 import androidx.compose.material.icons.filled.Book
+import androidx.compose.material.icons.filled.CameraAlt
 import androidx.compose.material3.Card
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.ExposedDropdownMenuBox
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.SnackbarDuration
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -39,6 +45,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -50,6 +57,7 @@ import com.example.mydevotional.model.BibleTranslation
 import com.example.mydevotional.viewmodel.DailyReadingViewModel
 import com.example.mydevotional.viewmodel.HomeScreenViewModel
 import kotlinx.coroutines.launch
+import okio.`-DeprecatedOkio`.source
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -68,6 +76,22 @@ fun HomeScreen(
 
     val snackbarHostState = remember { SnackbarHostState() }
     val coroutineScope = rememberCoroutineScope()
+
+    val context = LocalContext.current
+
+    val launcher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.GetContent()
+    ) { uri: Uri? ->
+        uri?.let {
+            val bitmap = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+                val source = ImageDecoder.createSource(context.contentResolver, it)
+                ImageDecoder.decodeBitmap(source)
+            } else {
+                MediaStore.Images.Media.getBitmap(context.contentResolver, it)
+            }
+            homeViewModel.saveReadingsFromImage(bitmap)
+        }
+    }
 
     LaunchedEffect(remember { derivedStateOf { listState.firstVisibleItemScrollOffset } }) {
         val minHeight = 80.dp
@@ -96,6 +120,7 @@ fun HomeScreen(
                     onDateSelected = { selectedDate -> homeViewModel.selectDate(selectedDate) }
                 )
             }
+
         }
         if (isLoading) {
             item {
@@ -138,6 +163,12 @@ fun HomeScreen(
                             contentDescription = "Show verse by verse",
                             tint = if (!isSingleCardMode) MaterialTheme.colorScheme.primary else Color.Gray
                         )
+                    }
+
+                    Spacer(modifier = Modifier.width(16.dp))
+
+                    IconButton(onClick = { launcher.launch("image/*") }) {
+                        Icon(Icons.Filled.CameraAlt, contentDescription = "Carregar imagem")
                     }
                 }
             }
