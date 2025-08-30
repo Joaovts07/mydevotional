@@ -1,5 +1,6 @@
 package com.example.mydevotional.viewmodel
 
+import android.graphics.Bitmap
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.mydevotional.extensions.formatDate
@@ -42,6 +43,10 @@ class HomeScreenViewModel @Inject constructor(
     val isLoading: StateFlow<Boolean> = _isLoading.asStateFlow()
 
     private val _uiState = MutableStateFlow<DailyReadingUiState>(DailyReadingUiState.Success())
+
+    private val _uiMessage = MutableStateFlow<String?>(null)
+    val uiMessage: StateFlow<String?> = _uiMessage.asStateFlow()
+
 
     init {
         loadVersesForToday()
@@ -115,5 +120,28 @@ class HomeScreenViewModel @Inject constructor(
 
     fun verifyDailyIsReading() : Boolean {
         return _completedReadings.value.contains(selectedDate.value?.formatDate("yyy-MM-dd"))
+    }
+
+    fun saveReadingsFromImage(bitmap: Bitmap) {
+        viewModelScope.launch {
+            _isLoading.value = true // Inicia o loading
+            _uiMessage.value = null // Limpa a mensagem anterior
+
+            try {
+                // A data pode ser extraída da imagem ou ser a data atual
+                // Para este exemplo, vamos extrair a data da imagem no UseCase
+                val success = saveReadingsFromImageUseCase(bitmap)
+
+                if (success) {
+                    _uiMessage.value = "Leituras salvas com sucesso!"
+                } else {
+                    _uiMessage.value = "Erro ao salvar as leituras."
+                }
+            } catch (e: Exception) {
+                _uiMessage.value = "Erro: ${e.message}"
+            } finally {
+                _isLoading.value = false // Finaliza o loading
+            }
+        }
     }
 }
