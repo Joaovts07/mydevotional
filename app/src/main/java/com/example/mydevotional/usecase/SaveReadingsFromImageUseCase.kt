@@ -2,6 +2,7 @@ package com.example.mydevotional.usecase
 
 
 import android.graphics.Bitmap
+import android.util.Log
 import com.example.mydevotional.BibleBook
 import com.example.mydevotional.BibleBooks
 import com.example.mydevotional.repositorie.BibleRepository
@@ -19,26 +20,24 @@ class SaveReadingsFromImageUseCase @Inject constructor(
     private val bibleRepository: BibleRepository
 ) {
     suspend operator fun invoke(bitmap: Bitmap): Boolean {
-        // Step 1: Initialize the TextRecognizer
         val recognizer = TextRecognition.getClient(TextRecognizerOptions.DEFAULT_OPTIONS)
         val image = InputImage.fromBitmap(bitmap, 0)
 
-        // Step 2: Process the image to get text
         val result = recognizer.process(image).await()
         val rawText = result.text
 
-        // Step 3: Parse the text to extract the date and Bible passages
         val passagesMap = parseImageText(rawText)
 
         if (passagesMap.isNullOrEmpty()) {
             return false
         }
 
-        // A primeira chave do mapa é a data, o valor são as passagens
         val date = passagesMap.keys.first()
         val passages = passagesMap[date] ?: emptyList()
 
-        // Step 4: Save the structured passages to Firestore
+        Log.e("passages", passages.toString())
+        Log.e("date", date)
+
         return bibleRepository.savePassages(date, passages)
     }
 
@@ -48,7 +47,6 @@ class SaveReadingsFromImageUseCase @Inject constructor(
 
         val bibleBookMap = BibleBooks.books.associateBy { it.name }
 
-        // Regex para capturar a data no formato "25/AGO"
         val dateRegex = "(\\d{1,2})/(JAN|FEV|MAR|ABR|MAI|JUN|JUL|AGO|SET|OUT|NOV|DEZ)"
         val passageRegex = "(.*?)\\s+(\\d+)(?:-(\\d+))?(?::(\\d+)(?:-(\\d+))?)?"
 
@@ -63,9 +61,16 @@ class SaveReadingsFromImageUseCase @Inject constructor(
                 val monthNumber = when (month?.uppercase()) {
                     "JAN" -> 1
                     "FEV" -> 2
-                    // ... adicione outros meses aqui
+                    "MAR" -> 3
+                    "ABR" -> 4
+                    "MAI" -> 5
+                    "JUN" -> 6
+                    "JUL" -> 7
                     "AGO" -> 8
-                    // ...
+                    "SET" -> 9
+                    "OUT" -> 10
+                    "NOV" -> 11
+                    "DEZ" -> 12
                     else -> null
                 }
                 if (day != null && monthNumber != null) {
@@ -87,7 +92,6 @@ class SaveReadingsFromImageUseCase @Inject constructor(
     private fun parsePassagesInLine(line: String, bookMap: Map<String, BibleBook>): List<Map<String, Any>> {
         val passages = mutableListOf<Map<String, Any>>()
 
-        // Regex para capturar "Livro Capítulo" ou "Livro Capítulo:Verso"
         val passageRegex = "(.*?)\\s+(\\d+)(?:-(\\d+))?(?::(\\d+)(?:-(\\d+))?)?"
         val matcher = Pattern.compile(passageRegex, Pattern.CASE_INSENSITIVE).matcher(line)
 
