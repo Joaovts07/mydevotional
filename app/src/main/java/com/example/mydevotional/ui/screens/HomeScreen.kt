@@ -1,6 +1,5 @@
 package com.example.mydevotional.ui.screens
 
-import android.R.attr.bitmap
 import android.graphics.ImageDecoder
 import android.net.Uri
 import android.os.Build
@@ -53,15 +52,13 @@ import com.example.mydevotional.components.CalendarReadings
 import com.example.mydevotional.components.CompleteReadingButton
 import com.example.mydevotional.components.versesListItems
 import com.example.mydevotional.extensions.formatDate
-import com.example.mydevotional.model.BibleTranslation
 import com.example.mydevotional.viewmodel.DailyReadingViewModel
 import com.example.mydevotional.viewmodel.HomeScreenViewModel
 import kotlinx.coroutines.launch
-import okio.`-DeprecatedOkio`.source
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun HomeScreen(
+fun HomeScreen( 
     homeViewModel: HomeScreenViewModel = hiltViewModel(),
     dailyReadingViewModel: DailyReadingViewModel = hiltViewModel()
 ) {
@@ -101,7 +98,6 @@ fun HomeScreen(
             maxHeight
         )
     }
-
 
     LazyColumn(
         state = listState,
@@ -229,7 +225,6 @@ fun HomeScreen(
                     .padding(12.dp)
                     .height(48.dp)
             )
-
 
         }
     }
