@@ -128,8 +128,6 @@ class HomeScreenViewModel @Inject constructor(
             _uiMessage.value = null // Limpa a mensagem anterior
 
             try {
-                // A data pode ser extraída da imagem ou ser a data atual
-                // Para este exemplo, vamos extrair a data da imagem no UseCase
                 val success = saveReadingsFromImageUseCase(bitmap)
 
                 if (success) {
@@ -140,7 +138,7 @@ class HomeScreenViewModel @Inject constructor(
             } catch (e: Exception) {
                 _uiMessage.value = "Erro: ${e.message}"
             } finally {
-                _isLoading.value = false // Finaliza o loading
+                _isLoading.value = false
             }
         }
     }
