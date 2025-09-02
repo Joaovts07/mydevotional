@@ -124,8 +124,8 @@ class HomeScreenViewModel @Inject constructor(
 
     fun saveReadingsFromImage(bitmap: Bitmap) {
         viewModelScope.launch {
-            _isLoading.value = true // Inicia o loading
-            _uiMessage.value = null // Limpa a mensagem anterior
+            _isLoading.value = true
+            _uiMessage.value = null
 
             try {
                 val success = saveReadingsFromImageUseCase(bitmap)
