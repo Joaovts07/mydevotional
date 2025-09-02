@@ -76,7 +76,6 @@ fun VersesScreen(viewModel: VersesViewModel) {
             }
             versesListItems(
                 bibleResponses = bibleResponses,
-                isSingleCardMode = isSingleCardMode,
                 onFavoriteClick = { viewModel.toggleFavorite(it)  }
             )
 

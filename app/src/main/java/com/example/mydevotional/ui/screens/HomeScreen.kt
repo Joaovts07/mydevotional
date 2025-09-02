@@ -193,7 +193,6 @@ fun HomeScreen(
             }
             versesListItems(
                 bibleResponses = bibleResponse,
-                isSingleCardMode = isSingleCardMode,
                 onFavoriteClick = { homeViewModel.toggleFavorite(it) }
             )
         }
