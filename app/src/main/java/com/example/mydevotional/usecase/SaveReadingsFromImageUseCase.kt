@@ -28,7 +28,7 @@ class SaveReadingsFromImageUseCase @Inject constructor(
 
         val passagesMap = parseImageText(rawText)
 
-        if (passagesMap.isNullOrEmpty()) {
+        if (passagesMap.isEmpty()) {
             return false
         }
 
@@ -37,8 +37,8 @@ class SaveReadingsFromImageUseCase @Inject constructor(
 
         Log.e("passages", passages.toString())
         Log.e("date", date)
-
-        return bibleRepository.savePassages(date, passages)
+        return true
+        //return bibleRepository.savePassages(date, passages)
     }
 
     private fun parseImageText(text: String): Map<String, List<Map<String, Any>>> {
