@@ -137,29 +137,6 @@ fun HomeScreen(
                         .padding(8.dp),
                     horizontalArrangement = Arrangement.Center
                 ) {
-                    IconButton(
-                        onClick = { isSingleCardMode = true },
-                        modifier = Modifier.size(40.dp)
-                    ) {
-                        Icon(
-                            imageVector = Icons.Filled.Book,
-                            contentDescription = "Show full chapter",
-                            tint = if (isSingleCardMode) MaterialTheme.colorScheme.primary else Color.Gray
-                        )
-                    }
-
-                    Spacer(modifier = Modifier.width(16.dp))
-
-                    IconButton(
-                        onClick = { isSingleCardMode = false },
-                        modifier = Modifier.size(40.dp)
-                    ) {
-                        Icon(
-                            imageVector = Icons.AutoMirrored.Filled.MenuBook,
-                            contentDescription = "Show verse by verse",
-                            tint = if (!isSingleCardMode) MaterialTheme.colorScheme.primary else Color.Gray
-                        )
-                    }
 
                     Spacer(modifier = Modifier.width(16.dp))
 
