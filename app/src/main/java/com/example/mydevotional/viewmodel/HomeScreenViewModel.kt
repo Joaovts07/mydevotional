@@ -7,7 +7,6 @@ import com.example.mydevotional.extensions.formatDate
 import com.example.mydevotional.model.BibleResponse
 import com.example.mydevotional.model.Verses
 import com.example.mydevotional.state.DailyReadingUiState
-import com.example.mydevotional.usecase.GetCompletedReadingsUseCase
 import com.example.mydevotional.usecase.GetVersesForDayUseCase
 import com.example.mydevotional.usecase.MarkReadingAsCompleteUseCase
 import com.example.mydevotional.usecase.SaveReadingsFromImageUseCase
@@ -25,7 +24,6 @@ import javax.inject.Inject
 class HomeScreenViewModel @Inject constructor(
     private val getVersesForDayUseCase: GetVersesForDayUseCase,
     private val toggleFavoriteVerseUseCase: ToggleFavoriteVerseUseCase,
-    private val getCompletedReadingsUseCase: GetCompletedReadingsUseCase,
     private val markReadingAsCompleteUseCase: MarkReadingAsCompleteUseCase,
     private val saveReadingsFromImageUseCase: SaveReadingsFromImageUseCase
 ) : ViewModel() {
@@ -74,9 +72,6 @@ class HomeScreenViewModel @Inject constructor(
 
     private fun loadCompletedReadings() {
         viewModelScope.launch {
-            getCompletedReadingsUseCase().collect { reading ->
-                _completedReadings.value = reading
-            }
             _readingState.value = DailyReadingUiState.Success(true)
         }
     }
