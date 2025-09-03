@@ -2,8 +2,8 @@ package com.example.mydevotional.viewmodel
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.mydevotional.usecase.GetCompletedReadingsUseCase
-import com.example.mydevotional.usecase.MarkReadingAsCompleteUseCase
+import com.example.mydevotional.extensions.formatDate
+import com.example.mydevotional.usecase.CompleteReadingsUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
@@ -14,53 +14,48 @@ import javax.inject.Inject
 
 @HiltViewModel
 class DailyReadingViewModel @Inject constructor(
-    private val markReadingAsCompleteUseCase: MarkReadingAsCompleteUseCase,
-    private val getCompletedReadingsUseCase: GetCompletedReadingsUseCase,
+    private val completeReadingsUseCase: CompleteReadingsUseCase
 ) : ViewModel() {
 
-    private val _selectedDate = MutableStateFlow<Date?>(null) // Ou inicialize com Date()
+    private val _selectedDate = MutableStateFlow<Date?>(null)
     val selectedDate: StateFlow<Date?> = _selectedDate.asStateFlow()
 
-    private val _allCompletedReadings = getCompletedReadingsUseCase().stateIn(
+    // Flow reativo de todas as leituras concluídas
+    private val _allCompletedReadings = completeReadingsUseCase.getCompletedReadingsFlow().stateIn(
         scope = viewModelScope,
         started = SharingStarted.WhileSubscribed(5000),
         initialValue = emptySet()
     )
 
+    // Estado reativo que diz se o dia selecionado está completo
     val isReadingCompletedForSelectedDate: StateFlow<Boolean> = combine(
         _selectedDate,
         _allCompletedReadings
     ) { date, completedDates ->
         date?.let {
             val formattedDate = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(it)
-            val cleanedFormattedDate = formattedDate.replace("[", "").replace("]", "").replace(" ", "")
-            completedDates.contains(cleanedFormattedDate)
+            completedDates.contains(formattedDate)
         } ?: false
     }.stateIn(
         scope = viewModelScope,
         started = SharingStarted.WhileSubscribed(5000),
-        initialValue = false // Valor inicial
+        initialValue = false
     )
-
-    fun markReadingAsComplete(date: String) {
-        viewModelScope.launch {
-            try {
-                markReadingAsCompleteUseCase(date)
-            } catch (e: Exception) {
-                // TODO: Lidar com erros, talvez emitir um Snackbar de erro
-                e.printStackTrace()
-            }
-        }
-    }
 
     fun updateSelectedDate(date: Date) {
         _selectedDate.value = date
     }
 
-    // No seu `init` ou onde você carrega os dados iniciais
-    init {
-        // Se a data inicial não for TODAY, defina aqui. Exemplo:
-        _selectedDate.value = Date() // Define a data inicial como hoje
+    fun toggleReadingComplete() {
+        _selectedDate.value?.let { date ->
+            viewModelScope.launch {
+                val formattedDate = date.formatDate("yyyy-MM-dd")
+                completeReadingsUseCase.toggleCompletion(formattedDate)
+            }
+        }
+    }
 
+    init {
+        _selectedDate.value = Date()
     }
 }
