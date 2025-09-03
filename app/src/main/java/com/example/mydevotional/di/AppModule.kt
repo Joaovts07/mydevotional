@@ -7,9 +7,7 @@ import com.example.mydevotional.repositorie.DataStoreCompletedReadingsRepository
 import com.example.mydevotional.repositorie.FavoriteVersesRepository
 import com.example.mydevotional.repositorie.TranslationPreferenceRepository
 import com.example.mydevotional.usecase.FavoriteVerseUseCase
-import com.example.mydevotional.usecase.GetCompletedReadingsUseCase
 import com.example.mydevotional.usecase.GetSelectedTranslationUseCase
-import com.example.mydevotional.usecase.MarkReadingAsCompleteUseCase
 import com.example.mydevotional.usecase.SetSelectedTranslationUseCase
 import com.example.mydevotional.usecase.ToggleFavoriteVerseUseCase
 import com.google.firebase.auth.FirebaseAuth
@@ -91,18 +89,8 @@ object AppModule {
     }
 
     @Provides
-    fun provideGetCompletedReadingsUseCase(repository: DataStoreCompletedReadingsRepository): GetCompletedReadingsUseCase {
-        return GetCompletedReadingsUseCase(repository)
-    }
-
-    @Provides
     fun provideDataStoreCompletedReadingsRepository(@ApplicationContext context: Context,): DataStoreCompletedReadingsRepository {
         return DataStoreCompletedReadingsRepository(context)
-    }
-
-    @Provides
-    fun provideMarkReadingAsCompleteUseCase(repository: DataStoreCompletedReadingsRepository): MarkReadingAsCompleteUseCase {
-        return MarkReadingAsCompleteUseCase(repository)
     }
 
     @Provides
