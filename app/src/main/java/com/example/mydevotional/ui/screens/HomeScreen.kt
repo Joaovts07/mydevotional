@@ -52,6 +52,7 @@ import com.example.mydevotional.components.CalendarReadings
 import com.example.mydevotional.components.CompleteReadingButton
 import com.example.mydevotional.components.versesListItems
 import com.example.mydevotional.extensions.formatDate
+import com.example.mydevotional.state.DailyReadingUiState
 import com.example.mydevotional.viewmodel.DailyReadingViewModel
 import com.example.mydevotional.viewmodel.HomeScreenViewModel
 import kotlinx.coroutines.launch
@@ -66,6 +67,7 @@ fun HomeScreen(
     val isLoading by homeViewModel.isLoading.collectAsState()
     val completedReadings by homeViewModel.completedReadings.collectAsState()
     val isReadingCompleted by dailyReadingViewModel.isReadingCompletedForSelectedDate.collectAsState()
+    val readingState by homeViewModel.readingState.collectAsState()
 
     var calendarHeight by remember { mutableStateOf(354.dp) }
     var isSingleCardMode by remember { mutableStateOf(true) }
@@ -175,7 +177,7 @@ fun HomeScreen(
         }
         item {
             CompleteReadingButton(
-                isReadingCompleted = isReadingCompleted,
+                isReadingCompleted = (readingState as DailyReadingUiState.Success).isReadingCompleted,
                 onClick = {
                     val date = homeViewModel.selectedDate.value?.formatDate("yyy-MM-dd") ?: ""
                     if (homeViewModel.verifyDailyIsReading()) {
