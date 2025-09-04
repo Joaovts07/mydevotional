@@ -7,7 +7,6 @@ import com.example.mydevotional.extensions.formatDate
 import com.example.mydevotional.model.BibleResponse
 import com.example.mydevotional.model.Verses
 import com.example.mydevotional.state.DailyReadingUiState
-import com.example.mydevotional.usecase.GetCompletedReadingsUseCase
 import com.example.mydevotional.usecase.GetVersesForDayUseCase
 import com.example.mydevotional.usecase.MarkReadingAsCompleteUseCase
 import com.example.mydevotional.usecase.SaveReadingsFromImageUseCase
@@ -25,7 +24,6 @@ import javax.inject.Inject
 class HomeScreenViewModel @Inject constructor(
     private val getVersesForDayUseCase: GetVersesForDayUseCase,
     private val toggleFavoriteVerseUseCase: ToggleFavoriteVerseUseCase,
-    private val getCompletedReadingsUseCase: GetCompletedReadingsUseCase,
     private val markReadingAsCompleteUseCase: MarkReadingAsCompleteUseCase,
     private val saveReadingsFromImageUseCase: SaveReadingsFromImageUseCase
 ) : ViewModel() {
@@ -42,7 +40,8 @@ class HomeScreenViewModel @Inject constructor(
     private val _isLoading = MutableStateFlow(false)
     val isLoading: StateFlow<Boolean> = _isLoading.asStateFlow()
 
-    private val _uiState = MutableStateFlow<DailyReadingUiState>(DailyReadingUiState.Success())
+    private val _readingState = MutableStateFlow<DailyReadingUiState>(DailyReadingUiState.Success())
+    val readingState: StateFlow<DailyReadingUiState> = _readingState.asStateFlow()
 
     private val _uiMessage = MutableStateFlow<String?>(null)
     val uiMessage: StateFlow<String?> = _uiMessage.asStateFlow()
@@ -73,10 +72,7 @@ class HomeScreenViewModel @Inject constructor(
 
     private fun loadCompletedReadings() {
         viewModelScope.launch {
-            getCompletedReadingsUseCase().collect { reading ->
-                _completedReadings.value = reading
-            }
-            _uiState.value = DailyReadingUiState.Success(true)
+            _readingState.value = DailyReadingUiState.Success(true)
         }
     }
 
@@ -91,7 +87,7 @@ class HomeScreenViewModel @Inject constructor(
         viewModelScope.launch {
             try {
                 markReadingAsCompleteUseCase(date)
-                _uiState.update { currentState ->
+                _readingState.update { currentState ->
                     if (currentState is DailyReadingUiState.Success) {
                         currentState.copy(isReadingCompleted = true)
                     } else {
@@ -99,7 +95,7 @@ class HomeScreenViewModel @Inject constructor(
                     }
                 }
             } catch (e: Exception) {
-                _uiState.value = DailyReadingUiState.Error(e.message ?: "Erro desconhecido")
+                _readingState.value = DailyReadingUiState.Error(e.message ?: "Erro desconhecido")
             }
         }
     }
