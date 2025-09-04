@@ -10,18 +10,24 @@ import javax.inject.Inject
 class DataStoreCompletedReadingsRepository @Inject constructor(private val context: Context) :
     CompletedReadingsRepository {
 
-    override suspend fun markReadingAsComplete(date: String) {
-        context.dataStore.edit { preferences ->
-            val currentReadings = preferences[COMPLETED_READINGS_KEY] ?: emptySet()
-            preferences[COMPLETED_READINGS_KEY] = currentReadings + date
+    override fun getCompletedReadings(): Flow<Set<String>> {
+        return context.dataStore.data.map { preferences ->
+            preferences[COMPLETED_READINGS_KEY] ?: emptySet()
         }
     }
 
-    override fun getCompletedReadings(): Flow<List<String>> {
-        return context.dataStore.data.map { preferences ->
-            (preferences[COMPLETED_READINGS_KEY] ?: emptySet()).toList()
+    override suspend fun toggleReadingComplete(date: String) {
+        context.dataStore.edit { preferences ->
+            val currentReadings = preferences[COMPLETED_READINGS_KEY] ?: emptySet()
+            if (currentReadings.contains(date)) {
+                preferences[COMPLETED_READINGS_KEY] = currentReadings - date
+            } else {
+                preferences[COMPLETED_READINGS_KEY] = currentReadings + date
+            }
         }
-    } companion object {
+    }
+
+    companion object {
         private val COMPLETED_READINGS_KEY = stringSetPreferencesKey("completed_readings")
 
     }
