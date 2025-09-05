@@ -3,6 +3,7 @@ package com.example.mydevotional.viewmodel
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.mydevotional.extensions.formatDate
+import com.example.mydevotional.state.DailyReadingUiState
 import com.example.mydevotional.usecase.CompleteReadingsUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.*
@@ -19,6 +20,9 @@ class DailyReadingViewModel @Inject constructor(
 
     private val _selectedDate = MutableStateFlow<Date?>(null)
     val selectedDate: StateFlow<Date?> = _selectedDate.asStateFlow()
+
+    private val _completedReadingsCalendar = MutableStateFlow<List<String>>(emptyList())
+    val completedReadingsCalendar: StateFlow<List<String>> = _completedReadingsCalendar.asStateFlow()
 
     // Flow reativo de todas as leituras concluídas
     private val _allCompletedReadings = completeReadingsUseCase.getCompletedReadingsFlow().stateIn(
@@ -55,7 +59,18 @@ class DailyReadingViewModel @Inject constructor(
         }
     }
 
+    fun verifyDailyIsReading() : Boolean {
+        viewModelScope.launch {
+            completeReadingsUseCase.getCompletedReadingsFlow().collect { reading ->
+                _completedReadingsCalendar.value = reading.toList()
+            }
+            //_readingState.value = DailyReadingUiState.Success(true)
+        }
+        return _completedReadingsCalendar.value.contains(selectedDate.value?.formatDate("yyy-MM-dd"))
+    }
+
     init {
         _selectedDate.value = Date()
+        verifyDailyIsReading()
     }
 }
