@@ -33,9 +33,6 @@ class HomeScreenViewModel @Inject constructor(
     private val _selectedDate = MutableStateFlow<Date?>(null)
     val selectedDate: StateFlow<Date?> = _selectedDate.asStateFlow()
 
-    private val _completedReadings = MutableStateFlow<List<String>>(emptyList())
-    val completedReadings: StateFlow<List<String>> = _completedReadings.asStateFlow()
-
     private val _isLoading = MutableStateFlow(false)
     val isLoading: StateFlow<Boolean> = _isLoading.asStateFlow()
 
@@ -103,10 +100,6 @@ class HomeScreenViewModel @Inject constructor(
                 }
             )
         }
-    }
-
-    fun verifyDailyIsReading() : Boolean {
-        return _completedReadings.value.contains(selectedDate.value?.formatDate("yyy-MM-dd"))
     }
 
     fun saveReadingsFromImage(bitmap: Bitmap) {
