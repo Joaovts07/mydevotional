@@ -6,8 +6,11 @@ import androidx.datastore.preferences.core.stringSetPreferencesKey
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 import javax.inject.Inject
+import javax.inject.Singleton
 
-class DataStoreCompletedReadingsRepository @Inject constructor(private val context: Context) :
+
+@Singleton
+class CompletedReadingsRepositoryImpl @Inject constructor(private val context: Context) :
     CompletedReadingsRepository {
 
     override fun getCompletedReadings(): Flow<Set<String>> {
