@@ -8,7 +8,6 @@ import com.example.mydevotional.model.BibleResponse
 import com.example.mydevotional.model.Verses
 import com.example.mydevotional.state.DailyReadingUiState
 import com.example.mydevotional.usecase.GetVersesForDayUseCase
-import com.example.mydevotional.usecase.MarkReadingAsCompleteUseCase
 import com.example.mydevotional.usecase.SaveReadingsFromImageUseCase
 import com.example.mydevotional.usecase.ToggleFavoriteVerseUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -24,7 +23,6 @@ import javax.inject.Inject
 class HomeScreenViewModel @Inject constructor(
     private val getVersesForDayUseCase: GetVersesForDayUseCase,
     private val toggleFavoriteVerseUseCase: ToggleFavoriteVerseUseCase,
-    private val markReadingAsCompleteUseCase: MarkReadingAsCompleteUseCase,
     private val saveReadingsFromImageUseCase: SaveReadingsFromImageUseCase
 ) : ViewModel() {
 
@@ -86,7 +84,6 @@ class HomeScreenViewModel @Inject constructor(
     fun  markReadingAsComplete(date: String) {
         viewModelScope.launch {
             try {
-                markReadingAsCompleteUseCase(date)
                 _readingState.update { currentState ->
                     if (currentState is DailyReadingUiState.Success) {
                         currentState.copy(isReadingCompleted = true)

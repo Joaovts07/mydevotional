@@ -3,7 +3,8 @@ package com.example.mydevotional.di
 import android.content.Context
 import com.example.mydevotional.repositorie.BibleRepository
 import com.example.mydevotional.repositorie.BibleRepositoryImpl
-import com.example.mydevotional.repositorie.DataStoreCompletedReadingsRepository
+import com.example.mydevotional.repositorie.CompletedReadingsRepository
+import com.example.mydevotional.repositorie.CompletedReadingsRepositoryImpl
 import com.example.mydevotional.repositorie.FavoriteVersesRepository
 import com.example.mydevotional.repositorie.TranslationPreferenceRepository
 import com.example.mydevotional.usecase.FavoriteVerseUseCase
@@ -89,8 +90,11 @@ object AppModule {
     }
 
     @Provides
-    fun provideDataStoreCompletedReadingsRepository(@ApplicationContext context: Context,): DataStoreCompletedReadingsRepository {
-        return DataStoreCompletedReadingsRepository(context)
+    @Singleton
+    fun provideCompletedReadingsRepository(
+        @ApplicationContext context: Context,
+    ): CompletedReadingsRepository {
+        return CompletedReadingsRepositoryImpl(context)
     }
 
     @Provides
@@ -102,5 +106,6 @@ object AppModule {
     fun provideSetSelectedTranslationUseCase(repository: TranslationPreferenceRepository): SetSelectedTranslationUseCase {
         return SetSelectedTranslationUseCase(repository)
     }
+
 }
 
