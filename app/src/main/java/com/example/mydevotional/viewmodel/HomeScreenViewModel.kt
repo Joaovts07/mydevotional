@@ -7,6 +7,7 @@ import com.example.mydevotional.extensions.formatDate
 import com.example.mydevotional.model.BibleResponse
 import com.example.mydevotional.model.Verses
 import com.example.mydevotional.state.DailyReadingUiState
+import com.example.mydevotional.usecase.CompleteReadingsUseCase
 import com.example.mydevotional.usecase.GetVersesForDayUseCase
 import com.example.mydevotional.usecase.SaveReadingsFromImageUseCase
 import com.example.mydevotional.usecase.ToggleFavoriteVerseUseCase
@@ -47,7 +48,6 @@ class HomeScreenViewModel @Inject constructor(
 
     init {
         loadVersesForToday()
-        loadCompletedReadings()
     }
 
 
@@ -65,12 +65,6 @@ class HomeScreenViewModel @Inject constructor(
             _isLoading.value = true
             _bibleResponses.value = getVersesForDayUseCase(newDate)
             _isLoading.value = false
-        }
-    }
-
-    private fun loadCompletedReadings() {
-        viewModelScope.launch {
-            _readingState.value = DailyReadingUiState.Success(true)
         }
     }
 
