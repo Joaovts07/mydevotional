@@ -173,7 +173,7 @@ fun HomeScreen(
                 isReadingCompleted = (readingState as DailyReadingUiState.Success).isReadingCompleted,
                 onClick = {
                     if (dailyReadingViewModel.verifyDailyIsReading()) {
-                        dailyReadingViewModel.toggleReadingComplete()
+                        dailyReadingViewModel.toggleReadingComplete(homeViewModel.selectedDate.value)
                         coroutineScope.launch {
                             snackbarHostState.showSnackbar(
                                 message = "Leitura Desmarcada!",
@@ -181,7 +181,7 @@ fun HomeScreen(
                             )
                         }
                     } else {
-                        dailyReadingViewModel.toggleReadingComplete()
+                        dailyReadingViewModel.toggleReadingComplete(homeViewModel.selectedDate.value)
                         coroutineScope.launch {
                             snackbarHostState.showSnackbar(
                                 message = "Leitura marcada como lida!",
