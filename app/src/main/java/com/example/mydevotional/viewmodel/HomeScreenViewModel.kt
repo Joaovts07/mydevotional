@@ -7,6 +7,7 @@ import com.example.mydevotional.extensions.formatDate
 import com.example.mydevotional.model.BibleResponse
 import com.example.mydevotional.model.Verses
 import com.example.mydevotional.state.DailyReadingUiState
+import com.example.mydevotional.usecase.CompleteReadingsUseCase
 import com.example.mydevotional.usecase.GetVersesForDayUseCase
 import com.example.mydevotional.usecase.SaveReadingsFromImageUseCase
 import com.example.mydevotional.usecase.ToggleFavoriteVerseUseCase
@@ -32,9 +33,6 @@ class HomeScreenViewModel @Inject constructor(
     private val _selectedDate = MutableStateFlow<Date?>(null)
     val selectedDate: StateFlow<Date?> = _selectedDate.asStateFlow()
 
-    private val _completedReadings = MutableStateFlow<List<String>>(emptyList())
-    val completedReadings: StateFlow<List<String>> = _completedReadings.asStateFlow()
-
     private val _isLoading = MutableStateFlow(false)
     val isLoading: StateFlow<Boolean> = _isLoading.asStateFlow()
 
@@ -47,7 +45,6 @@ class HomeScreenViewModel @Inject constructor(
 
     init {
         loadVersesForToday()
-        loadCompletedReadings()
     }
 
 
@@ -65,12 +62,6 @@ class HomeScreenViewModel @Inject constructor(
             _isLoading.value = true
             _bibleResponses.value = getVersesForDayUseCase(newDate)
             _isLoading.value = false
-        }
-    }
-
-    private fun loadCompletedReadings() {
-        viewModelScope.launch {
-            _readingState.value = DailyReadingUiState.Success(true)
         }
     }
 
@@ -109,10 +100,6 @@ class HomeScreenViewModel @Inject constructor(
                 }
             )
         }
-    }
-
-    fun verifyDailyIsReading() : Boolean {
-        return _completedReadings.value.contains(selectedDate.value?.formatDate("yyy-MM-dd"))
     }
 
     fun saveReadingsFromImage(bitmap: Bitmap) {

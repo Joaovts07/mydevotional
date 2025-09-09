@@ -15,20 +15,16 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.MenuBook
-import androidx.compose.material.icons.filled.Book
 import androidx.compose.material.icons.filled.CameraAlt
 import androidx.compose.material3.Card
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.SnackbarDuration
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
@@ -43,7 +39,6 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -65,12 +60,10 @@ fun HomeScreen(
 ) {
     val bibleResponse by homeViewModel.bibleResponse.collectAsState()
     val isLoading by homeViewModel.isLoading.collectAsState()
-    val completedReadings by homeViewModel.completedReadings.collectAsState()
-    val isReadingCompleted by dailyReadingViewModel.isReadingCompletedForSelectedDate.collectAsState()
+    val completedReadingsCalendar by dailyReadingViewModel.completedReadingsCalendar.collectAsState()
     val readingState by homeViewModel.readingState.collectAsState()
 
     var calendarHeight by remember { mutableStateOf(354.dp) }
-    var isSingleCardMode by remember { mutableStateOf(true) }
     val listState = rememberLazyListState()
 
     val snackbarHostState = remember { SnackbarHostState() }
@@ -114,7 +107,7 @@ fun HomeScreen(
                 contentAlignment = Alignment.Center
             ) {
                 CalendarReadings(
-                    completedReadings = completedReadings,
+                    completedReadings = completedReadingsCalendar,
                     onDateSelected = { selectedDate -> homeViewModel.selectDate(selectedDate) }
                 )
             }
@@ -180,7 +173,7 @@ fun HomeScreen(
                 isReadingCompleted = (readingState as DailyReadingUiState.Success).isReadingCompleted,
                 onClick = {
                     val date = homeViewModel.selectedDate.value?.formatDate("yyy-MM-dd") ?: ""
-                    if (homeViewModel.verifyDailyIsReading()) {
+                    if (dailyReadingViewModel.verifyDailyIsReading()) {
                         homeViewModel.markReadingAsComplete(date)
                         coroutineScope.launch {
                             snackbarHostState.showSnackbar(
