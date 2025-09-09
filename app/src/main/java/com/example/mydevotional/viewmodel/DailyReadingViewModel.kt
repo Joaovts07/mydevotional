@@ -49,13 +49,12 @@ class DailyReadingViewModel @Inject constructor(
         _selectedDate.value = date
     }
 
-    fun toggleReadingComplete() {
-        _selectedDate.value?.let { date ->
-            viewModelScope.launch {
-                val formattedDate = date.formatDate("yyyy-MM-dd")
-                completeReadingsUseCase.toggleCompletion(formattedDate)
-            }
+    fun toggleReadingComplete(date: Date?) {
+        viewModelScope.launch {
+            val formattedDate = date?.formatDate("yyyy-MM-dd") ?: ""
+            completeReadingsUseCase.toggleCompletion(formattedDate)
         }
+
     }
 
     fun verifyDailyIsReading() : Boolean {
