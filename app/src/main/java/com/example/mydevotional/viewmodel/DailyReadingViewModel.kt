@@ -3,7 +3,6 @@ package com.example.mydevotional.viewmodel
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.mydevotional.extensions.formatDate
-import com.example.mydevotional.state.DailyReadingUiState
 import com.example.mydevotional.usecase.CompleteReadingsUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.*
@@ -64,7 +63,6 @@ class DailyReadingViewModel @Inject constructor(
             completeReadingsUseCase.getCompletedReadingsFlow().collect { reading ->
                 _completedReadingsCalendar.value = reading.toList()
             }
-            //_readingState.value = DailyReadingUiState.Success(true)
         }
         return _completedReadingsCalendar.value.contains(selectedDate.value?.formatDate("yyy-MM-dd"))
     }
