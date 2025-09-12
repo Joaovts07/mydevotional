@@ -57,17 +57,17 @@ class DailyReadingViewModel @Inject constructor(
 
     }
 
-    fun verifyDailyIsReading() : Boolean {
+    fun verifyDailyIsReading(date: Date?) : Boolean {
         viewModelScope.launch {
             completeReadingsUseCase.getCompletedReadingsFlow().collect { reading ->
                 _completedReadingsCalendar.value = reading.toList()
             }
         }
-        return _completedReadingsCalendar.value.contains(selectedDate.value?.formatDate("yyy-MM-dd"))
+        return _completedReadingsCalendar.value.contains(date?.formatDate("yyy-MM-dd"))
     }
 
+
     init {
-        _selectedDate.value = Date()
-        verifyDailyIsReading()
+        verifyDailyIsReading(Date())
     }
 }

@@ -36,9 +36,6 @@ class HomeScreenViewModel @Inject constructor(
     private val _isLoading = MutableStateFlow(false)
     val isLoading: StateFlow<Boolean> = _isLoading.asStateFlow()
 
-    private val _readingState = MutableStateFlow<DailyReadingUiState>(DailyReadingUiState.Success())
-    val readingState: StateFlow<DailyReadingUiState> = _readingState.asStateFlow()
-
     private val _uiMessage = MutableStateFlow<String?>(null)
     val uiMessage: StateFlow<String?> = _uiMessage.asStateFlow()
 
@@ -72,23 +69,7 @@ class HomeScreenViewModel @Inject constructor(
         }
     }
 
-    fun  markReadingAsComplete(date: String) {
-        viewModelScope.launch {
-            try {
-                _readingState.update { currentState ->
-                    if (currentState is DailyReadingUiState.Success) {
-                        currentState.copy(isReadingCompleted = true)
-                    } else {
-                        currentState
-                    }
-                }
-            } catch (e: Exception) {
-                _readingState.value = DailyReadingUiState.Error(e.message ?: "Erro desconhecido")
-            }
-        }
-    }
-
-    private fun updateVerseFavoriteState(verse: Verses) {
+     private fun updateVerseFavoriteState(verse: Verses) {
         _bibleResponses.value = _bibleResponses.value.map { bibleResponse ->
             bibleResponse.copy(
                 verses = bibleResponse.verses.map {
@@ -122,4 +103,6 @@ class HomeScreenViewModel @Inject constructor(
             }
         }
     }
+
+
 }
