@@ -46,8 +46,6 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import com.example.mydevotional.components.CalendarReadings
 import com.example.mydevotional.components.CompleteReadingButton
 import com.example.mydevotional.components.versesListItems
-import com.example.mydevotional.extensions.formatDate
-import com.example.mydevotional.state.DailyReadingUiState
 import com.example.mydevotional.viewmodel.DailyReadingViewModel
 import com.example.mydevotional.viewmodel.HomeScreenViewModel
 import kotlinx.coroutines.launch
