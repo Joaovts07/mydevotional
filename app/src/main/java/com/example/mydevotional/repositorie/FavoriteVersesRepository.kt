@@ -58,7 +58,7 @@ class FavoriteVersesRepository @Inject constructor(
     }
 
     private fun generateVerseId(verse: Verses): String {
-        return "${verse.book_id}_${verse.chapter}_${verse.verse}"
+        return "${verse.bookId}_${verse.chapter}_${verse.verse}"
     }
 }
 
