@@ -57,7 +57,7 @@ fun VerseCard(
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Text(
-                    text = "- ${verse.book_name} ${verse.chapter}:${verse.verse}",
+                    text = "- ${verse.bookName} ${verse.chapter}:${verse.verse}",
                     fontStyle = FontStyle.Italic
                 )
 
@@ -82,7 +82,7 @@ fun VerseCard(
                                 action = Intent.ACTION_SEND
                                 putExtra(
                                     Intent.EXTRA_TEXT,
-                                    "${verse.text}\n- ${verse.book_name} ${verse.chapter}:${verse.verse}")
+                                    "${verse.text}\n- ${verse.bookName} ${verse.chapter}:${verse.verse}")
                                 type = "text/plain"
                             }
                             context.startActivity(Intent.createChooser(shareIntent, "Compartilhar Versículo"))
