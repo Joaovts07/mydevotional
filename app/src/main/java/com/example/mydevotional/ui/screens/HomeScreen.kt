@@ -59,6 +59,7 @@ fun HomeScreen(
     val bibleResponse by homeViewModel.bibleResponse.collectAsState()
     val isLoading by homeViewModel.isLoading.collectAsState()
     val completedReadingsCalendar by dailyReadingViewModel.completedReadingsCalendar.collectAsState()
+    val completedReadingsDay by dailyReadingViewModel.completedReadingsDay.collectAsState()
 
     var calendarHeight by remember { mutableStateOf(354.dp) }
     val listState = rememberLazyListState()
@@ -167,9 +168,7 @@ fun HomeScreen(
         }
         item {
             CompleteReadingButton(
-                isReadingCompleted = dailyReadingViewModel.verifyDailyIsReading(
-                    homeViewModel.selectedDate.collectAsState().value
-                ),
+                isReadingCompleted = !completedReadingsDay ,
                 onClick = {
                     if (dailyReadingViewModel.verifyDailyIsReading(homeViewModel.selectedDate.value)) {
                         dailyReadingViewModel.toggleReadingComplete(homeViewModel.selectedDate.value)
