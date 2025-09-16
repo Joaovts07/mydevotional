@@ -23,6 +23,9 @@ class DailyReadingViewModel @Inject constructor(
     private val _completedReadingsCalendar = MutableStateFlow<List<String>>(emptyList())
     val completedReadingsCalendar: StateFlow<List<String>> = _completedReadingsCalendar.asStateFlow()
 
+    private val _completedReadingsDay = MutableStateFlow(false)
+    val completedReadingsDay: StateFlow<Boolean> = _completedReadingsDay.asStateFlow()
+
     // Flow reativo de todas as leituras concluídas
     private val _allCompletedReadings = completeReadingsUseCase.getCompletedReadingsFlow().stateIn(
         scope = viewModelScope,
@@ -51,19 +54,22 @@ class DailyReadingViewModel @Inject constructor(
 
     fun toggleReadingComplete(date: Date?) {
         viewModelScope.launch {
-            val formattedDate = date?.formatDate("yyyy-MM-dd") ?: ""
+            val formattedDate = date?.formatDate("yyyy-MM-dd") ?: Date().formatDate("yyyy-MM-dd")
             completeReadingsUseCase.toggleCompletion(formattedDate)
         }
 
     }
 
     fun verifyDailyIsReading(date: Date?) : Boolean {
+        val formattedDate = date?.formatDate("yyyy-MM-dd") ?: Date().formatDate("yyyy-MM-dd")
         viewModelScope.launch {
             completeReadingsUseCase.getCompletedReadingsFlow().collect { reading ->
                 _completedReadingsCalendar.value = reading.toList()
             }
         }
-        return _completedReadingsCalendar.value.contains(date?.formatDate("yyy-MM-dd"))
+        _completedReadingsDay.value = _completedReadingsCalendar.value.contains(formattedDate )
+
+        return _completedReadingsCalendar.value.contains(formattedDate)
     }
 
 
