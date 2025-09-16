@@ -20,9 +20,6 @@ class DailyReadingViewModel @Inject constructor(
     private val _selectedDate = MutableStateFlow<Date?>(null)
     val selectedDate: StateFlow<Date?> = _selectedDate.asStateFlow()
 
-    private val _completedReadingsCalendar = MutableStateFlow<List<String>>(emptyList())
-    val completedReadingsCalendar: StateFlow<List<String>> = _completedReadingsCalendar.asStateFlow()
-
     private val _completedReadingsDay = MutableStateFlow(false)
     val completedReadingsDay: StateFlow<Boolean> = _completedReadingsDay.asStateFlow()
 
@@ -33,20 +30,7 @@ class DailyReadingViewModel @Inject constructor(
         initialValue = emptySet()
     )
 
-    // Estado reativo que diz se o dia selecionado está completo
-    val isReadingCompletedForSelectedDate: StateFlow<Boolean> = combine(
-        _selectedDate,
-        _allCompletedReadings
-    ) { date, completedDates ->
-        date?.let {
-            val formattedDate = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(it)
-            completedDates.contains(formattedDate)
-        } ?: false
-    }.stateIn(
-        scope = viewModelScope,
-        started = SharingStarted.WhileSubscribed(5000),
-        initialValue = false
-    )
+
 
     fun updateSelectedDate(date: Date) {
         _selectedDate.value = date
@@ -60,20 +44,40 @@ class DailyReadingViewModel @Inject constructor(
 
     }
 
-    fun verifyDailyIsReading(date: Date?) : Boolean {
-        val formattedDate = date?.formatDate("yyyy-MM-dd") ?: Date().formatDate("yyyy-MM-dd")
-        viewModelScope.launch {
-            completeReadingsUseCase.getCompletedReadingsFlow().collect { reading ->
-                _completedReadingsCalendar.value = reading.toList()
-            }
-        }
-        _completedReadingsDay.value = _completedReadingsCalendar.value.contains(formattedDate )
 
-        return _completedReadingsCalendar.value.contains(formattedDate)
-    }
+    // O StateFlow que observa a lista completa de leituras do UseCase
+    private val _completedReadingsCalendar = completeReadingsUseCase.getCompletedReadingsFlow().stateIn(
+        scope = viewModelScope,
+        started = SharingStarted.WhileSubscribed(5000),
+        initialValue = emptySet() // Usamos um Set<String> aqui, que é mais eficiente para o 'contains'
+    )
 
+    // Estado reativo dos dias lidos (para o calendário)
+    val completedDays: StateFlow<Set<String>> = completeReadingsUseCase.getCompletedReadingsFlow().stateIn(
+        scope = viewModelScope,
+        started = SharingStarted.WhileSubscribed(5000),
+        initialValue = emptySet()
+    )
+
+    // ESTA É A NOVA VARIÁVEL DE ESTADO REATIVA QUE O BOTÃO IRÁ OBSERVAR
+    // Ela combina a data selecionada e a lista de leituras, e sempre tem o valor correto.
+    val isReadingCompletedForSelectedDate: StateFlow<Boolean> = combine(
+        _selectedDate,
+        _completedReadingsCalendar
+    ) { date, completedDates ->
+        date?.let {
+            // Formata a data e verifica se ela está no Set de leituras concluídas
+            val formattedDate = it.formatDate("yyyy-MM-dd")
+            val isRead = completedDates.contains(formattedDate)
+            isRead
+        } ?: false // Se a data for nula, o status é false
+    }.stateIn(
+        scope = viewModelScope,
+        started = SharingStarted.WhileSubscribed(5000),
+        initialValue = false
+    )
 
     init {
-        verifyDailyIsReading(Date())
+        _selectedDate.value = Date()
     }
 }
