@@ -30,8 +30,6 @@ class DailyReadingViewModel @Inject constructor(
         initialValue = emptySet()
     )
 
-
-
     fun updateSelectedDate(date: Date) {
         _selectedDate.value = date
     }
