@@ -58,8 +58,9 @@ fun HomeScreen(
 ) {
     val bibleResponse by homeViewModel.bibleResponse.collectAsState()
     val isLoading by homeViewModel.isLoading.collectAsState()
-    val completedReadingsCalendar by dailyReadingViewModel.completedReadingsCalendar.collectAsState()
-    val completedReadingsDay by dailyReadingViewModel.completedReadingsDay.collectAsState()
+    val completedReadingsCalendar by dailyReadingViewModel.completedDays.collectAsState()
+    val completedReadingsDay by dailyReadingViewModel.isReadingCompletedForSelectedDate.collectAsState()
+
 
     var calendarHeight by remember { mutableStateOf(354.dp) }
     val listState = rememberLazyListState()
@@ -106,7 +107,10 @@ fun HomeScreen(
             ) {
                 CalendarReadings(
                     completedReadings = completedReadingsCalendar,
-                    onDateSelected = { selectedDate -> homeViewModel.selectDate(selectedDate) }
+                    onDateSelected = {
+                        selectedDate -> homeViewModel.selectDate(selectedDate)
+                        dailyReadingViewModel.updateSelectedDate(selectedDate)
+                    }
                 )
             }
 
@@ -168,9 +172,9 @@ fun HomeScreen(
         }
         item {
             CompleteReadingButton(
-                isReadingCompleted = !completedReadingsDay ,
+                isReadingCompleted = completedReadingsDay ,
                 onClick = {
-                    if (dailyReadingViewModel.verifyDailyIsReading(homeViewModel.selectedDate.value)) {
+                    if (completedReadingsDay) {
                         dailyReadingViewModel.toggleReadingComplete(homeViewModel.selectedDate.value)
                         coroutineScope.launch {
                             snackbarHostState.showSnackbar(

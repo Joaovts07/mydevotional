@@ -31,7 +31,7 @@ import java.util.Locale
 
 @Composable
 fun CalendarReadings(
-    completedReadings: List<String>,
+    completedReadings: Set<String>,
     onDateSelected: (Date) -> Unit
 ) {
     val today = Calendar.getInstance().time
