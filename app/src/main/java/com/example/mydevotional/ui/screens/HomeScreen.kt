@@ -127,22 +127,7 @@ fun HomeScreen(
                 }
             }
         } else {
-            item {
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(8.dp),
-                    horizontalArrangement = Arrangement.Center
-                ) {
-
-                    Spacer(modifier = Modifier.width(16.dp))
-
-                    IconButton(onClick = { launcher.launch("image/*") }) {
-                        Icon(Icons.Filled.CameraAlt, contentDescription = "Carregar imagem")
-                    }
-                }
-            }
-            if (bibleResponse.isEmpty()) {
+             if (bibleResponse.isEmpty()) {
                 item {
                     Card(
                         modifier = Modifier
@@ -153,7 +138,7 @@ fun HomeScreen(
                             modifier = Modifier
                                 .fillMaxWidth()
                                 .padding(8.dp)
-                        ) {
+                        ) { 
                             Text(
                                 text = "Nenhuma Leitura para hoje",
                                 fontSize = 18.sp,
