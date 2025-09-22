@@ -47,6 +47,108 @@ fun AccountScreen(
 
     when(loginState) {
         is LoginState.Logout -> onLogout
+        is LoginState.Logged -> {
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(16.dp),
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                Text(
+                    text = "Minha Conta",
+                    fontSize = 24.sp,
+                    fontWeight = FontWeight.Bold,
+                    modifier = Modifier.padding(bottom = 24.dp)
+                )
+
+                Column {
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                    ) {
+                        ExposedDropdownMenuBox(
+                            expanded = expanded,
+                            onExpandedChange = { newExpandedState -> expanded = newExpandedState }
+                        ) {
+                            TextField(
+                                readOnly = true,
+                                value = selectedTranslation.displayName,
+                                onValueChange = { },
+                                label = { Text("Tradução da Bíblia") },
+                                trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded) },
+                                modifier = Modifier
+                                    .menuAnchor()
+                                    .fillMaxWidth()
+                            )
+                            ExposedDropdownMenu(
+                                expanded = expanded,
+                                onDismissRequest = { expanded = false }
+                            ) {
+                                BibleTranslation.entries.forEach { translation ->
+                                    DropdownMenuItem(
+                                        text = { Text(translation.displayName) },
+                                        onClick = {
+                                            accountViewModel.setTranslation(translation)
+                                            expanded = false
+                                        }
+                                    )
+                                }
+                            }
+                        }
+                    }
+                }
+                Text(
+                    text = "Informações do Usuário",
+                    fontSize = 18.sp,
+                    fontWeight = FontWeight.SemiBold,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(bottom = 8.dp),
+                    textAlign = androidx.compose.ui.text.style.TextAlign.Start
+                )
+
+                OutlinedTextField(
+                    value = "",//userName,
+                    onValueChange = { /* Lógica para alterar o nome (se necessário) */ },
+                    label = { Text("Nome") },
+                    modifier = Modifier.fillMaxWidth(),
+                    readOnly = true // Por enquanto, apenas exibição
+                )
+                Spacer(modifier = Modifier.height(8.dp))
+
+                OutlinedTextField(
+                    value = "",//userEmail,
+                    onValueChange = { /* Lógica para alterar o email (se necessário) */ },
+                    label = { Text("Email") },
+                    modifier = Modifier.fillMaxWidth(),
+                    readOnly = true // Por enquanto, apenas exibição
+                )
+                Spacer(modifier = Modifier.height(8.dp))
+
+                OutlinedTextField(
+                    value = "***", // Exibindo senha de forma segura
+                    onValueChange = { /* Lógica para alterar a senha (se necessário) */ },
+                    label = { Text("Senha") },
+                    modifier = Modifier.fillMaxWidth(),
+                    readOnly = true,
+                    visualTransformation = androidx.compose.ui.text.input.PasswordVisualTransformation()
+                )
+                Spacer(modifier = Modifier.height(24.dp))
+
+                Button(
+                    onClick = { loginViewModel.logout() },
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(48.dp),
+                    //shape = RoundedCornerShape(8.dp),
+                    colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.error)
+                ) {
+                    Text("Sair", color = Color.White)
+                }
+
+
+            }
+        }
         else -> {
             LoginContent(
                 uiState = uiState,
@@ -61,107 +163,6 @@ fun AccountScreen(
                 modifier = Modifier.fillMaxWidth()
             )
         }
-    }
-
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(16.dp),
-        horizontalAlignment = Alignment.CenterHorizontally
-    ) {
-        Text(
-            text = "Minha Conta",
-            fontSize = 24.sp,
-            fontWeight = FontWeight.Bold,
-            modifier = Modifier.padding(bottom = 24.dp)
-        )
-
-        Column {
-            Box(
-                modifier = Modifier
-                    .fillMaxWidth()
-            ) {
-                ExposedDropdownMenuBox(
-                    expanded = expanded,
-                    onExpandedChange = { newExpandedState -> expanded = newExpandedState }
-                ) {
-                    TextField(
-                        readOnly = true,
-                        value = selectedTranslation.displayName,
-                        onValueChange = { },
-                        label = { Text("Tradução da Bíblia") },
-                        trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded) },
-                        modifier = Modifier
-                            .menuAnchor()
-                            .fillMaxWidth()
-                    )
-                    ExposedDropdownMenu(
-                        expanded = expanded,
-                        onDismissRequest = { expanded = false }
-                    ) {
-                        BibleTranslation.entries.forEach { translation ->
-                            DropdownMenuItem(
-                                text = { Text(translation.displayName) },
-                                onClick = {
-                                    accountViewModel.setTranslation(translation)
-                                    expanded = false
-                                }
-                            )
-                        }
-                    }
-                }
-            }
-        }
-        Text(
-            text = "Informações do Usuário",
-            fontSize = 18.sp,
-            fontWeight = FontWeight.SemiBold,
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(bottom = 8.dp),
-            textAlign = androidx.compose.ui.text.style.TextAlign.Start
-        )
-
-        OutlinedTextField(
-            value = "",//userName,
-            onValueChange = { /* Lógica para alterar o nome (se necessário) */ },
-            label = { Text("Nome") },
-            modifier = Modifier.fillMaxWidth(),
-            readOnly = true // Por enquanto, apenas exibição
-        )
-        Spacer(modifier = Modifier.height(8.dp))
-
-        OutlinedTextField(
-            value = "",//userEmail,
-            onValueChange = { /* Lógica para alterar o email (se necessário) */ },
-            label = { Text("Email") },
-            modifier = Modifier.fillMaxWidth(),
-            readOnly = true // Por enquanto, apenas exibição
-        )
-        Spacer(modifier = Modifier.height(8.dp))
-
-        OutlinedTextField(
-            value = "***", // Exibindo senha de forma segura
-            onValueChange = { /* Lógica para alterar a senha (se necessário) */ },
-            label = { Text("Senha") },
-            modifier = Modifier.fillMaxWidth(),
-            readOnly = true,
-            visualTransformation = androidx.compose.ui.text.input.PasswordVisualTransformation()
-        )
-        Spacer(modifier = Modifier.height(24.dp))
-
-        Button(
-            onClick = { loginViewModel.logout() },
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(48.dp),
-            //shape = RoundedCornerShape(8.dp),
-            colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.error)
-        ) {
-            Text("Sair", color = Color.White)
-        }
-
-
     }
 }
 
