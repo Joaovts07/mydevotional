@@ -1,4 +1,4 @@
-package com.example.login.presentation.login
+package com.example.login.login
 
 import android.app.Activity
 import android.util.Log

@@ -19,8 +19,8 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
-import com.example.login.presentation.login.LoginState
-import com.example.login.presentation.login.LoginViewModel
+import com.example.login.login.LoginState
+import com.example.login.login.LoginViewModel
 import com.example.login.ui.screens.LoginContent
 import com.example.login.ui.screens.launchGoogleSignIn
 import com.example.mydevotional.model.BibleTranslation
