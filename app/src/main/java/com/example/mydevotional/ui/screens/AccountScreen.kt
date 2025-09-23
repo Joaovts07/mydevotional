@@ -21,10 +21,7 @@ import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.example.login.login.LoginState
 import com.example.login.login.LoginViewModel
-import com.example.login.ui.screens.LoginContent
-import com.example.login.ui.screens.launchGoogleSignIn
 import com.example.mydevotional.model.BibleTranslation
-import com.example.mydevotional.ui.theme.MyDevotionalTheme
 import com.example.mydevotional.viewmodel.AccountViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -47,7 +44,6 @@ fun AccountScreen(
 
     when (loginState) {
         is LoginState.Logged -> {
-            // Usuário logado
             Column(
                 modifier = Modifier
                     .fillMaxSize()
@@ -58,7 +54,6 @@ fun AccountScreen(
 
                 Spacer(modifier = Modifier.height(16.dp))
 
-                // Seletor de tradução
                 ExposedDropdownMenuBox(
                     expanded = expanded,
                     onExpandedChange = { expanded = it }
@@ -126,7 +121,6 @@ fun AccountScreen(
         }
 
         is LoginState.Logout, LoginState.Idle -> {
-            // Usuário não logado
             Column(
                 modifier = Modifier
                     .fillMaxSize()
