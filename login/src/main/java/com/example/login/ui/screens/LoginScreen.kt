@@ -153,12 +153,9 @@ fun launchGoogleSignIn(context: Context, viewModel: LoginViewModel, launcher: Ac
 
 
 @Composable
-fun LoginNavigation(navController: NavHostController, routeSuccess: String, onLoginSuccess: @Composable () -> Unit) {
+fun LoginNavigation(navController: NavHostController, routeSuccess: String) {
     MyLoginTheme {
         NavHost(navController = navController, startDestination = "login") {
-            composable(routeSuccess) {
-                onLoginSuccess()
-            }
             composable("login") {
                 LoginScreen(
                     navController = navController,
