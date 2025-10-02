@@ -15,16 +15,12 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
-import com.example.login.presentation.login.LoginState
-import com.example.login.presentation.login.LoginViewModel
-import com.example.login.ui.screens.LoginContent
-import com.example.login.ui.screens.launchGoogleSignIn
+import com.example.login.login.LoginState
+import com.example.login.login.LoginViewModel
 import com.example.mydevotional.model.BibleTranslation
-import com.example.mydevotional.ui.theme.MyDevotionalTheme
 import com.example.mydevotional.viewmodel.AccountViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -37,60 +33,29 @@ fun AccountScreen(
     val selectedTranslation by accountViewModel.selectedTranslation.collectAsState()
     var expanded by remember { mutableStateOf(false) }
     val loginState by loginViewModel.loginState.collectAsState()
-    val uiState by loginViewModel.uiState.collectAsState()
-    val context = LocalContext.current
-    val launcher = rememberLauncherForActivityResult(
-        contract = ActivityResultContracts.StartActivityForResult()
-    ) { result ->
-        loginViewModel.handleGoogleSignInResult(result)
-    }
 
-    when(loginState) {
-        is LoginState.Logout -> onLogout
-        else -> {
-            LoginContent(
-                uiState = uiState,
-                loginState = loginState,
-                onEmailChange = loginViewModel::onEmailChange,
-                onPasswordChange = loginViewModel::onPasswordChange,
-                onLoginClick = loginViewModel::login,
-                onGoogleSignInClick = { launchGoogleSignIn(context, loginViewModel, launcher) },
-                onRegisterClick = { /* Lógica para navegação de cadastro */ },
-                onLoginSuccess = { /* Lógica de navegação após login */ },
-                onLogout = { /* Lógica de navegação após logout */ },
-                modifier = Modifier.fillMaxWidth()
-            )
-        }
-    }
-
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(16.dp),
-        horizontalAlignment = Alignment.CenterHorizontally
-    ) {
-        Text(
-            text = "Minha Conta",
-            fontSize = 24.sp,
-            fontWeight = FontWeight.Bold,
-            modifier = Modifier.padding(bottom = 24.dp)
-        )
-
-        Column {
-            Box(
+    when (loginState) {
+        is LoginState.Logged -> {
+            Column(
                 modifier = Modifier
-                    .fillMaxWidth()
+                    .fillMaxSize()
+                    .padding(16.dp),
+                horizontalAlignment = Alignment.CenterHorizontally
             ) {
+                Text("Minha Conta", fontSize = 24.sp, fontWeight = FontWeight.Bold)
+
+                Spacer(modifier = Modifier.height(16.dp))
+
                 ExposedDropdownMenuBox(
                     expanded = expanded,
-                    onExpandedChange = { newExpandedState -> expanded = newExpandedState }
+                    onExpandedChange = { expanded = it }
                 ) {
                     TextField(
                         readOnly = true,
                         value = selectedTranslation.displayName,
                         onValueChange = { },
                         label = { Text("Tradução da Bíblia") },
-                        trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded) },
+                        trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded) },
                         modifier = Modifier
                             .menuAnchor()
                             .fillMaxWidth()
@@ -110,67 +75,91 @@ fun AccountScreen(
                         }
                     }
                 }
+
+                Spacer(modifier = Modifier.height(16.dp))
+
+                // Informações do usuário (mock por enquanto)
+                OutlinedTextField(
+                    value = "", // TODO -> pegar de FirebaseUser
+                    onValueChange = {},
+                    label = { Text("Nome") },
+                    modifier = Modifier.fillMaxWidth(),
+                    readOnly = true
+                )
+
+                Spacer(modifier = Modifier.height(8.dp))
+
+                OutlinedTextField(
+                    value = "", // TODO -> pegar de FirebaseUser
+                    onValueChange = {},
+                    label = { Text("Email") },
+                    modifier = Modifier.fillMaxWidth(),
+                    readOnly = true
+                )
+
+                Spacer(modifier = Modifier.height(24.dp))
+
+                Button(
+                    onClick = {
+                        loginViewModel.logout()
+                        onLogout()
+                    },
+                    modifier = Modifier.fillMaxWidth().height(48.dp),
+                    colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.error)
+                ) {
+                    Text("Sair", color = Color.White)
+                }
             }
         }
-        Text(
-            text = "Informações do Usuário",
-            fontSize = 18.sp,
-            fontWeight = FontWeight.SemiBold,
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(bottom = 8.dp),
-            textAlign = androidx.compose.ui.text.style.TextAlign.Start
-        )
 
-        OutlinedTextField(
-            value = "",//userName,
-            onValueChange = { /* Lógica para alterar o nome (se necessário) */ },
-            label = { Text("Nome") },
-            modifier = Modifier.fillMaxWidth(),
-            readOnly = true // Por enquanto, apenas exibição
-        )
-        Spacer(modifier = Modifier.height(8.dp))
+        is LoginState.Logout, LoginState.Idle -> {
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(16.dp),
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.Center
+            ) {
+                Text("Você ainda não está logado", fontSize = 20.sp, fontWeight = FontWeight.Bold)
 
-        OutlinedTextField(
-            value = "",//userEmail,
-            onValueChange = { /* Lógica para alterar o email (se necessário) */ },
-            label = { Text("Email") },
-            modifier = Modifier.fillMaxWidth(),
-            readOnly = true // Por enquanto, apenas exibição
-        )
-        Spacer(modifier = Modifier.height(8.dp))
+                Spacer(modifier = Modifier.height(16.dp))
 
-        OutlinedTextField(
-            value = "***", // Exibindo senha de forma segura
-            onValueChange = { /* Lógica para alterar a senha (se necessário) */ },
-            label = { Text("Senha") },
-            modifier = Modifier.fillMaxWidth(),
-            readOnly = true,
-            visualTransformation = androidx.compose.ui.text.input.PasswordVisualTransformation()
-        )
-        Spacer(modifier = Modifier.height(24.dp))
+                Button(
+                    onClick = { /* abre tela de login */ },
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    Text("Fazer login")
+                }
 
-        Button(
-            onClick = { loginViewModel.logout() },
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(48.dp),
-            //shape = RoundedCornerShape(8.dp),
-            colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.error)
-        ) {
-            Text("Sair", color = Color.White)
+                Spacer(modifier = Modifier.height(8.dp))
+
+                OutlinedButton(
+                    onClick = { /* continua sem login */ },
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    Text("Continuar sem login")
+                }
+            }
         }
 
+        is LoginState.Loading -> {
+            Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                CircularProgressIndicator()
+            }
+        }
 
-    }
-}
-
-@Preview
-@Composable
-fun AccountScreenPreview() {
-    MyDevotionalTheme {
-        AccountScreen(
-
-        )
+        is LoginState.Error -> {
+            Column(
+                modifier = Modifier.fillMaxSize(),
+                verticalArrangement = Arrangement.Center,
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                Text("Erro ao logar: ${(loginState as LoginState.Error).message}")
+                Spacer(Modifier.height(16.dp))
+                OutlinedButton(onClick = { loginViewModel.logout() }) {
+                    Text("Tentar novamente")
+                }
+            }
+        }
     }
 }

@@ -1,4 +1,4 @@
-package com.example.login.presentation.login
+package com.example.login.login
 
 import android.app.Activity
 import android.util.Log
@@ -9,6 +9,7 @@ import com.example.login.domain.usecase.CheckIfUserExistsUseCase
 import com.example.login.domain.usecase.CreateUserUseCase
 import com.example.login.domain.usecase.LoginUseCase
 import com.example.login.domain.usecase.LoginWithGoogleUseCase
+import com.example.login.firebase.auth
 import com.example.login.usecase.LogoutUseCase
 import com.example.login.validators.isValidEmail
 import com.example.login.validators.isValidPassword
@@ -17,6 +18,7 @@ import com.google.android.gms.auth.api.signin.GoogleSignInAccount
 import com.google.android.gms.common.api.ApiException
 import com.google.android.gms.tasks.Task
 import com.google.firebase.Timestamp
+import com.google.firebase.auth.FirebaseAuth
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -106,7 +108,6 @@ class LoginViewModel @Inject constructor(
     fun logout() {
         viewModelScope.launch {
             logoutUseCase()
-            _loginState.value = LoginState.Logout
         }
     }
 
@@ -141,6 +142,22 @@ class LoginViewModel @Inject constructor(
         val isPasswordError = !isValidPassword(password)
         return isEmailError || isPasswordError
     }
+
+    private val authListener = FirebaseAuth.AuthStateListener { firebaseAuth ->
+        val user = firebaseAuth.currentUser
+        _loginState.value = if (user != null) {
+            LoginState.Logged
+        } else {
+            LoginState.Logout
+        }
+    }
+
+    init {
+        auth.addAuthStateListener(authListener)
+
+    }
+
+
 }
 
 data class LoginUiState(
