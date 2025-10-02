@@ -15,15 +15,15 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
+import com.example.login.login.LoginState
+import com.example.login.login.LoginViewModel
 import com.example.login.ui.screens.LoginNavigation
 import com.example.mydevotional.components.BottomAppBarItem
 import com.example.mydevotional.components.MyDevotionalBottomAppBar
@@ -31,7 +31,6 @@ import com.example.mydevotional.navigation.AppDestination
 import com.example.mydevotional.navigation.AppNavigation
 import com.example.mydevotional.navigation.bottomAppBarItems
 import com.example.mydevotional.ui.theme.MyDevotionalTheme
-import com.google.firebase.auth.FirebaseAuth
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
@@ -48,17 +47,14 @@ class MainActivity : ComponentActivity() {
         }
     }
     @Composable
-    private fun InitNavigation() {
+    fun InitNavigation(
+        loginViewModel: LoginViewModel = hiltViewModel()
+    ) {
         val navController = rememberNavController()
-        val auth = FirebaseAuth.getInstance()
-        var authState by remember { mutableStateOf(AuthState.LOADING) }
-        LaunchedEffect(auth) {
-            authState =
-                if (auth.currentUser != null) AuthState.AUTHENTICATED else AuthState.UNAUTHENTICATED
-        }
+        val loginState by loginViewModel.loginState.collectAsState()
 
-        when (authState) {
-            AuthState.LOADING -> {
+        when (loginState) {
+            is LoginState.Loading -> {
                 Box(
                     modifier = Modifier.fillMaxSize(),
                     contentAlignment = Alignment.Center
@@ -67,25 +63,24 @@ class MainActivity : ComponentActivity() {
                 }
             }
 
-            AuthState.AUTHENTICATED -> {
+            is LoginState.Logged -> {
                 AppNavigation(navController)
             }
 
-            AuthState.UNAUTHENTICATED -> {
+            is LoginState.Logout, LoginState.Idle -> {
                 LoginNavigation(
                     navController = navController,
-                    routeSuccess = AppDestination.Account.route,
-                    onLoginSuccess = {
-                        authState = AuthState.AUTHENTICATED
-                    }
+                    routeSuccess = AppDestination.Account.route
                 )
+            }
+
+            is LoginState.Error -> {
+                LoginNavigation(
+                    navController = navController,
+                    routeSuccess = AppDestination.Account.route)
             }
         }
     }
-}
-
-enum class AuthState {
-    LOADING, AUTHENTICATED, UNAUTHENTICATED
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
