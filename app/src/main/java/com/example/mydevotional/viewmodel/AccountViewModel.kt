@@ -16,7 +16,7 @@ import javax.inject.Inject
 @HiltViewModel
 class AccountViewModel @Inject constructor(
     private val setSelectedTranslationUseCase: SetSelectedTranslationUseCase,
-    private val getSelectedTranslationUseCase: GetSelectedTranslationUseCase,
+    getSelectedTranslationUseCase: GetSelectedTranslationUseCase,
     ) : ViewModel() {
 
     val selectedTranslation: StateFlow<BibleTranslation> = getSelectedTranslationUseCase()
@@ -31,8 +31,5 @@ class AccountViewModel @Inject constructor(
         viewModelScope.launch {
             setSelectedTranslationUseCase(translation)
             }
-    }
-    fun logout() {
-
     }
 }
