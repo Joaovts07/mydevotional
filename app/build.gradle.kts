@@ -91,6 +91,14 @@ dependencies {
     //ML Kit
     implementation(libs.text.recognition)
 
+    //ROOM
+    implementation(libs.androidx.room.runtime)
+    implementation(libs.androidx.room.ktx)
+    kapt(libs.androidx.room.compiler) 
+
+
+
+
     //login
     implementation(project(":login"))
 
