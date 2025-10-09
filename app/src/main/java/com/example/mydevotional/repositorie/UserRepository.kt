@@ -1,0 +1,41 @@
+package com.example.mydevotional.repositorie
+
+import com.example.mydevotional.local.UserDao
+import com.example.mydevotional.local.toDomain
+import com.example.mydevotional.local.toEntity
+import com.example.mydevotional.model.User
+import com.example.mydevotional.remote.UserRemoteDataSource
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.map
+import javax.inject.Inject
+import javax.inject.Singleton
+
+@Singleton
+class UserRepository @Inject constructor(
+    private val userDao: UserDao,
+    private val remoteDataSource: UserRemoteDataSource
+) {
+
+    fun getUser(): Flow<User?> {
+        return userDao.getUser().map { it?.toDomain() }
+    }
+
+    suspend fun syncUser() {
+        val user = remoteDataSource.fetchUser()
+        if (user != null) {
+            userDao.insertUser(user.toEntity())
+        }
+    }
+
+    fun observeRemoteUser() {
+        remoteDataSource.listenUser { user ->
+            if (user != null) {
+                //userDao.insertUser(user.toEntity())
+            }
+        }
+    }
+
+    suspend fun clearUser() {
+        userDao.clearUser()
+    }
+}
