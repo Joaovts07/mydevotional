@@ -23,8 +23,8 @@ class UserRepository @Inject constructor(
         return userDao.getUser().map { it?.toDomain() }
     }
 
-    suspend fun syncUser() {
-        val user = remoteDataSource.fetchUser()
+    suspend fun syncUser(uid: String) {
+        val user = remoteDataSource.fetchUser(uid)
         if (user != null) {
             userDao.insertUser(user.toEntity())
         }
