@@ -1,7 +1,5 @@
 package com.example.mydevotional.ui.screens
 
-import androidx.activity.compose.rememberLauncherForActivityResult
-import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
@@ -13,7 +11,6 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -30,6 +27,7 @@ fun AccountScreen(
     loginViewModel: LoginViewModel = hiltViewModel(),
     onLogout: () -> Unit = { }
 ) {
+    val user by accountViewModel.localUser.collectAsState()
     val selectedTranslation by accountViewModel.selectedTranslation.collectAsState()
     var expanded by remember { mutableStateOf(false) }
     val loginState by loginViewModel.loginState.collectAsState()
@@ -78,24 +76,26 @@ fun AccountScreen(
 
                 Spacer(modifier = Modifier.height(16.dp))
 
-                // Informações do usuário (mock por enquanto)
-                OutlinedTextField(
-                    value = "", // TODO -> pegar de FirebaseUser
-                    onValueChange = {},
-                    label = { Text("Nome") },
-                    modifier = Modifier.fillMaxWidth(),
-                    readOnly = true
-                )
+                if(user != null) {
+                    OutlinedTextField(
+                        value = user!!.name,
+                        onValueChange = {},
+                        label = { Text("Nome") },
+                        modifier = Modifier.fillMaxWidth(),
+                        readOnly = true
+                    )
 
-                Spacer(modifier = Modifier.height(8.dp))
+                    Spacer(modifier = Modifier.height(8.dp))
 
-                OutlinedTextField(
-                    value = "", // TODO -> pegar de FirebaseUser
-                    onValueChange = {},
-                    label = { Text("Email") },
-                    modifier = Modifier.fillMaxWidth(),
-                    readOnly = true
-                )
+                    OutlinedTextField(
+                        value = user!!.email,
+                        onValueChange = {},
+                        label = { Text("Email") },
+                        modifier = Modifier.fillMaxWidth(),
+                        readOnly = true
+                    )
+                }
+
 
                 Spacer(modifier = Modifier.height(24.dp))
 
