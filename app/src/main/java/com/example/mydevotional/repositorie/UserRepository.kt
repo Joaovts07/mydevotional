@@ -5,8 +5,11 @@ import com.example.mydevotional.local.toDomain
 import com.example.mydevotional.local.toEntity
 import com.example.mydevotional.model.User
 import com.example.mydevotional.remote.UserRemoteDataSource
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.launch
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -20,8 +23,8 @@ class UserRepository @Inject constructor(
         return userDao.getUser().map { it?.toDomain() }
     }
 
-    suspend fun syncUser() {
-        val user = remoteDataSource.fetchUser()
+    suspend fun syncUser(uid: String) {
+        val user = remoteDataSource.fetchUser(uid)
         if (user != null) {
             userDao.insertUser(user.toEntity())
         }
@@ -30,7 +33,9 @@ class UserRepository @Inject constructor(
     fun observeRemoteUser() {
         remoteDataSource.listenUser { user ->
             if (user != null) {
-                //userDao.insertUser(user.toEntity())
+                CoroutineScope(Dispatchers.IO).launch {
+                    userDao.insertUser(user.toEntity())
+                }
             }
         }
     }

@@ -4,28 +4,30 @@ import com.example.mydevotional.model.User
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import kotlinx.coroutines.tasks.await
+import javax.inject.Inject
 
-class UserRemoteDataSource(
+
+class UserRemoteDataSource @Inject constructor(
     private val auth: FirebaseAuth,
     private val firestore: FirebaseFirestore
 ) {
-    suspend fun fetchUser(): User? {
-        val userId = auth.currentUser?.uid ?: return null
-        val snapshot = firestore.collection("users")
-            .document(userId)
-            .get()
-            .await()
-
-        return snapshot.toObject(User::class.java)?.copy(id = userId)
+    suspend fun fetchUser(uid: String): User? {
+        return try {
+            val snapshot = firestore.collection("users")
+                .document(uid)
+                .get()
+                .await()
+            snapshot.toObject(User::class.java)
+        } catch (e: Exception) {
+            null
+        }
     }
 
-    fun listenUser(onUserChanged: (User?) -> Unit) {
-        val userId = auth.currentUser?.uid ?: return
+    fun listenUser(uid: String, onUserChanged: (User?) -> Unit) {
         firestore.collection("users")
-            .document(userId)
+            .document(uid)
             .addSnapshotListener { snapshot, _ ->
-                val user = snapshot?.toObject(User::class.java)?.copy(id = userId)
-                onUserChanged(user)
+                onUserChanged(snapshot?.toObject(User::class.java))
             }
     }
 }
