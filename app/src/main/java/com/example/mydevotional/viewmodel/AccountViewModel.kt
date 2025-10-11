@@ -4,6 +4,7 @@ package com.example.mydevotional.viewmodel
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.mydevotional.model.BibleTranslation
+import com.example.mydevotional.repositorie.UserRepository
 import com.example.mydevotional.usecase.GetSelectedTranslationUseCase
 import com.example.mydevotional.usecase.SetSelectedTranslationUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -17,7 +18,14 @@ import javax.inject.Inject
 class AccountViewModel @Inject constructor(
     private val setSelectedTranslationUseCase: SetSelectedTranslationUseCase,
     getSelectedTranslationUseCase: GetSelectedTranslationUseCase,
+    private val userRepository: UserRepository
     ) : ViewModel() {
+
+    val localUser = userRepository.getUser().stateIn(
+        viewModelScope,
+        SharingStarted.WhileSubscribed(5000),
+        null
+    )
 
     val selectedTranslation: StateFlow<BibleTranslation> = getSelectedTranslationUseCase()
         .stateIn(
@@ -31,5 +39,9 @@ class AccountViewModel @Inject constructor(
         viewModelScope.launch {
             setSelectedTranslationUseCase(translation)
             }
+    }
+
+    init {
+        userRepository.observeRemoteUser()
     }
 }
