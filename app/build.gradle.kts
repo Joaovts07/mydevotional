@@ -82,6 +82,7 @@ dependencies {
 
     //hilt
     implementation(libs.hilt.android)
+    implementation(libs.core.ktx)
     kapt(libs.hilt.android.compiler )
     implementation(libs.androidx.hilt.navigation.compose)
 
@@ -109,4 +110,5 @@ dependencies {
     androidTestImplementation(libs.androidx.ui.test.junit4)
     debugImplementation(libs.androidx.ui.tooling)
     debugImplementation(libs.androidx.ui.test.manifest)
+    testImplementation(kotlin("test"))
 }
