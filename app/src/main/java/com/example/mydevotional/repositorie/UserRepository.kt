@@ -30,8 +30,8 @@ class UserRepository @Inject constructor(
         }
     }
 
-    fun observeRemoteUser() {
-        remoteDataSource.listenUser { user ->
+    fun observeRemoteUser(uid: String) {
+        remoteDataSource.listenUser(uid) { user ->
             if (user != null) {
                 CoroutineScope(Dispatchers.IO).launch {
                     userDao.insertUser(user.toEntity())

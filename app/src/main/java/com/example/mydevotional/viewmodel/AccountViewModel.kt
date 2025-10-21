@@ -49,13 +49,16 @@ class AccountViewModel @Inject constructor(
         }
     }
 
+    private fun observeRemoteUser(uid: String) {
+        viewModelScope.launch {
+            userRepository.observeRemoteUser(uid)
+        }
+    }
+
     init {
         val currentUser = auth.currentUser
         if (currentUser != null) {
-            syncUser(currentUser.uid)
+            observeRemoteUser(currentUser.uid)
         }
-        userRepository.observeRemoteUser()
     }
-
-
 }
