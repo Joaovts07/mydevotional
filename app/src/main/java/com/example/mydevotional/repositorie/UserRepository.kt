@@ -19,7 +19,7 @@ class UserRepository @Inject constructor(
     private val remoteDataSource: UserRemoteDataSource
 ) {
 
-    fun getUser(): Flow<User?> {
+    fun getProfile(): Flow<User?> {
         return userDao.getUser().map { it?.toDomain() }
     }
 
