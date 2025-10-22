@@ -23,7 +23,7 @@ class AccountViewModel @Inject constructor(
     private val auth: FirebaseAuth
     ) : ViewModel() {
 
-    val localUser = userRepository.getUser().stateIn(
+    val localUser = userRepository.getProfile().stateIn(
         viewModelScope,
         SharingStarted.WhileSubscribed(5000),
         null
@@ -40,7 +40,7 @@ class AccountViewModel @Inject constructor(
     fun setTranslation(translation: BibleTranslation) {
         viewModelScope.launch {
             setSelectedTranslationUseCase(translation)
-            }
+        }
     }
 
     private fun syncUser(uid: String) {
