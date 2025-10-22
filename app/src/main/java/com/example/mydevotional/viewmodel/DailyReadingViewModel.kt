@@ -17,6 +17,13 @@ class DailyReadingViewModel @Inject constructor(
 
     private val _selectedDate = MutableStateFlow<Date?>(null)
 
+    private val _passageExpandedStates = MutableStateFlow<Map<String, Boolean>>(emptyMap())
+    val passageExpandedStates: StateFlow<Map<String, Boolean>> = _passageExpandedStates.asStateFlow()
+
+    init {
+        _selectedDate.value = Date()
+    }
+
     fun updateSelectedDate(date: Date) {
         _selectedDate.value = date
     }
@@ -32,7 +39,7 @@ class DailyReadingViewModel @Inject constructor(
     private val _completedReadingsCalendar = completeReadingsUseCase.getCompletedReadingsFlow().stateIn(
         scope = viewModelScope,
         started = SharingStarted.WhileSubscribed(5000),
-        initialValue = emptySet() // Usamos um Set<String> aqui, que é mais eficiente para o 'contains'
+        initialValue = emptySet()
     )
 
     val completedDays: StateFlow<Set<String>> = completeReadingsUseCase.getCompletedReadingsFlow().stateIn(
@@ -56,7 +63,24 @@ class DailyReadingViewModel @Inject constructor(
         initialValue = false
     )
 
-    init {
-        _selectedDate.value = Date()
+    fun togglePassageExpanded(reference: String) {
+        _passageExpandedStates.update { currentMap ->
+            val currentState = currentMap[reference] ?: true
+            currentMap.toMutableMap().apply {
+                this[reference] = !currentState
+            }
+        }
     }
+
+    fun collapseAllPassages() {
+        _passageExpandedStates.update { currentMap ->
+            val newMap = currentMap.toMutableMap()
+            // Define todos os estados existentes como false (colapsado)
+            currentMap.keys.forEach { key ->
+                newMap[key] = false
+            }
+            newMap
+        }
+    }
+
 }
