@@ -5,7 +5,13 @@ import androidx.lifecycle.viewModelScope
 import com.example.mydevotional.extensions.formatDate
 import com.example.mydevotional.usecase.CompleteReadingsUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.flow.*
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import java.util.Date
 import javax.inject.Inject
@@ -16,6 +22,13 @@ class DailyReadingViewModel @Inject constructor(
 ) : ViewModel() {
 
     private val _selectedDate = MutableStateFlow<Date?>(null)
+
+    private val _passageExpandedStates = MutableStateFlow<Map<String, Boolean>>(emptyMap())
+    val passageExpandedStates: StateFlow<Map<String, Boolean>> = _passageExpandedStates.asStateFlow()
+
+    init {
+        _selectedDate.value = Date()
+    }
 
     fun updateSelectedDate(date: Date) {
         _selectedDate.value = date
@@ -32,7 +45,7 @@ class DailyReadingViewModel @Inject constructor(
     private val _completedReadingsCalendar = completeReadingsUseCase.getCompletedReadingsFlow().stateIn(
         scope = viewModelScope,
         started = SharingStarted.WhileSubscribed(5000),
-        initialValue = emptySet() // Usamos um Set<String> aqui, que é mais eficiente para o 'contains'
+        initialValue = emptySet()
     )
 
     val completedDays: StateFlow<Set<String>> = completeReadingsUseCase.getCompletedReadingsFlow().stateIn(
@@ -56,7 +69,24 @@ class DailyReadingViewModel @Inject constructor(
         initialValue = false
     )
 
-    init {
-        _selectedDate.value = Date()
+    fun togglePassageExpanded(reference: String) {
+        _passageExpandedStates.update { currentMap ->
+            val currentState = currentMap[reference] ?: true
+            currentMap.toMutableMap().apply {
+                this[reference] = !currentState
+            }
+        }
     }
+
+    fun collapseAllPassages() {
+        _passageExpandedStates.update { currentMap ->
+            val newMap = currentMap.toMutableMap()
+            // Define todos os estados existentes como false (colapsado)
+            currentMap.keys.forEach { key ->
+                newMap[key] = false
+            }
+            newMap
+        }
+    }
+
 }
