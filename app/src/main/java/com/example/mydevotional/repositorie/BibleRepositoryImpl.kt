@@ -31,6 +31,7 @@ class BibleRepositoryImpl @Inject constructor(
     private val getSelectedTranslationUseCase: GetSelectedTranslationUseCase
 ) : BibleRepository {
 
+
     override fun getBibleBooks(): List<BibleBook> {
         return BibleBooks.books
     }
@@ -66,7 +67,7 @@ class BibleRepositoryImpl @Inject constructor(
             val deferredResponses = passages.map { passage ->
                 async {
                     try {
-                        val url = "https://bible-api.com/$passage?translation=almeida"
+                        val url = "https://bible-api.com/$passage?${selectedTranslation.apiCode}"
                         val response: String = httpClient.get {
                             url(url)
                         }.bodyAsText()
