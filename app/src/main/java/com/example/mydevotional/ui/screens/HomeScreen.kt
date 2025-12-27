@@ -93,17 +93,6 @@ fun HomeScreen(
         modifier = Modifier.fillMaxSize()
     ) {
         item {
-            Button(
-                onClick = {
-                    throw RuntimeException("Test Crash") // Force a crash},
-
-                },
-                modifier = Modifier.fillMaxWidth()
-            ) {
-                Text("Test Crash")
-            }
-        }
-        item {
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
