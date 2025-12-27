@@ -5,6 +5,7 @@ plugins {
     id("com.google.gms.google-services")
     id("com.google.dagger.hilt.android")
     id("org.jetbrains.kotlin.kapt")
+    id("com.google.firebase.crashlytics")
 }
 
 android {
@@ -75,6 +76,7 @@ dependencies {
     //google firebase
     implementation(platform(libs.firebase.bom))
     implementation(libs.firebase.analytics)
+    implementation(libs.firebase.crashlytics)
     implementation(libs.firebase.firestore.ktx)
 
     //calendar
