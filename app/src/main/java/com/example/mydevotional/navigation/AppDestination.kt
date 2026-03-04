@@ -14,6 +14,7 @@ sealed class AppDestination(val route: String) {
     data object BibleBooks: AppDestination("bible/books")
     data object BibleChapters: AppDestination("bible/chapters")
     data object LoginRequired: AppDestination("loginrequired")
+    data object ReadingScanner: AppDestination("readingscanner")
 }
 
 val bottomAppBarItems = listOf(

@@ -65,10 +65,11 @@ class BibleRepositoryImpl @Inject constructor(
         val passages = searchReadingDaily(dateFormated) as? List<*> ?: return emptyList()
 
         return coroutineScope {
+            val translation = selectedTranslation.first().apiCode
             val deferredResponses = passages.map { passage ->
                 async {
                     try {
-                        val url = "https://bible-api.com/$passage?${selectedTranslation.first().apiCode}"
+                        val url = "https://bible-api.com/$passage?translation=$translation"
                         val response: String = httpClient.get {
                             url(url)
                         }.bodyAsText()
@@ -104,7 +105,22 @@ class BibleRepositoryImpl @Inject constructor(
     override suspend fun savePassages(date: String, passages: List<Map<String, Any>>): Boolean {
         return try {
             val document = firestore.collection("readings").document(date)
-            document.set(mapOf("verses" to passages), SetOptions.merge()).await()
+            document.set(mapOf("passages" to passages), SetOptions.merge()).await()
+            true
+        } catch (e: Exception) {
+            e.printStackTrace()
+            false
+        }
+    }
+
+    override suspend fun saveWeeklyReadings(readings: List<Pair<String, List<String>>>): Boolean {
+        return try {
+            val batch = firestore.batch()
+            readings.forEach { (date, passages) ->
+                val docRef = firestore.collection("readings").document(date)
+                batch.set(docRef, mapOf("passages" to passages), SetOptions.merge())
+            }
+            batch.commit().await()
             true
         } catch (e: Exception) {
             e.printStackTrace()

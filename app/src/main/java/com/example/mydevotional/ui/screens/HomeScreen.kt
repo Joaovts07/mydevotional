@@ -1,53 +1,29 @@
 package com.example.mydevotional.ui.screens
 
-import android.graphics.ImageDecoder
-import android.net.Uri
-import android.os.Build
-import android.provider.MediaStore
-import androidx.activity.compose.rememberLauncherForActivityResult
-import androidx.activity.result.contract.ActivityResultContracts
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.rememberLazyListState
-import androidx.compose.material3.Button
-import androidx.compose.material3.Card
-import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
-import androidx.compose.material3.SnackbarDuration
-import androidx.compose.material3.SnackbarHostState
-import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.derivedStateOf
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.runtime.setValue
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.CameraAlt
+import androidx.compose.material3.*
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.navigation.NavController
 import com.example.mydevotional.components.CalendarReadings
 import com.example.mydevotional.components.CompleteReadingButton
 import com.example.mydevotional.components.versesListItems
+import com.example.mydevotional.navigation.AppDestination
 import com.example.mydevotional.viewmodel.DailyReadingViewModel
 import com.example.mydevotional.viewmodel.HomeScreenViewModel
 import kotlinx.coroutines.launch
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun HomeScreen( 
+fun HomeScreen(
+    navController: NavController,
     homeViewModel: HomeScreenViewModel = hiltViewModel(),
     dailyReadingViewModel: DailyReadingViewModel = hiltViewModel()
 ) {
@@ -56,28 +32,11 @@ fun HomeScreen(
     val completedReadingsCalendar by dailyReadingViewModel.completedDays.collectAsState()
     val completedReadingsDay by dailyReadingViewModel.isReadingCompletedForSelectedDate.collectAsState()
 
-
     var calendarHeight by remember { mutableStateOf(354.dp) }
     val listState = rememberLazyListState()
 
     val snackbarHostState = remember { SnackbarHostState() }
     val coroutineScope = rememberCoroutineScope()
-
-    val context = LocalContext.current
-
-    val launcher = rememberLauncherForActivityResult(
-        contract = ActivityResultContracts.GetContent()
-    ) { uri: Uri? ->
-        uri?.let {
-            val bitmap = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
-                val source = ImageDecoder.createSource(context.contentResolver, it)
-                ImageDecoder.decodeBitmap(source)
-            } else {
-                MediaStore.Images.Media.getBitmap(context.contentResolver, it)
-            }
-            homeViewModel.saveReadingsFromImage(bitmap)
-        }
-    }
 
     LaunchedEffect(remember { derivedStateOf { listState.firstVisibleItemScrollOffset } }) {
         val minHeight = 80.dp
@@ -88,102 +47,101 @@ fun HomeScreen(
         )
     }
 
-    LazyColumn(
-        state = listState,
-        modifier = Modifier.fillMaxSize()
-    ) {
-        item {
-            Box(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(calendarHeight)
-                    .padding(vertical = 8.dp),
-                contentAlignment = Alignment.Center
+    Scaffold(
+        floatingActionButton = {
+            FloatingActionButton(
+                onClick = { navController.navigate(AppDestination.ReadingScanner.route) },
+                containerColor = MaterialTheme.colorScheme.primaryContainer,
+                contentColor = MaterialTheme.colorScheme.onPrimaryContainer
             ) {
-                CalendarReadings(
-                    completedReadings = completedReadingsCalendar,
-                    onDateSelected = {
-                        selectedDate -> homeViewModel.selectDate(selectedDate)
-                        dailyReadingViewModel.updateSelectedDate(selectedDate)
-                    }
+                Icon(
+                    imageVector = Icons.Default.CameraAlt,
+                    contentDescription = "Escanear Leitura"
                 )
             }
-
         }
-        if (isLoading) {
+    ) { padding ->
+        LazyColumn(
+            state = listState,
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(padding)
+        ) {
             item {
                 Box(
                     modifier = Modifier
-                        .fillMaxSize()
-                        .padding(16.dp),
+                        .fillMaxWidth()
+                        .height(calendarHeight)
+                        .padding(vertical = 8.dp),
                     contentAlignment = Alignment.Center
                 ) {
-                    CircularProgressIndicator()
+                    CalendarReadings(
+                        completedReadings = completedReadingsCalendar,
+                        onDateSelected = { selectedDate ->
+                            homeViewModel.selectDate(selectedDate)
+                            dailyReadingViewModel.updateSelectedDate(selectedDate)
+                        }
+                    )
                 }
             }
-        } else {
-             if (bibleResponse.isEmpty()) {
+
+            if (isLoading) {
                 item {
-                    Card(
+                    Box(
                         modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(12.dp),
+                            .fillMaxSize()
+                            .padding(16.dp),
+                        contentAlignment = Alignment.Center
                     ) {
-                        Column(
+                        CircularProgressIndicator()
+                    }
+                }
+            } else {
+                if (bibleResponse.isEmpty()) {
+                    item {
+                        Card(
                             modifier = Modifier
                                 .fillMaxWidth()
-                                .padding(8.dp)
-                        ) { 
-                            Text(
-                                text = "Nenhuma Leitura para hoje",
-                                fontSize = 18.sp,
-                                modifier = Modifier.fillMaxWidth()
-                            )
-
-
+                                .padding(12.dp),
+                        ) {
+                            Column(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(8.dp)
+                            ) {
+                                Text(
+                                    text = "Nenhuma Leitura para hoje",
+                                    fontSize = 18.sp,
+                                    modifier = Modifier.fillMaxWidth()
+                                )
+                            }
                         }
                     }
                 }
+                versesListItems(
+                    bibleResponses = bibleResponse,
+                    onFavoriteClick = { homeViewModel.toggleFavorite(it) }
+                )
             }
-            versesListItems(
-                bibleResponses = bibleResponse,
-                onFavoriteClick = { homeViewModel.toggleFavorite(it) }
-            )
-        }
-        item {
-            CompleteReadingButton(
-                isReadingCompleted = completedReadingsDay ,
-                onClick = {
-                    if (completedReadingsDay) {
+            item {
+                CompleteReadingButton(
+                    isReadingCompleted = completedReadingsDay,
+                    onClick = {
                         dailyReadingViewModel.toggleReadingComplete(homeViewModel.selectedDate.value)
+                        val message = if (completedReadingsDay) "Leitura Desmarcada!" else "Leitura marcada como lida!"
                         coroutineScope.launch {
                             snackbarHostState.showSnackbar(
-                                message = "Leitura Desmarcada!",
+                                message = message,
                                 duration = SnackbarDuration.Short
                             )
                         }
-                    } else {
-                        dailyReadingViewModel.toggleReadingComplete(homeViewModel.selectedDate.value)
-                        coroutineScope.launch {
-                            snackbarHostState.showSnackbar(
-                                message = "Leitura marcada como lida!",
-                                duration = SnackbarDuration.Short
-                            )
-                        }
-                    }
-                },
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(12.dp)
-                    .height(48.dp)
-            )
-
+                    },
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(12.dp)
+                        .height(48.dp)
+                )
+            }
         }
     }
 }
-
-
-
-
-
-

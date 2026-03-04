@@ -2,7 +2,6 @@ package com.example.mydevotional.repositorie
 
 import com.example.mydevotional.BibleBook
 import com.example.mydevotional.model.BibleResponse
-import com.example.mydevotional.model.Verses
 import java.util.Date
 
 interface BibleRepository {
@@ -12,4 +11,5 @@ interface BibleRepository {
     suspend fun getVersesForDay(date: Date): List<BibleResponse>
     suspend fun searchReadingDaily(date: String): Any?
     suspend fun savePassages(date: String, passages: List<Map<String, Any>>): Boolean
+    suspend fun saveWeeklyReadings(readings: List<Pair<String, List<String>>>): Boolean
 }

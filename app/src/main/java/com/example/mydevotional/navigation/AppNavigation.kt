@@ -43,7 +43,7 @@ fun AppNavigation(navController: NavHostController) {
         composable(AppDestination.Home.route) {
             MyDevocionalScaffold(navController, selectedItem) { paddingValues ->
                 Box(modifier = Modifier.padding(paddingValues)) {
-                    HomeScreen()
+                    HomeScreen(navController = navController)
                 }
             }
         }
@@ -92,6 +92,9 @@ fun AppNavigation(navController: NavHostController) {
                     FavoriteVersesScreen(versesViewModel)
                 }
             }
+        }
+        composable(AppDestination.ReadingScanner.route) {
+            ReadingScannerScreen(onBack = { navController.popBackStack() })
         }
 
     }
