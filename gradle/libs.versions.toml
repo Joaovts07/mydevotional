@@ -33,6 +33,7 @@ coreKtxVersion = "1.7.0"
 googleServices = "4.4.3"
 hilt = "2.57"
 crashlytics = "3.0.6"
+mockk = "1.14.5"
 
 
 [libraries]
@@ -78,6 +79,8 @@ googleid = { group = "com.google.android.libraries.identity.googleid", name = "g
 firebase-storage-ktx = { group = "com.google.firebase", name = "firebase-storage-ktx", version.ref = "firebaseStorageKtx" }
 text-recognition = { module = "com.google.mlkit:text-recognition", version.ref = "textRecognition" }
 core-ktx = { group = "androidx.test", name = "core-ktx", version.ref = "coreKtxVersion" }
+kotlinx-coroutines-test = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-test", version.ref = "kotlinxCoroutinesAndroid" }
+mockk = { module = "io.mockk:mockk", version.ref = "mockk" }
 
 
 

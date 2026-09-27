@@ -88,7 +88,7 @@ class VersesViewModel @Inject constructor(
     private fun fetchVerses(book: String,chapter: Int) {
         viewModelScope.launch {
             _isLoading.value = true
-            _bibleResponses.value = getVerseBibleUseCase(book, chapter)
+            _bibleResponses.value = getVerseBibleUseCase(book, chapter).getOrDefault(emptyList())
             _isLoading.value = false
         }
     }

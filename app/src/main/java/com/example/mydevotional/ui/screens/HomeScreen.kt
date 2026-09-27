@@ -47,12 +47,15 @@ import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun HomeScreen( 
+fun HomeScreen(
+    snackbarHostState: SnackbarHostState,
     homeViewModel: HomeScreenViewModel = hiltViewModel(),
     dailyReadingViewModel: DailyReadingViewModel = hiltViewModel()
 ) {
     val bibleResponse by homeViewModel.bibleResponse.collectAsState()
     val isLoading by homeViewModel.isLoading.collectAsState()
+    val loadFailed by homeViewModel.loadFailed.collectAsState()
+    val uiMessage by homeViewModel.uiMessage.collectAsState()
     val completedReadingsCalendar by dailyReadingViewModel.completedDays.collectAsState()
     val completedReadingsDay by dailyReadingViewModel.isReadingCompletedForSelectedDate.collectAsState()
 
@@ -60,7 +63,6 @@ fun HomeScreen(
     var calendarHeight by remember { mutableStateOf(354.dp) }
     val listState = rememberLazyListState()
 
-    val snackbarHostState = remember { SnackbarHostState() }
     val coroutineScope = rememberCoroutineScope()
 
     val context = LocalContext.current
@@ -76,6 +78,13 @@ fun HomeScreen(
                 MediaStore.Images.Media.getBitmap(context.contentResolver, it)
             }
             homeViewModel.saveReadingsFromImage(bitmap)
+        }
+    }
+
+    LaunchedEffect(uiMessage) {
+        uiMessage?.let {
+            snackbarHostState.showSnackbar(it)
+            homeViewModel.messageShown()
         }
     }
 
@@ -121,6 +130,32 @@ fun HomeScreen(
                     CircularProgressIndicator()
                 }
             }
+        } else if (loadFailed) {
+            item {
+                Card(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(12.dp),
+                ) {
+                    Column(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(8.dp)
+                    ) {
+                        Text(
+                            text = "Não foi possível carregar a leitura. Verifique sua conexão.",
+                            fontSize = 18.sp,
+                            modifier = Modifier.fillMaxWidth()
+                        )
+                        Button(
+                            onClick = { homeViewModel.retry() },
+                            modifier = Modifier.padding(top = 8.dp)
+                        ) {
+                            Text("Tentar novamente")
+                        }
+                    }
+                }
+            }
         } else {
              if (bibleResponse.isEmpty()) {
                 item {
@@ -135,7 +170,7 @@ fun HomeScreen(
                                 .padding(8.dp)
                         ) { 
                             Text(
-                                text = "Nenhuma Leitura para hoje",
+                                text = "Nenhuma leitura para este dia",
                                 fontSize = 18.sp,
                                 modifier = Modifier.fillMaxWidth()
                             )
