@@ -18,13 +18,13 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
 import androidx.navigation.NavHostController
 import androidx.navigation.NavType
@@ -51,8 +51,8 @@ fun LoginScreen(
     onLoginSuccess: () -> Unit,
     onLogout: () -> Unit
 ) {
-    val uiState by viewModel.uiState.collectAsState()
-    val loginState by viewModel.loginState.collectAsState()
+    val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+    val loginState by viewModel.loginState.collectAsStateWithLifecycle()
     val context = LocalContext.current
     val launcher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.StartActivityForResult()

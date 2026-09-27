@@ -13,20 +13,20 @@ import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
 import com.example.mydevotional.navigation.AppDestination
 import com.example.mydevotional.viewmodel.VersesViewModel
 
 @Composable
 fun ChaptersScreen(navController: NavController, bookName: String, viewModel: VersesViewModel) {
-    val chapters by viewModel.chapters.collectAsState()
+    val chapters by viewModel.chapters.collectAsStateWithLifecycle()
 
     Column(
         modifier = Modifier

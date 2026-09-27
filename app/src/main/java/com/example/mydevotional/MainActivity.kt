@@ -17,11 +17,11 @@ import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import com.example.login.login.LoginState
@@ -53,7 +53,7 @@ class MainActivity : ComponentActivity() {
         loginViewModel: LoginViewModel = hiltViewModel()
     ) {
         val navController = rememberNavController()
-        val loginState by loginViewModel.loginState.collectAsState()
+        val loginState by loginViewModel.loginState.collectAsStateWithLifecycle()
 
         when (loginState) {
             is LoginState.Loading -> {

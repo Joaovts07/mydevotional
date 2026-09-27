@@ -8,19 +8,20 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.example.mydevotional.components.VerseCard
-import com.example.mydevotional.viewmodel.VersesViewModel
+import com.example.mydevotional.viewmodel.FavoritesViewModel
 
 @Composable
-fun FavoriteVersesScreen(viewModel: VersesViewModel) {
-    val favoriteVerses by viewModel.favoriteVerses.collectAsState()
+fun FavoriteVersesScreen(viewModel: FavoritesViewModel = hiltViewModel()) {
+    val favoriteVerses by viewModel.favoriteVerses.collectAsStateWithLifecycle()
 
     Column(modifier = Modifier.fillMaxSize()) {
         Text(
@@ -40,7 +41,7 @@ fun FavoriteVersesScreen(viewModel: VersesViewModel) {
             )
         } else {
             LazyColumn {
-                items(favoriteVerses.toList()) { it ->
+                items(favoriteVerses) {
                     VerseCard(
                         verse = it,
                         onFavoriteClick = { viewModel.toggleFavorite(it) }

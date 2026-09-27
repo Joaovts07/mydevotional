@@ -13,3 +13,11 @@ data class Verses(
     val isRead: Boolean = false,
     val textChapter: String  = ""
 )
+
+val Verses.id: String
+    get() = "${bookId}_${chapter}_${verse}"
+
+fun List<BibleResponse>.withFavorites(favoriteIds: Set<String>): List<BibleResponse> =
+    map { response ->
+        response.copy(verses = response.verses.map { it.copy(isFavorite = it.id in favoriteIds) })
+    }

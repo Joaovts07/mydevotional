@@ -3,7 +3,6 @@ package com.example.mydevotional.ui.screens
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -15,6 +14,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.example.login.login.LoginState
 import com.example.login.login.LoginViewModel
 import com.example.mydevotional.model.BibleTranslation
@@ -27,10 +27,10 @@ fun AccountScreen(
     loginViewModel: LoginViewModel = hiltViewModel(),
     onLogout: () -> Unit = { }
 ) {
-    val user by accountViewModel.localUser.collectAsState()
-    val selectedTranslation by accountViewModel.selectedTranslation.collectAsState()
+    val user by accountViewModel.localUser.collectAsStateWithLifecycle()
+    val selectedTranslation by accountViewModel.selectedTranslation.collectAsStateWithLifecycle()
     var expanded by remember { mutableStateOf(false) }
-    val loginState by loginViewModel.loginState.collectAsState()
+    val loginState by loginViewModel.loginState.collectAsStateWithLifecycle()
 
     when (loginState) {
         is LoginState.Logged -> {

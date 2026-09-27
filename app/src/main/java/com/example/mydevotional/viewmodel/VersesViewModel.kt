@@ -3,114 +3,85 @@ package com.example.mydevotional.viewmodel
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.mydevotional.BibleBook
-import com.example.mydevotional.model.BibleResponse
+import com.example.mydevotional.model.id
 import com.example.mydevotional.model.Verses
+import com.example.mydevotional.model.withFavorites
+import com.example.mydevotional.state.VersesUiState
 import com.example.mydevotional.usecase.FavoriteVerseUseCase
 import com.example.mydevotional.usecase.GetBibleBooksUseCase
 import com.example.mydevotional.usecase.GetBibleChaptersUseCase
 import com.example.mydevotional.usecase.GetVerseBibleUseCase
 import com.example.mydevotional.usecase.ToggleFavoriteVerseUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
 class VersesViewModel @Inject constructor(
     private val getVerseBibleUseCase: GetVerseBibleUseCase,
-    private val getBibleBooksUseCase: GetBibleBooksUseCase,
+    getBibleBooksUseCase: GetBibleBooksUseCase,
     private val getBibleChaptersUseCase: GetBibleChaptersUseCase,
-    private val favoriteVerseUseCase: FavoriteVerseUseCase,
-    private val toggleFavoriteVerseUseCase: ToggleFavoriteVerseUseCase
+    private val toggleFavoriteVerseUseCase: ToggleFavoriteVerseUseCase,
+    favoriteVerseUseCase: FavoriteVerseUseCase
 ) : ViewModel() {
 
-    private val _books = MutableStateFlow<List<BibleBook>>(emptyList())
-    val books: StateFlow<List<BibleBook>> = _books
+    val books: List<BibleBook> = getBibleBooksUseCase()
 
     private val _chapters = MutableStateFlow(0)
-    val chapters: StateFlow<Int> = _chapters
+    val chapters: StateFlow<Int> = _chapters.asStateFlow()
 
-    private val _bibleResponses = MutableStateFlow<List<BibleResponse>>(emptyList())
-    val bibleResponses: StateFlow<List<BibleResponse>> = _bibleResponses
+    private val chapterLoad = MutableStateFlow(VersesUiState())
+    private val favoriteIds = favoriteVerseUseCase.getFavoriteVersesFlow()
+        .map { favorites -> favorites.map { it.id }.toSet() }
 
-    private val _selectedBook = MutableStateFlow<BibleBook?>(null)
-    val selectedBook: StateFlow<BibleBook?> = _selectedBook
+    val uiState: StateFlow<VersesUiState> = combine(chapterLoad, favoriteIds) { load, favorites ->
+        load.copy(readings = load.readings.withFavorites(favorites))
+    }.stateIn(
+        scope = viewModelScope,
+        started = SharingStarted.WhileSubscribed(5000),
+        initialValue = VersesUiState()
+    )
 
-    private val _selectedChapter = MutableStateFlow<Int?>(null)
-    val selectedChapter: StateFlow<Int?> = _selectedChapter
-
-    private val _isLoading = MutableStateFlow(false)
-    val isLoading: StateFlow<Boolean> = _isLoading
-
-    private val _favoriteVerses = MutableStateFlow<List<Verses>>(emptyList())
-    val favoriteVerses: StateFlow<List<Verses>> = _favoriteVerses.asStateFlow()
-
-    init {
-        fetchBooks()
-        viewModelScope.launch {
-            favoriteVerseUseCase.getFavoriteVersesFlow().collectLatest { updatedFavorites ->
-                _favoriteVerses.value = updatedFavorites
-            }
-        }
-    }
-
-
-
-    private fun fetchBooks() {
-        viewModelScope.launch {
-            _isLoading.value = true
-            _books.value = getBibleBooksUseCase()
-            _isLoading.value = false
-        }
-    }
+    private var selectedChapter: Pair<String, Int>? = null
+    private var loadJob: Job? = null
 
     fun selectBook(book: BibleBook) {
-        _selectedBook.value = book
-        fetchChapters(book)
+        _chapters.value = getBibleChaptersUseCase(book)
     }
 
-    private fun fetchChapters(book: BibleBook) {
-        viewModelScope.launch {
-            _isLoading.value = true
-            _chapters.value = getBibleChaptersUseCase(book)
-            _isLoading.value = false
-        }
+    fun selectChapter(book: String, chapter: Int) {
+        selectedChapter = book to chapter
+        loadVerses()
     }
 
-    fun selectChapter(book: String,chapter: Int) {
-        _selectedChapter.value = chapter
-        fetchVerses(book, chapter)
+    fun retry() {
+        loadVerses()
     }
 
-    private fun fetchVerses(book: String,chapter: Int) {
-        viewModelScope.launch {
-            _isLoading.value = true
-            _bibleResponses.value = getVerseBibleUseCase(book, chapter).getOrDefault(emptyList())
-            _isLoading.value = false
+    private fun loadVerses() {
+        val (book, chapter) = selectedChapter ?: return
+        loadJob?.cancel()
+        loadJob = viewModelScope.launch {
+            chapterLoad.update { it.copy(isLoading = true, loadFailed = false) }
+            chapterLoad.value = getVerseBibleUseCase(book, chapter).fold(
+                onSuccess = { VersesUiState(readings = it) },
+                onFailure = { VersesUiState(loadFailed = true) }
+            )
         }
     }
 
     fun toggleFavorite(verse: Verses) {
         viewModelScope.launch {
             toggleFavoriteVerseUseCase(verse)
-            updateVerseFavoriteState(verse)
-        }
-    }
-
-    private fun updateVerseFavoriteState(verse: Verses) {
-        _bibleResponses.value = _bibleResponses.value.map { bibleResponse ->
-            bibleResponse.copy(
-                verses = bibleResponse.verses.map {
-                    if (it == verse) {
-                        it.copy(isFavorite = !it.isFavorite)
-                    } else {
-                        it
-                    }
-                }
-            )
         }
     }
 }
