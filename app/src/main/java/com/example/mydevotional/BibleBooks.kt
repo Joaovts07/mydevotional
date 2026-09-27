@@ -1,5 +1,7 @@
 package com.example.mydevotional
 
+import java.text.Normalizer
+
 object BibleBooks {
     val books = listOf(
         BibleBook("Gênesis", "Genesis", "GEN", 50),
@@ -35,7 +37,7 @@ object BibleBooks {
         BibleBook("Obadias", "Obadiah", "OBA", 1),
         BibleBook("Jonas", "Jonah", "JON", 4),
         BibleBook("Miqueias", "Micah", "MIC", 7),
-        BibleBook("Naum", "Nahum", "NAH", 3),
+        BibleBook("Naum", "Nahum", "NAM", 3),
         BibleBook("Habacuque", "Habakkuk", "HAB", 3),
         BibleBook("Sofonias", "Zephaniah", "ZEP", 3),
         BibleBook("Ageu", "Haggai", "HAG", 2),
@@ -69,4 +71,13 @@ object BibleBooks {
         BibleBook("Judas", "Jude", "JUD", 1),
         BibleBook("Apocalipse", "Revelation", "REV", 22)
     )
+
+    /** Finds a book by its Portuguese or English name, ignoring case and accents ("Oséias" matches "Oseias"). */
+    fun findByName(name: String): BibleBook? {
+        val key = name.normalizedBookName()
+        return books.find { it.name.normalizedBookName() == key || it.englishName.normalizedBookName() == key }
+    }
+
+    private fun String.normalizedBookName() =
+        Normalizer.normalize(trim(), Normalizer.Form.NFD).replace(Regex("\\p{Mn}+"), "").lowercase()
 }
