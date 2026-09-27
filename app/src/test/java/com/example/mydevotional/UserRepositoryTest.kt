@@ -1,53 +1,76 @@
 package com.example.mydevotional
 
-import androidx.room.Room
-import androidx.test.core.app.ApplicationProvider
-import com.example.mydevotional.local.AppDatabase
 import com.example.mydevotional.local.UserDao
+import com.example.mydevotional.local.UserEntity
+import com.example.mydevotional.model.User
+import com.example.mydevotional.remote.UserRemoteDataSource
 import com.example.mydevotional.repositorie.UserRepository
-import kotlinx.coroutines.runBlocking
-import org.junit.After
-import org.junit.Before
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.test.runCurrent
+import kotlinx.coroutines.test.runTest
 import org.junit.Test
 import kotlin.test.assertEquals
+import kotlin.test.assertNull
 
 class UserRepositoryTest {
 
-    private lateinit var db: AppDatabase
-    private lateinit var userDao: UserDao
-    private lateinit var repository: UserRepository
+    private val testUser = User(id = "uid123", name = "Ana", email = "ana@example.com", translation = "NVI")
 
-    @Before
-    fun setup() {
-        db = Room.inMemoryDatabaseBuilder(
-            ApplicationProvider.getApplicationContext(),
-            AppDatabase::class.java
-        ).allowMainThreadQueries()
-            .build()
-        userDao = db.userDao()
-
-        val fakeRemote = FakeUserRemoteDataSource(testUser)
-        repository = UserRepository(userDao, fakeRemote)
-    }
-
-    @After
-    fun tearDown() {
-        db.close()
-    }
-
+    private val userDao = FakeUserDao()
+    private val remote = FakeUserRemoteDataSource(testUser)
+    private val repository = UserRepository(userDao, remote)
 
     @Test
-    fun syncUser_insertsUserIntoDatabase() = runBlocking {
-        val fakeRemote = FakeUserRemoteDataSource(testUser)
-        val inMemoryDb = Room.inMemoryDatabaseBuilder(
-            context, AppDatabase::class.java
-        ).build()
-        val userDao = inMemoryDb.userDao()
-        val repository = UserRepository(userDao, fakeRemote)
-
+    fun syncUser_insertsUserIntoDatabase() = runTest {
         repository.syncUser("uid123")
 
-        val storedUser = userDao.getUserNow("uid123")
-        assertEquals("uid123", storedUser.id)
+        assertEquals(testUser, repository.getProfile().first())
+    }
+
+    @Test
+    fun syncUser_withUnknownUser_keepsDatabaseEmpty() = runTest {
+        repository.syncUser("other")
+
+        assertNull(repository.getProfile().first())
+    }
+
+    @Test
+    fun observeRemoteUser_mirrorsChangesAndStopsWhenCancelled() = runTest {
+        val job = launch { repository.observeRemoteUser("uid123") }
+        runCurrent()
+
+        remote.updates.emit(testUser.copy(name = "Ana Maria"))
+        runCurrent()
+        assertEquals("Ana Maria", repository.getProfile().first()?.name)
+
+        job.cancel()
+        runCurrent()
+        assertEquals(0, remote.updates.subscriptionCount.value)
+    }
+}
+
+private class FakeUserRemoteDataSource(private val user: User) : UserRemoteDataSource {
+    val updates = MutableSharedFlow<User?>()
+
+    override suspend fun fetchUser(uid: String): User? = user.takeIf { it.id == uid }
+
+    override fun observeUser(uid: String): Flow<User?> = updates
+}
+
+private class FakeUserDao : UserDao {
+    private val user = MutableStateFlow<UserEntity?>(null)
+
+    override fun getUser(): Flow<UserEntity?> = user
+
+    override suspend fun insertUser(user: UserEntity) {
+        this.user.value = user
+    }
+
+    override suspend fun clearUser() {
+        user.value = null
     }
 }

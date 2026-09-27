@@ -8,8 +8,8 @@ class GetVerseBibleUseCase @Inject constructor(
     private val repository: BibleRepository,
     private val favoriteVerseUseCase: FavoriteVerseUseCase
 ) {
-    suspend operator fun invoke(bibleBook: String, verseNumber: Int): List<BibleResponse> {
-        val bibleResponses = repository.getVerses(book = bibleBook, chapter = verseNumber)
-        return favoriteVerseUseCase.updateFavoriteVerses(bibleResponses)
+    suspend operator fun invoke(bibleBook: String, verseNumber: Int): Result<List<BibleResponse>> {
+        return repository.getVerses(book = bibleBook, chapter = verseNumber)
+            .map { favoriteVerseUseCase.updateFavoriteVerses(it) }
     }
 }
