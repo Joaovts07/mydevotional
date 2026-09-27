@@ -2,14 +2,14 @@ package com.example.mydevotional.repositorie
 
 import com.example.mydevotional.BibleBook
 import com.example.mydevotional.model.BibleResponse
-import com.example.mydevotional.model.Verses
 import java.util.Date
 
 interface BibleRepository {
     fun getBibleBooks(): List<BibleBook>
     fun getChapters(bibleBook: BibleBook): Int
-    suspend fun getVerses(book: String, chapter: Int): List<BibleResponse>
-    suspend fun getVersesForDay(date: Date): List<BibleResponse>
-    suspend fun searchReadingDaily(date: String): Any?
-    suspend fun savePassages(date: String, passages: List<Map<String, Any>>): Boolean
+    suspend fun getVerses(book: String, chapter: Int): Result<List<BibleResponse>>
+    suspend fun getVersesForDay(date: Date): Result<List<BibleResponse>>
+
+    /** Saves the passage references (e.g. "Genesis 1") of each date, keyed by "yyyy-MM-dd". */
+    suspend fun savePassages(passagesByDate: Map<String, List<String>>): Result<Unit>
 }

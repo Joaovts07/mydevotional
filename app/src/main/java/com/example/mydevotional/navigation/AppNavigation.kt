@@ -2,6 +2,7 @@ package com.example.mydevotional.navigation
 
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -41,9 +42,10 @@ fun AppNavigation(navController: NavHostController) {
         startDestination = AppDestination.Home.route
     ) {
         composable(AppDestination.Home.route) {
-            MyDevocionalScaffold(navController, selectedItem) { paddingValues ->
+            val snackbarHostState = remember { SnackbarHostState() }
+            MyDevocionalScaffold(navController, selectedItem, snackbarHostState = snackbarHostState) { paddingValues ->
                 Box(modifier = Modifier.padding(paddingValues)) {
-                    HomeScreen()
+                    HomeScreen(snackbarHostState)
                 }
             }
         }

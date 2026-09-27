@@ -4,6 +4,7 @@ import android.content.Context
 import androidx.room.Room
 import com.example.mydevotional.local.AppDatabase
 import com.example.mydevotional.local.UserDao
+import com.example.mydevotional.remote.FirestoreUserRemoteDataSource
 import com.example.mydevotional.remote.UserRemoteDataSource
 import com.example.mydevotional.repositorie.BibleRepository
 import com.example.mydevotional.repositorie.BibleRepositoryImpl
@@ -125,6 +126,11 @@ object AppModule {
 
     @Provides
     fun provideUserDao(db: AppDatabase): UserDao = db.userDao()
+
+    @Provides
+    fun provideUserRemoteDataSource(
+        dataSource: FirestoreUserRemoteDataSource
+    ): UserRemoteDataSource = dataSource
 
     @Provides
     @Singleton
