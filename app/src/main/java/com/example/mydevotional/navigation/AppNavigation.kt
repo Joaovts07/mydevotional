@@ -91,7 +91,7 @@ fun AppNavigation(navController: NavHostController) {
         composable(AppDestination.FavoriteVerses.route) {
             MyDevocionalScaffold(navController, selectedItem) { paddingValues ->
                 Box(modifier = Modifier.padding(paddingValues)) {
-                    FavoriteVersesScreen(versesViewModel)
+                    FavoriteVersesScreen()
                 }
             }
         }
