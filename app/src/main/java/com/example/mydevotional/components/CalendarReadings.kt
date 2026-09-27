@@ -18,6 +18,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
@@ -34,6 +35,7 @@ fun CalendarReadings(
     completedReadings: Set<String>,
     onDateSelected: (Date) -> Unit
 ) {
+    val locale = LocalConfiguration.current.locales[0]
     val today = Calendar.getInstance().time
     var selectedDate by remember { mutableStateOf(today) }
     var currentMonthCalendar by remember {
@@ -71,7 +73,7 @@ fun CalendarReadings(
             }
 
             Text(
-                text = SimpleDateFormat("MMMM yyyy", Locale.getDefault()).format(currentMonthCalendar.time),
+                text = SimpleDateFormat("MMMM yyyy", locale).format(currentMonthCalendar.time),
                 fontSize = 18.sp,
                 fontWeight = FontWeight.Bold,
                 color = normalTextColor
@@ -158,11 +160,11 @@ fun CalendarReadings(
                 if (date == null) {
                     Spacer(modifier = Modifier.size(cellSide))
                 } else {
-                    val formattedDate = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(date)
+                    val formattedDate = SimpleDateFormat("yyyy-MM-dd", Locale.US).format(date)
                     val isRead = completedReadings.contains(formattedDate)
                     val isSelected = remember(selectedDate, date) {
-                        SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(selectedDate) ==
-                                SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(date)
+                        SimpleDateFormat("yyyy-MM-dd", Locale.US).format(selectedDate) ==
+                                SimpleDateFormat("yyyy-MM-dd", Locale.US).format(date)
                     }
 
                     Column(
@@ -178,7 +180,7 @@ fun CalendarReadings(
                             .padding(top = 4.dp, bottom = dotSize + dotPadding),
                     ) {
                         Text(
-                            text = SimpleDateFormat("d", Locale.getDefault()).format(date),
+                            text = SimpleDateFormat("d", Locale.US).format(date),
                             color = if (isSelected) Color.White else normalTextColor,
                             fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Normal,
                             fontSize = dayNumberFontSize,

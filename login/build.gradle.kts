@@ -1,22 +1,22 @@
+import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 import java.util.Properties
 
 plugins {
-    id("com.android.library")
-    alias(libs.plugins.kotlin.android)
+    alias(libs.plugins.android.library)
     alias(libs.plugins.kotlin.compose)
-    id("org.jetbrains.kotlin.kapt")
+    alias(libs.plugins.ksp)
 }
 
 android {
     namespace = "com.example.login"
-    compileSdk = 35
+    compileSdk = 37
 
     defaultConfig {
         minSdk = 24
-        val localProperties = Properties()
-        val localPropertiesFile = rootProject.file("local.properties")
-        if (localPropertiesFile.exists()) {
-            localPropertiesFile.inputStream().use { localProperties.load(it) }
+        // Read through providers so the configuration cache tracks local.properties.
+        val localProperties = Properties().apply {
+            providers.fileContents(rootProject.layout.projectDirectory.file("local.properties"))
+                .asText.orNull?.let { load(it.reader()) }
         }
         buildConfigField("String", "GOOGLE_CLIENT_ID", localProperties.getProperty("GOOGLE_CLIENT_ID"))
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
@@ -32,15 +32,18 @@ android {
         }
     }
     compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_11
-        targetCompatibility = JavaVersion.VERSION_11
-    }
-    kotlinOptions {
-        jvmTarget = "11"
+        sourceCompatibility = JavaVersion.VERSION_17
+        targetCompatibility = JavaVersion.VERSION_17
     }
     buildFeatures {
         compose = true
         buildConfig = true
+    }
+}
+
+kotlin {
+    compilerOptions {
+        jvmTarget = JvmTarget.JVM_17
     }
 }
 
@@ -57,9 +60,9 @@ dependencies {
     implementation(libs.androidx.material3)
     implementation(libs.androidx.navigation.compose)
     implementation(libs.androidx.material.icons.extended)
-    implementation(libs.firebase.auth.ktx)
+    implementation(libs.firebase.auth)
     implementation(platform(libs.firebase.bom))
-    implementation(libs.firebase.firestore.ktx)
+    implementation(libs.firebase.firestore)
 
     //google autentication
     implementation(libs.androidx.credentials)
@@ -68,8 +71,8 @@ dependencies {
 
     //hilt
     implementation(libs.hilt.android)
-    implementation(libs.firebase.storage.ktx)
-    kapt(libs.hilt.android.compiler )
+    implementation(libs.firebase.storage)
+    ksp(libs.hilt.android.compiler)
     implementation(libs.androidx.hilt.navigation.compose)
 
 
