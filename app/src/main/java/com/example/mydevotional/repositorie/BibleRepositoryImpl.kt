@@ -1,6 +1,5 @@
 package com.example.mydevotional.repositorie
 
-import android.util.Log
 import com.example.mydevotional.BibleBook
 import com.example.mydevotional.BibleBooks
 import com.example.mydevotional.model.BibleResponse
@@ -12,6 +11,8 @@ import io.ktor.client.HttpClient
 import io.ktor.client.request.get
 import io.ktor.client.request.url
 import io.ktor.client.statement.bodyAsText
+import io.ktor.http.isSuccess
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.coroutineScope
@@ -31,7 +32,7 @@ class BibleRepositoryImpl @Inject constructor(
     private val getSelectedTranslationUseCase: GetSelectedTranslationUseCase
 ) : BibleRepository {
 
-    val selectedTranslation = getSelectedTranslationUseCase()
+    private val selectedTranslation = getSelectedTranslationUseCase()
 
     override fun getBibleBooks(): List<BibleBook> {
         return BibleBooks.books
@@ -41,88 +42,59 @@ class BibleRepositoryImpl @Inject constructor(
         return bibleBook.chapters
     }
 
-    override suspend fun getVerses(book: String, chapter: Int): List<BibleResponse> {
-        val bibleResponse = mutableListOf<BibleResponse>()
-
-        try {
-            val url = "https://bible-api.com/$book-$chapter?${selectedTranslation.first().apiCode}"
-            val response: String = httpClient.get {
-                url(url)
-            }.bodyAsText()
-            Log.e("bible-url",
-                url
-            )
-            gsonDeserializer<BibleResponse>(response)?.let { bibleResponse.add(it) }
-        } catch (e: Exception) {
-            e.printStackTrace()
+    override suspend fun getVerses(book: String, chapter: Int): Result<List<BibleResponse>> =
+        runCatchingCancellable {
+            listOf(fetchPassage("$book-$chapter"))
         }
 
-        return bibleResponse
-    }
- 
-    override suspend fun getVersesForDay(date: Date): List<BibleResponse> {
-        val dateFormated = getDate(date)
-        val passages = searchReadingDaily(dateFormated) as? List<*> ?: return emptyList()
-
-        return coroutineScope {
-            val deferredResponses = passages.map { passage ->
-                async {
-                    try {
-                        val url = "https://bible-api.com/$passage?${selectedTranslation.first().apiCode}"
-                        val response: String = httpClient.get {
-                            url(url)
-                        }.bodyAsText()
-                        Log.e("bible-url",
-                            url
-                        )
-                        gsonDeserializer<BibleResponse>(response)
-
-                    } catch (e: Exception) {
-                        e.printStackTrace()
-                        null
-                    }
-                }
+    override suspend fun getVersesForDay(date: Date): Result<List<BibleResponse>> =
+        runCatchingCancellable {
+            val passages = fetchPassagesForDay(formatDate(date))
+            coroutineScope {
+                passages.map { passage -> async { fetchPassage(passage) } }.awaitAll()
             }
-            deferredResponses.awaitAll().filterNotNull()
         }
-    }
 
-    override suspend fun searchReadingDaily(date: String): Any? {
-        return try {
-            val document = firestore.collection("readings").document(date).get().await()
-            if (document.exists()) {
-                document.get("passages")
-            } else {
-                null
+    override suspend fun savePassages(passagesByDate: Map<String, List<String>>): Result<Unit> =
+        runCatchingCancellable {
+            val batch = firestore.batch()
+            passagesByDate.forEach { (date, passages) ->
+                val document = firestore.collection(READINGS_COLLECTION).document(date)
+                batch.set(document, mapOf(PASSAGES_FIELD to passages), SetOptions.merge())
             }
-        } catch (e: Exception) {
-            e.printStackTrace()
-            null
+            batch.commit().await()
         }
+
+    private suspend fun fetchPassagesForDay(date: String): List<String> {
+        val document = firestore.collection(READINGS_COLLECTION).document(date).get().await()
+        val passages = document.get(PASSAGES_FIELD) as? List<*> ?: return emptyList()
+        return passages.filterIsInstance<String>()
     }
 
-    override suspend fun savePassages(date: String, passages: List<Map<String, Any>>): Boolean {
+    private suspend fun fetchPassage(passage: String): BibleResponse {
+        val url = "https://bible-api.com/$passage?${selectedTranslation.first().apiCode}"
+        val response = httpClient.get { url(url) }
+        check(response.status.isSuccess()) { "bible-api returned ${response.status} for $passage" }
+        return gson.fromJson(response.bodyAsText(), BibleResponse::class.java)
+            ?: error("Empty response for $passage")
+    }
+
+    private fun formatDate(date: Date): String {
+        return SimpleDateFormat("yyyy-MM-dd", Locale.US).format(date)
+    }
+
+    private inline fun <T> runCatchingCancellable(block: () -> T): Result<T> {
         return try {
-            val document = firestore.collection("readings").document(date)
-            document.set(mapOf("verses" to passages), SetOptions.merge()).await()
-            true
+            Result.success(block())
+        } catch (e: CancellationException) {
+            throw e
         } catch (e: Exception) {
-            e.printStackTrace()
-            false
+            Result.failure(e)
         }
     }
 
-    fun getDate(date: Date): String {
-        val format = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
-        return format.format(date)
-    }
-
-    private inline fun <reified T> gsonDeserializer(json: String): T? {
-        return try {
-            gson.fromJson(json, T::class.java)
-        } catch (e: Exception) {
-            e.printStackTrace()
-            null
-        }
+    private companion object {
+        const val READINGS_COLLECTION = "readings"
+        const val PASSAGES_FIELD = "passages"
     }
 }

@@ -3,19 +3,16 @@ package com.example.mydevotional.viewmodel
 import android.graphics.Bitmap
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.mydevotional.extensions.formatDate
 import com.example.mydevotional.model.BibleResponse
 import com.example.mydevotional.model.Verses
-import com.example.mydevotional.state.DailyReadingUiState
-import com.example.mydevotional.usecase.CompleteReadingsUseCase
 import com.example.mydevotional.usecase.GetVersesForDayUseCase
 import com.example.mydevotional.usecase.SaveReadingsFromImageUseCase
 import com.example.mydevotional.usecase.ToggleFavoriteVerseUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import java.util.Date
 import javax.inject.Inject
@@ -30,34 +27,45 @@ class HomeScreenViewModel @Inject constructor(
     private val _bibleResponses = MutableStateFlow<List<BibleResponse>>(emptyList())
     val bibleResponse: StateFlow<List<BibleResponse>> = _bibleResponses.asStateFlow()
 
-    private val _selectedDate = MutableStateFlow<Date?>(null)
-    val selectedDate: StateFlow<Date?> = _selectedDate.asStateFlow()
+    private val _selectedDate = MutableStateFlow(Date())
+    val selectedDate: StateFlow<Date> = _selectedDate.asStateFlow()
 
     private val _isLoading = MutableStateFlow(false)
     val isLoading: StateFlow<Boolean> = _isLoading.asStateFlow()
 
+    private val _loadFailed = MutableStateFlow(false)
+    val loadFailed: StateFlow<Boolean> = _loadFailed.asStateFlow()
+
     private val _uiMessage = MutableStateFlow<String?>(null)
     val uiMessage: StateFlow<String?> = _uiMessage.asStateFlow()
 
+    private var loadJob: Job? = null
 
     init {
-        loadVersesForToday()
-    }
-
-
-    private fun loadVersesForToday() {
-        viewModelScope.launch {
-            _isLoading.value = true
-            _bibleResponses.value = getVersesForDayUseCase(Date())
-            _isLoading.value = false
-        }
+        loadVerses()
     }
 
     fun selectDate(newDate: Date) {
         _selectedDate.value = newDate
-        viewModelScope.launch {
+        loadVerses()
+    }
+
+    fun retry() {
+        loadVerses()
+    }
+
+    // Cancels the previous load so a slow response for an older date can't overwrite a newer one.
+    private fun loadVerses() {
+        loadJob?.cancel()
+        loadJob = viewModelScope.launch {
             _isLoading.value = true
-            _bibleResponses.value = getVersesForDayUseCase(newDate)
+            _loadFailed.value = false
+            getVersesForDayUseCase(_selectedDate.value)
+                .onSuccess { _bibleResponses.value = it }
+                .onFailure {
+                    _bibleResponses.value = emptyList()
+                    _loadFailed.value = true
+                }
             _isLoading.value = false
         }
     }
@@ -87,22 +95,16 @@ class HomeScreenViewModel @Inject constructor(
         viewModelScope.launch {
             _isLoading.value = true
             _uiMessage.value = null
-
-            try {
-                val success = saveReadingsFromImageUseCase(bitmap)
-
-                if (success) {
-                    _uiMessage.value = "Leituras salvas com sucesso!"
-                } else {
-                    _uiMessage.value = "Erro ao salvar as leituras."
-                }
-            } catch (e: Exception) {
-                _uiMessage.value = "Erro: ${e.message}"
-            } finally {
-                _isLoading.value = false
-            }
+            _uiMessage.value = saveReadingsFromImageUseCase(bitmap).fold(
+                onSuccess = { days -> "$days dias de leitura salvos com sucesso!" },
+                onFailure = { "Erro ao salvar as leituras." }
+            )
+            _isLoading.value = false
+            loadVerses()
         }
     }
 
-
+    fun messageShown() {
+        _uiMessage.value = null
+    }
 }

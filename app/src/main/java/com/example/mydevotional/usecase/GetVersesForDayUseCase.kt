@@ -9,12 +9,8 @@ class GetVersesForDayUseCase @Inject constructor(
     private val repository: BibleRepository,
     private val favoriteVerseUseCase: FavoriteVerseUseCase
 ) {
-    suspend operator fun invoke(date: Date): List<BibleResponse> {
-        val bibleResponses = repository.getVersesForDay(date)
-        return favoriteVerseUseCase.updateFavoriteVerses(bibleResponses)
+    suspend operator fun invoke(date: Date): Result<List<BibleResponse>> {
+        return repository.getVersesForDay(date)
+            .map { favoriteVerseUseCase.updateFavoriteVerses(it) }
     }
-
-
-
-
 }
