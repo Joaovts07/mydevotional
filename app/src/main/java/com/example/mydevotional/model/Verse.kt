@@ -3,6 +3,7 @@ package com.example.mydevotional.model
 import com.google.gson.annotations.SerializedName
 
 data class Verses(
+    @SerializedName("book_id")
     val bookId: String = "",
     @SerializedName("book_name")
     val bookName: String = "",
