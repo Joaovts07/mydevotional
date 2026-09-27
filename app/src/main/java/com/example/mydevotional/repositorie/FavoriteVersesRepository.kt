@@ -2,7 +2,6 @@ package com.example.mydevotional.repositorie
 
 import android.content.Context
 import androidx.datastore.preferences.core.edit
-import androidx.datastore.preferences.core.stringPreferencesKey
 import com.example.mydevotional.model.Verses
 import com.example.mydevotional.model.id
 import com.google.common.reflect.TypeToken
@@ -19,14 +18,12 @@ class FavoriteVersesRepository @Inject constructor(
     private val gson: Gson
 ) {
 
-    private val favoriteVersesKey = stringPreferencesKey("favorite_verses_map")
-
     suspend fun toggleFavorite(verse: Verses) {
         val verseId = verse.id
         val verseJson = gson.toJson(verse)
 
         context.dataStore.edit { preferences ->
-            val currentFavoritesJson = preferences[favoriteVersesKey] ?: "{}"
+            val currentFavoritesJson = preferences[FAVORITE_VERSES_KEY] ?: "{}"
             val currentFavoritesMap = gson.fromJson(currentFavoritesJson, mutableMapOf<String, String>().javaClass)
 
             if (currentFavoritesMap.containsKey(verseId)) {
@@ -35,20 +32,20 @@ class FavoriteVersesRepository @Inject constructor(
                 currentFavoritesMap[verseId] = verseJson
             }
 
-            preferences[favoriteVersesKey] = gson.toJson(currentFavoritesMap)
+            preferences[FAVORITE_VERSES_KEY] = gson.toJson(currentFavoritesMap)
         }
     }
 
     suspend fun isVerseFavorite(verse: Verses): Boolean {
         val verseId = verse.id
-        val currentFavoritesJson = context.dataStore.data.map { it[favoriteVersesKey] ?: "{}" }.first()
+        val currentFavoritesJson = context.dataStore.data.map { it[FAVORITE_VERSES_KEY] ?: "{}" }.first()
         val currentFavoritesMap = gson.fromJson(currentFavoritesJson, mutableMapOf<String, String>().javaClass)
         return currentFavoritesMap.containsKey(verseId)
     }
 
     fun getFavoriteVersesFlow(): Flow<List<Verses>> {
         return context.dataStore.data.map { preferences ->
-            val currentFavoritesJson = preferences[favoriteVersesKey] ?: "{}"
+            val currentFavoritesJson = preferences[FAVORITE_VERSES_KEY] ?: "{}"
             val type = object : TypeToken<Map<String, String>>() {}.type
             val currentFavoritesMap: Map<String, String> = gson.fromJson(currentFavoritesJson, type) ?: emptyMap()
 
