@@ -20,16 +20,15 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
-import com.example.login.login.LoginState
-import com.example.login.login.LoginViewModel
-import com.example.login.ui.screens.LoginNavigation
+import com.example.loginlib.ui.navigation.LoginNavigation
+import com.example.loginlib.viewmodel.AuthViewModel
+import com.example.loginlib.viewmodel.LoginState
 import com.example.mydevotional.components.BottomAppBarItem
 import com.example.mydevotional.components.MyDevotionalBottomAppBar
-import com.example.mydevotional.navigation.AppDestination
 import com.example.mydevotional.navigation.AppNavigation
 import com.example.mydevotional.navigation.bottomAppBarItems
 import com.example.mydevotional.ui.theme.MyDevotionalTheme
@@ -50,10 +49,10 @@ class MainActivity : ComponentActivity() {
     }
     @Composable
     fun InitNavigation(
-        loginViewModel: LoginViewModel = hiltViewModel()
+        authViewModel: AuthViewModel = viewModel { AuthViewModel() }
     ) {
         val navController = rememberNavController()
-        val loginState by loginViewModel.loginState.collectAsStateWithLifecycle()
+        val loginState by authViewModel.loginState.collectAsStateWithLifecycle()
 
         when (loginState) {
             is LoginState.Loading -> {
@@ -69,17 +68,11 @@ class MainActivity : ComponentActivity() {
                 AppNavigation(navController)
             }
 
-            is LoginState.Logout, LoginState.Idle -> {
+            is LoginState.Logout, is LoginState.Error -> {
                 LoginNavigation(
                     navController = navController,
-                    routeSuccess = AppDestination.Account.route
+                    serverClientId = getString(R.string.default_web_client_id)
                 )
-            }
-
-            is LoginState.Error -> {
-                LoginNavigation(
-                    navController = navController,
-                    routeSuccess = AppDestination.Account.route)
             }
         }
     }

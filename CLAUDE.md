@@ -9,32 +9,30 @@ MyDevotional is an Android app for daily Bible reading, built with Kotlin and Je
 ## Commands
 
 ```bash
-./gradlew assembleDebug                        # build debug APK (app + login)
+./gradlew assembleDebug                        # build debug APK
 ./gradlew installDebug                         # install on connected device/emulator
 ./gradlew testDebugUnitTest                    # JVM unit tests, all modules
-./gradlew :login:testDebugUnitTest             # unit tests for one module
 ./gradlew :app:testDebugUnitTest --tests "com.example.mydevotional.ExampleUnitTest"   # single test class
 ./gradlew connectedDebugAndroidTest            # instrumented tests (needs device)
 ./gradlew lint
 ```
 
-A full clean build takes several minutes (kapt for Hilt and Room).
+A full clean build takes several minutes (KSP for Hilt and Room).
 
 Known test issue: `app/src/test/.../UserRepositoryTest.kt` references a `FakeUserRemoteDataSource` that doesn't exist. It also uses Room with `ApplicationProvider` on the JVM without Robolectric. `:app` unit tests won't compile until that is fixed.
 
 ## Required local config (not committed)
 
-- `app/google-services.json`: the Firebase config. The google-services plugin needs it.
-- `local.properties` must define `GOOGLE_CLIENT_ID`. The `login` module injects it as `BuildConfig.GOOGLE_CLIENT_ID` for Google Sign-In. Its value is written verbatim into a Java string literal, so it must include the quotes.
+- `app/google-services.json`: the Firebase config. The google-services plugin needs it. It must include the debug keystore's SHA-1 and a Web OAuth client, because `MainActivity` passes the generated `R.string.default_web_client_id` to `:loginlib` for Google Sign-In.
 
 ## Architecture
 
-There are two Gradle modules. Dependency and plugin versions are centralized in `gradle/libs.versions.toml`.
+There is one Gradle module, `:app`. Dependency and plugin versions are centralized in `gradle/libs.versions.toml`.
 
-- **`:login`** (Android library, `com.example.login`) handles all auth: email/password, Google Sign-In, and Firebase phone verification. It also has the registration screens. It exposes `LoginViewModel` (with a `loginState: StateFlow<LoginState>`) and a `LoginNavigation(navController, routeSuccess)` composable containing its own `NavHost`.
-- **`:app`** (`com.example.mydevotional`) depends on `:login`. `MainActivity.InitNavigation` observes `LoginState` and swaps between `LoginNavigation` and the app's `AppNavigation`. Auth gating happens here, not per screen.
+- Auth (email/password, Google Sign-In through Credential Manager, phone verification, registration screens) comes from `loginlib`, published from the Mylogin repo (github.com/Joaovts07/Mylogin) through JitPack as `com.github.Joaovts07.Mylogin:loginlib`. Bump the `loginlib` version in `libs.versions.toml` to a new Mylogin tag to upgrade. To test unreleased lib changes, check Mylogin out at `../Mylogin` and build with `-PlocalLoginlib`, which swaps in its `:loginlib` project through `includeBuild`. It exposes `AuthViewModel` (`loginState`, `logout()`) and `LoginNavigation(navController, serverClientId)`. Its ViewModels aren't Hilt ViewModels, so get them with `viewModel { AuthViewModel() }`.
+- **`:app`** (`com.example.mydevotional`). `MainActivity.InitNavigation` observes `AuthViewModel.loginState` and swaps between `LoginNavigation` and the app's `AppNavigation`. Auth gating happens here, not per screen.
 
-Layering inside `:app` is Compose screen → `@HiltViewModel` → use case (`usecase/`) → repository (`repositorie/`, note the spelling) → data source. Most bindings are explicit `@Provides` in `di/AppModule.kt` rather than `@Binds`, so new repositories and use cases usually need a provider added there. `:login` has its own `di/AppModule.kt`.
+Layering inside `:app` is Compose screen → `@HiltViewModel` → use case (`usecase/`) → repository (`repositorie/`, note the spelling) → data source. Most bindings are explicit `@Provides` in `di/AppModule.kt` rather than `@Binds`, so new repositories and use cases usually need a provider added there.
 
 Data sources:
 - **bible-api.com over Ktor** (`BibleRepositoryImpl`) supplies verse text. The selected translation's `apiCode` is appended to the URL.

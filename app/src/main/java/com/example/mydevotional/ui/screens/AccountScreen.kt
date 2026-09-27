@@ -15,8 +15,9 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import com.example.login.login.LoginState
-import com.example.login.login.LoginViewModel
+import androidx.lifecycle.viewmodel.compose.viewModel
+import com.example.loginlib.viewmodel.LoginState
+import com.example.loginlib.viewmodel.AuthViewModel
 import com.example.mydevotional.model.BibleTranslation
 import com.example.mydevotional.viewmodel.AccountViewModel
 
@@ -24,7 +25,7 @@ import com.example.mydevotional.viewmodel.AccountViewModel
 @Composable
 fun AccountScreen(
     accountViewModel: AccountViewModel = hiltViewModel(),
-    loginViewModel: LoginViewModel = hiltViewModel(),
+    loginViewModel: AuthViewModel = viewModel { AuthViewModel() },
     onLogout: () -> Unit = { }
 ) {
     val user by accountViewModel.localUser.collectAsStateWithLifecycle()
@@ -112,7 +113,7 @@ fun AccountScreen(
             }
         }
 
-        is LoginState.Logout, LoginState.Idle -> {
+        is LoginState.Logout -> {
             Column(
                 modifier = Modifier
                     .fillMaxSize()

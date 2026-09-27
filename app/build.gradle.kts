@@ -101,10 +101,8 @@ dependencies {
     ksp(libs.androidx.room.compiler)
 
 
-
-
     //login
-    implementation(project(":login"))
+    implementation(libs.loginlib)
 
     testImplementation(libs.junit)
     testImplementation(libs.core.ktx)
