@@ -20,50 +20,37 @@ import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
-import androidx.compose.material3.SnackbarDuration
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.example.mydevotional.components.CalendarReadings
 import com.example.mydevotional.components.CompleteReadingButton
 import com.example.mydevotional.components.versesListItems
-import com.example.mydevotional.viewmodel.DailyReadingViewModel
 import com.example.mydevotional.viewmodel.HomeScreenViewModel
-import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun HomeScreen(
     snackbarHostState: SnackbarHostState,
-    homeViewModel: HomeScreenViewModel = hiltViewModel(),
-    dailyReadingViewModel: DailyReadingViewModel = hiltViewModel()
+    homeViewModel: HomeScreenViewModel = hiltViewModel()
 ) {
-    val bibleResponse by homeViewModel.bibleResponse.collectAsState()
-    val isLoading by homeViewModel.isLoading.collectAsState()
-    val loadFailed by homeViewModel.loadFailed.collectAsState()
-    val uiMessage by homeViewModel.uiMessage.collectAsState()
-    val completedReadingsCalendar by dailyReadingViewModel.completedDays.collectAsState()
-    val completedReadingsDay by dailyReadingViewModel.isReadingCompletedForSelectedDate.collectAsState()
-
+    val uiState by homeViewModel.uiState.collectAsStateWithLifecycle()
 
     var calendarHeight by remember { mutableStateOf(354.dp) }
     val listState = rememberLazyListState()
-
-    val coroutineScope = rememberCoroutineScope()
 
     val context = LocalContext.current
 
@@ -81,8 +68,8 @@ fun HomeScreen(
         }
     }
 
-    LaunchedEffect(uiMessage) {
-        uiMessage?.let {
+    LaunchedEffect(uiState.message) {
+        uiState.message?.let {
             snackbarHostState.showSnackbar(it)
             homeViewModel.messageShown()
         }
@@ -110,16 +97,13 @@ fun HomeScreen(
                 contentAlignment = Alignment.Center
             ) {
                 CalendarReadings(
-                    completedReadings = completedReadingsCalendar,
-                    onDateSelected = {
-                        selectedDate -> homeViewModel.selectDate(selectedDate)
-                        dailyReadingViewModel.updateSelectedDate(selectedDate)
-                    }
+                    completedReadings = uiState.completedDays,
+                    onDateSelected = { homeViewModel.selectDate(it) }
                 )
             }
 
         }
-        if (isLoading) {
+        if (uiState.isLoading) {
             item {
                 Box(
                     modifier = Modifier
@@ -130,7 +114,7 @@ fun HomeScreen(
                     CircularProgressIndicator()
                 }
             }
-        } else if (loadFailed) {
+        } else if (uiState.loadFailed) {
             item {
                 Card(
                     modifier = Modifier
@@ -157,7 +141,7 @@ fun HomeScreen(
                 }
             }
         } else {
-             if (bibleResponse.isEmpty()) {
+             if (uiState.readings.isEmpty()) {
                 item {
                     Card(
                         modifier = Modifier
@@ -181,32 +165,14 @@ fun HomeScreen(
                 }
             }
             versesListItems(
-                bibleResponses = bibleResponse,
+                bibleResponses = uiState.readings,
                 onFavoriteClick = { homeViewModel.toggleFavorite(it) }
             )
         }
         item {
             CompleteReadingButton(
-                isReadingCompleted = completedReadingsDay ,
-                onClick = {
-                    if (completedReadingsDay) {
-                        dailyReadingViewModel.toggleReadingComplete(homeViewModel.selectedDate.value)
-                        coroutineScope.launch {
-                            snackbarHostState.showSnackbar(
-                                message = "Leitura Desmarcada!",
-                                duration = SnackbarDuration.Short
-                            )
-                        }
-                    } else {
-                        dailyReadingViewModel.toggleReadingComplete(homeViewModel.selectedDate.value)
-                        coroutineScope.launch {
-                            snackbarHostState.showSnackbar(
-                                message = "Leitura marcada como lida!",
-                                duration = SnackbarDuration.Short
-                            )
-                        }
-                    }
-                },
+                isReadingCompleted = uiState.isReadingCompleted,
+                onClick = { homeViewModel.toggleReadingComplete() },
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(12.dp)
@@ -216,9 +182,3 @@ fun HomeScreen(
         }
     }
 }
-
-
-
-
-
-

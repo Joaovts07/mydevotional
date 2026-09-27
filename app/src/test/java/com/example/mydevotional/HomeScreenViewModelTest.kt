@@ -1,15 +1,23 @@
 package com.example.mydevotional
 
+import com.example.mydevotional.extensions.formatDate
 import com.example.mydevotional.model.BibleResponse
 import com.example.mydevotional.model.Verses
+import com.example.mydevotional.usecase.CompleteReadingsUseCase
+import com.example.mydevotional.usecase.FavoriteVerseUseCase
 import com.example.mydevotional.usecase.GetVersesForDayUseCase
 import com.example.mydevotional.usecase.SaveReadingsFromImageUseCase
 import com.example.mydevotional.usecase.ToggleFavoriteVerseUseCase
 import com.example.mydevotional.viewmodel.HomeScreenViewModel
 import io.mockk.coEvery
-import io.mockk.coVerify
+import io.mockk.every
 import io.mockk.mockk
 import kotlinx.coroutines.CompletableDeferred
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.test.TestScope
+import kotlinx.coroutines.test.UnconfinedTestDispatcher
 import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.runTest
 import org.junit.Rule
@@ -18,6 +26,7 @@ import java.io.IOException
 import java.util.Date
 import kotlin.test.assertEquals
 import kotlin.test.assertFalse
+import kotlin.test.assertNull
 import kotlin.test.assertTrue
 
 class HomeScreenViewModelTest {
@@ -28,12 +37,36 @@ class HomeScreenViewModelTest {
     private val verse = Verses(bookName = "John", chapter = 3, verse = 16, text = "For God so loved...")
     private val reading = BibleResponse(reference = "John 3:16", verses = listOf(verse))
 
-    private val getVersesForDay = mockk<GetVersesForDayUseCase>()
-    private val toggleFavorite = mockk<ToggleFavoriteVerseUseCase>(relaxed = true)
-    private val saveReadingsFromImage = mockk<SaveReadingsFromImageUseCase>()
+    private val favorites = MutableStateFlow<List<Verses>>(emptyList())
+    private val completedDays = MutableStateFlow<Set<String>>(emptySet())
 
-    private fun createViewModel() =
-        HomeScreenViewModel(getVersesForDay, toggleFavorite, saveReadingsFromImage)
+    private val getVersesForDay = mockk<GetVersesForDayUseCase>()
+    private val saveReadingsFromImage = mockk<SaveReadingsFromImageUseCase>()
+    private val toggleFavorite = mockk<ToggleFavoriteVerseUseCase> {
+        coEvery { this@mockk(any()) } answers {
+            val toggled = firstArg<Verses>()
+            favorites.update { current ->
+                if (current.any { it.verse == toggled.verse }) current - toggled else current + toggled
+            }
+        }
+    }
+    private val favoriteVerse = mockk<FavoriteVerseUseCase> {
+        every { getFavoriteVersesFlow() } returns favorites
+    }
+    private val completeReadings = mockk<CompleteReadingsUseCase> {
+        every { getCompletedReadingsFlow() } returns completedDays
+        coEvery { toggleCompletion(any()) } answers {
+            val date = firstArg<String>()
+            completedDays.update { if (date in it) it - date else it + date }
+        }
+    }
+
+    // uiState is shared WhileSubscribed, so keep a collector alive like the screen would.
+    private fun TestScope.createViewModel() =
+        HomeScreenViewModel(getVersesForDay, toggleFavorite, saveReadingsFromImage, completeReadings, favoriteVerse)
+            .also { viewModel ->
+                backgroundScope.launch(UnconfinedTestDispatcher(testScheduler)) { viewModel.uiState.collect {} }
+            }
 
     @Test
     fun init_loadsTodaysReading() = runTest {
@@ -42,9 +75,10 @@ class HomeScreenViewModelTest {
         val viewModel = createViewModel()
         advanceUntilIdle()
 
-        assertEquals(listOf(reading), viewModel.bibleResponse.value)
-        assertFalse(viewModel.loadFailed.value)
-        assertFalse(viewModel.isLoading.value)
+        val state = viewModel.uiState.value
+        assertEquals(listOf(reading), state.readings)
+        assertFalse(state.loadFailed)
+        assertFalse(state.isLoading)
     }
 
     @Test
@@ -53,15 +87,15 @@ class HomeScreenViewModelTest {
         val viewModel = createViewModel()
         advanceUntilIdle()
 
-        assertTrue(viewModel.loadFailed.value)
-        assertTrue(viewModel.bibleResponse.value.isEmpty())
+        assertTrue(viewModel.uiState.value.loadFailed)
+        assertTrue(viewModel.uiState.value.readings.isEmpty())
 
         coEvery { getVersesForDay(any()) } returns Result.success(listOf(reading))
         viewModel.retry()
         advanceUntilIdle()
 
-        assertFalse(viewModel.loadFailed.value)
-        assertEquals(listOf(reading), viewModel.bibleResponse.value)
+        assertFalse(viewModel.uiState.value.loadFailed)
+        assertEquals(listOf(reading), viewModel.uiState.value.readings)
     }
 
     @Test
@@ -83,20 +117,49 @@ class HomeScreenViewModelTest {
         slowOldResponse.complete(Result.success(listOf(reading)))
         advanceUntilIdle()
 
-        assertEquals(listOf(newReading), viewModel.bibleResponse.value)
+        assertEquals(newDate, viewModel.uiState.value.selectedDate)
+        assertEquals(listOf(newReading), viewModel.uiState.value.readings)
     }
 
     @Test
-    fun toggleFavorite_flipsTheVerseState() = runTest {
+    fun toggleFavorite_updatesTheVerseFromTheFavoritesFlow() = runTest {
         coEvery { getVersesForDay(any()) } returns Result.success(listOf(reading))
         val viewModel = createViewModel()
         advanceUntilIdle()
 
         viewModel.toggleFavorite(verse)
         advanceUntilIdle()
+        assertTrue(viewModel.uiState.value.readings.single().verses.single().isFavorite)
 
-        coVerify { toggleFavorite(verse) }
-        assertTrue(viewModel.bibleResponse.value.single().verses.single().isFavorite)
+        // Unfavoriting from another screen must also reach this one.
+        favorites.value = emptyList()
+        advanceUntilIdle()
+        assertFalse(viewModel.uiState.value.readings.single().verses.single().isFavorite)
+    }
+
+    @Test
+    fun toggleReadingComplete_marksTheSelectedDateAndReports() = runTest {
+        val date = Date(0)
+        coEvery { getVersesForDay(any()) } returns Result.success(listOf(reading))
+        val viewModel = createViewModel()
+        viewModel.selectDate(date)
+        advanceUntilIdle()
+        assertFalse(viewModel.uiState.value.isReadingCompleted)
+
+        viewModel.toggleReadingComplete()
+        advanceUntilIdle()
+
+        val state = viewModel.uiState.value
+        assertTrue(state.isReadingCompleted)
+        assertEquals(setOf(date.formatDate("yyyy-MM-dd")), state.completedDays)
+        assertEquals("Leitura marcada como lida!", state.message)
+
+        viewModel.messageShown()
+        viewModel.toggleReadingComplete()
+        advanceUntilIdle()
+
+        assertFalse(viewModel.uiState.value.isReadingCompleted)
+        assertEquals("Leitura Desmarcada!", viewModel.uiState.value.message)
     }
 
     @Test
@@ -108,8 +171,9 @@ class HomeScreenViewModelTest {
         viewModel.saveReadingsFromImage(mockk())
         advanceUntilIdle()
 
-        assertEquals("3 dias de leitura salvos com sucesso!", viewModel.uiMessage.value)
+        assertEquals("3 dias de leitura salvos com sucesso!", viewModel.uiState.value.message)
         viewModel.messageShown()
-        assertEquals(null, viewModel.uiMessage.value)
+        advanceUntilIdle()
+        assertNull(viewModel.uiState.value.message)
     }
 }

@@ -7,7 +7,7 @@ import javax.inject.Inject
 class GetBibleBooksUseCase @Inject constructor(
     private val repository: BibleRepository
 ) {
-    suspend operator fun invoke(): List<BibleBook> {
+    operator fun invoke(): List<BibleBook> {
         return repository.getBibleBooks()
     }
 }
